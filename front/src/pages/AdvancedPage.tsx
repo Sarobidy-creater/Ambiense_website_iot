@@ -109,14 +109,13 @@ export function AdvancedPage() {
         </div>
       </header>
 
-      {/* Avertissement */}
+      {/* Note d'information */}
       <div className={styles.infoBox} role="note">
         <div>
-          <strong>Accès inter-groupes</strong>
+          <strong>Actionneurs inter-groupes</strong>
           <p>
-            Cette section vous permet d'envoyer des commandes aux actionneurs des
-            équipes G2E–G5E. Les commandes sont insérées dans Supabase avec votre
-            identifiant utilisateur et exécutées par la passerelle de chaque équipe.
+            Envoyez des commandes aux actionneurs des autres groupes connectés au réseau.
+            Chaque commande est traitée par la passerelle du groupe concerné.
           </p>
         </div>
       </div>
@@ -147,21 +146,6 @@ export function AdvancedPage() {
           <ExternalActuatorPanel key={device.id} device={device} />
         ))}
       </div>
-
-      {/* Section informative sur notre passerelle */}
-      <section className={styles.infoSection} aria-labelledby="gateway-info">
-        <h2 id="gateway-info">Architecture passerelle</h2>
-        <p>
-          Notre passerelle surveille la table <code>G1E_commands</code> en polling
-          (filtre <code>status = 'pending'</code>).
-          Elle exécute la commande sur la carte Tiva puis met à jour le statut en <code>done</code> ou <code>error</code>.
-        </p>
-        <p>
-          <strong>TODO Edge Function email :</strong> créer <code>supabase/functions/alert-email/index.ts</code>
-          qui reçoit un appel authentifié et envoie un email via Resend ou SMTP.
-          Ne jamais mettre de clé API dans le code front-end.
-        </p>
-      </section>
     </div>
   );
 }

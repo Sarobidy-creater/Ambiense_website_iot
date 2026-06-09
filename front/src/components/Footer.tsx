@@ -96,23 +96,11 @@ export function Footer() {
 
       </div>
 
-      {/* Barre du bas */}
+      {/* Barre du bas — simplifie */}
       <div className={styles.bottom}>
         <div className={styles.bottomInner}>
           <p className={styles.copyright}>
-            © {YEAR} ISEP — Institut Supérieur d'Électronique de Paris.
-            Tous droits réservés.
-          </p>
-          <p className={styles.disclaimer}>
-            AMBIENSE est une plateforme de démonstration développée dans un cadre pédagogique.
-            Projet G1E · Coupe du Monde IoT · École d'ingénieurs généraliste en informatique
-            et technologies du numérique.
-          </p>
-          <p className={styles.legal}>
-            Directeur de la publication&nbsp;: Direction ISEP ·
-            Hébergement&nbsp;: Supabase Inc., San Francisco, CA, USA ·
-            Conçu avec React 19 &amp; TypeScript ·
-            Conforme RGPD
+            &copy; {YEAR} ISEP &mdash; Institut Supérieur d’Électronique de Paris.
           </p>
         </div>
       </div>
