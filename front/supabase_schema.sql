@@ -4,7 +4,30 @@
 --  Safe a re-executer : DROP POLICY IF EXISTS avant chaque policy.
 -- =========================================================
 
--- ─── TABLES ───────────────────────────────────────────────
+-- ─── ROLES UTILISATEURS ───────────────────────────────────
+-- Chaque utilisateur peut avoir le role 'admin' ou 'user' (defaut)
+
+create table if not exists "user_roles" (
+  user_id  uuid primary key references auth.users(id) on delete cascade,
+  role     text not null default 'user'   -- 'user' | 'admin'
+);
+
+alter table "user_roles" enable row level security;
+
+drop policy if exists "user_roles_select_own" on "user_roles";
+drop policy if exists "user_roles_select_all" on "user_roles";
+
+-- Chaque utilisateur peut lire son propre role
+create policy "user_roles_select_own" on "user_roles"
+  for select to authenticated
+  using (user_id = auth.uid());
+
+-- Le service_role peut tout faire (admin via Edge Function ou SQL)
+-- (pas de policy INSERT/UPDATE/DELETE pour authenticated :
+--  seul un admin Supabase/service_role peut modifier les roles)
+
+
+-- ─── TABLES G1E ───────────────────────────────────────────
 
 create table if not exists "G1E_devices" (
   id          text primary key,
@@ -79,3 +102,19 @@ insert into "G1E_devices" (id, kind, type, unit, label) values
   ('G1E_humidity',    'sensor',   'humidity',    '%',  'Capteur DHT15 — humidite'),
   ('G1E_ventilateur', 'actuator', 'motor',       null, 'Servo S148 Futaba — ventilateur')
 on conflict (id) do nothing;
+
+
+-- ─── COMPTE ADMIN ─────────────────────────────────────────
+-- ETAPE 1 : Cree le compte admin depuis le site → /signup
+--           avec l'email de votre choix (ex: admin@g1e.isep.fr)
+--
+-- ETAPE 2 : Une fois inscrit, execute ce SQL en remplacant
+--           l'email par celui utilise a l'inscription :
+--
+--   insert into "user_roles" (user_id, role)
+--   select id, 'admin'
+--   from auth.users
+--   where email = 'admin@g1e.isep.fr'   -- <-- changer ici
+--   on conflict (user_id) do update set role = 'admin';
+--
+-- L'acces /admin est ensuite protege par verification du role en BDD.

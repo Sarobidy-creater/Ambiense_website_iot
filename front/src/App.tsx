@@ -7,6 +7,7 @@ import { AuthProvider } from './auth/AuthContext';
 import { Layout } from './components/Layout';
 import { AdminLayout } from './components/AdminLayout';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { AdminRoute } from './components/AdminRoute';
 
 const HomePage         = lazy(() => import('./pages/HomePage').then(m => ({ default: m.HomePage })));
 const LoginPage        = lazy(() => import('./pages/LoginPage').then(m => ({ default: m.LoginPage })));
@@ -74,21 +75,21 @@ function App() {
             {/* Anciennes routes — redirige */}
             <Route path="/devices" element={<Navigate to="/network" replace />} />
 
-            {/* ── Admin (layout dédié) ── */}
+            {/* ── Admin (layout dedie + verification role) ── */}
             <Route path="/admin" element={
-              <ProtectedRoute><AdminLayout><AdminOverviewPage /></AdminLayout></ProtectedRoute>
+              <AdminRoute><AdminLayout><AdminOverviewPage /></AdminLayout></AdminRoute>
             } />
             <Route path="/admin/devices" element={
-              <ProtectedRoute><AdminLayout><AdminDevicesPage /></AdminLayout></ProtectedRoute>
+              <AdminRoute><AdminLayout><AdminDevicesPage /></AdminLayout></AdminRoute>
             } />
             <Route path="/admin/measurements" element={
-              <ProtectedRoute><AdminLayout><AdminMeasurementsPage /></AdminLayout></ProtectedRoute>
+              <AdminRoute><AdminLayout><AdminMeasurementsPage /></AdminLayout></AdminRoute>
             } />
             <Route path="/admin/commands" element={
-              <ProtectedRoute><AdminLayout><AdminCommandsPage /></AdminLayout></ProtectedRoute>
+              <AdminRoute><AdminLayout><AdminCommandsPage /></AdminLayout></AdminRoute>
             } />
             <Route path="/admin/schema" element={
-              <ProtectedRoute><AdminLayout><AdminSchemaPage /></AdminLayout></ProtectedRoute>
+              <AdminRoute><AdminLayout><AdminSchemaPage /></AdminLayout></AdminRoute>
             } />
 
             {/* Fallback */}
