@@ -121,13 +121,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <UserAvatar email={user.email ?? '?'} />
                 <span className={styles.userHandle}>{user.email?.split('@')[0]}</span>
                 <Link
-                  to="/admin"
-                  className={styles.btnProfile}
-                  aria-label="Espace admin"
-                >
-                  Admin
-                </Link>
-                <Link
                   to="/profile"
                   className={styles.btnProfile}
                   aria-label="Acceder au profil"
