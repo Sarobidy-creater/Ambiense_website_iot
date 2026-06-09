@@ -1,5 +1,5 @@
 ﻿/* =========================================================
-   Footer — AMBIENSE · bande unique compacte
+   Footer — AMBIENSE · 3 colonnes
    ========================================================= */
 
 .footer {
@@ -11,99 +11,102 @@
 .inner {
   max-width: var(--max-w, 1440px);
   margin: 0 auto;
-  padding: var(--sp-5) var(--px, clamp(1.5rem, 4vw, 4.5rem));
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--sp-6);
+  padding: var(--sp-12) var(--px, clamp(1.5rem, 4vw, 4.5rem));
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: var(--sp-12);
 }
 
-/* ── Gauche ──────────────────────────────────────────────── */
+/* ── Col marque ─────────────────────────────────────────── */
 
-.left {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-5);
-}
-
-.brand {
+.colBrand {
   display: flex;
   flex-direction: column;
-  gap: 3px;
-}
-
-.tagline {
-  font-family: var(--font-body);
-  font-size: 0.6875rem;
-  color: var(--clr-text-faint);
-  white-space: nowrap;
-  margin: 0;
+  gap: var(--sp-4);
 }
 
 .wordmark {
+  display: inline-block;
   font-family: var(--font-display);
-  font-size: 0.8rem;
+  font-size: 0.95rem;
   font-weight: 700;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: var(--clr-text-muted) !important;
+  color: var(--clr-ivoire) !important;
   text-decoration: none;
-  flex-shrink: 0;
   transition: color 200ms;
 }
 .wordmark:hover { color: var(--clr-or) !important; }
 
-.sep {
-  display: block;
-  width: 1px;
-  height: 14px;
-  background: var(--clr-nuit-bord);
-  flex-shrink: 0;
+.tagline {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--clr-text-muted);
+  line-height: 1.7;
+  margin: 0;
 }
 
 .legal {
   font-family: var(--font-body);
   font-size: var(--text-xs);
   color: var(--clr-text-faint);
-  white-space: nowrap;
+  line-height: 1.8;
+  margin: 0;
 }
 
-.legalLink {
-  color: var(--clr-text-faint);
-  text-decoration: none;
-  transition: color 200ms;
-}
-.legalLink:hover { color: var(--clr-or); }
+/* ── Colonnes liens ─────────────────────────────────────── */
 
-/* ── Droite ──────────────────────────────────────────────── */
-
-.right {
+.col {
   display: flex;
-  align-items: center;
-  gap: var(--sp-6);
+  flex-direction: column;
+}
+
+.colTitle {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--clr-text-muted);
+  margin-bottom: var(--sp-5);
+}
+
+.colLinks {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
 }
 
 .link {
   font-family: var(--font-body);
-  font-size: var(--text-xs);
-  font-weight: 400;
-  letter-spacing: 0.06em;
+  font-size: var(--text-sm);
   color: var(--clr-text-faint);
   text-decoration: none;
   transition: color 200ms;
-  white-space: nowrap;
 }
 .link:hover { color: var(--clr-ivoire); }
 
-/* ── Responsive ──────────────────────────────────────────── */
+.meta {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  color: var(--clr-text-faint);
+  line-height: 1.7;
+}
 
-@media (max-width: 600px) {
+/* ── Responsive ─────────────────────────────────────────── */
+
+@media (max-width: 760px) {
   .inner {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--sp-4);
-    padding-top: var(--sp-6);
-    padding-bottom: var(--sp-6);
+    grid-template-columns: 1fr 1fr;
+    gap: var(--sp-8);
   }
-  .right { gap: var(--sp-4); flex-wrap: wrap; }
+  .colBrand { grid-column: 1 / -1; }
+}
+
+@media (max-width: 480px) {
+  .inner { grid-template-columns: 1fr; }
+  .colBrand { grid-column: unset; }
 }
