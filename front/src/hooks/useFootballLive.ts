@@ -1,6 +1,6 @@
 ﻿// =========================================================
 //  useFootballLive — matchs en direct depuis RapidAPI
-//  Endpoint : /football-get-all-live-matches
+//  Endpoint Livescores : /football-livescores
 //  Refresh toutes les 30 secondes
 // =========================================================
 import { useEffect, useState, useCallback } from 'react';
@@ -8,6 +8,14 @@ import { useEffect, useState, useCallback } from 'react';
 const API_KEY  = import.meta.env.VITE_RAPIDAPI_KEY as string;
 const API_HOST = 'free-api-live-football-data.p.rapidapi.com';
 const BASE     = `https://${API_HOST}`;
+
+// Chemin exact de l'endpoint livescores (section Livescores de l'API)
+const LIVE_PATH = '/football-livescores';
+
+const HEADERS = {
+  'x-rapidapi-key':  API_KEY ?? '',
+  'x-rapidapi-host': API_HOST,
+} as const;
 
 export interface LiveMatch {
   id:          string | number;
@@ -95,14 +103,19 @@ export function useFootballLive(): Result {
       return;
     }
     try {
-      const res = await fetch(`${BASE}/football-get-all-live-matches`, {
-        headers: {
-          'x-rapidapi-key':  API_KEY,
-          'x-rapidapi-host': API_HOST,
-        },
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const url = `${BASE}${LIVE_PATH}`;
+      const res = await fetch(url, { headers: HEADERS });
+
+      if (!res.ok) {
+        // Log pour debug en console navigateur
+        console.error('[FootballLive] HTTP', res.status, url);
+        throw new Error(`HTTP ${res.status} — ${url}`);
+      }
+
       const json = await res.json();
+      // Log la structure brute pour adapter le parser si besoin
+      console.debug('[FootballLive] raw response:', json);
+
       const parsed = parseMatches(json);
       setMatches(parsed);
       setLastFetch(new Date());
