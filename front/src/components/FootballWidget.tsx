@@ -1,47 +1,66 @@
+﻿// =========================================================
+//  FootballWidget — matchs football en direct (RapidAPI)
+//  Endpoint : /football-get-all-live-matches
+//  Refresh auto toutes les 30 secondes
 // =========================================================
-//  FootballWidget — joueurs football live (RapidAPI)
-//  Affiché dans le slot galerie de la HomePage
-// =========================================================
-import { useState } from 'react';
-import { useFootballPlayers } from '../hooks/useFootballPlayers';
+import { useFootballLive, type LiveMatch } from '../hooks/useFootballLive';
 import styles from './FootballWidget.module.css';
 
-const QUERIES = [
-  { label: 'M',        value: 'm'        },
-  { label: 'Ronaldo',  value: 'ronaldo'  },
-  { label: 'Messi',    value: 'messi'    },
-  { label: 'Mbappe',   value: 'mbappe'   },
-];
+function ScoreBoard({ m }: { m: LiveMatch }) {
+  const hasScore = m.homeScore !== null && m.awayScore !== null;
+  return (
+    <div className={styles.matchRow}>
+
+      {/* Ligne competition + minute */}
+      <div className={styles.matchMeta}>
+        {m.competition && (
+          <span className={styles.matchComp}>{m.competition}</span>
+        )}
+        {m.minute && (
+          <span className={styles.matchMin}>{m.minute}&apos;</span>
+        )}
+        {m.status && !m.minute && (
+          <span className={styles.matchMin}>{m.status}</span>
+        )}
+      </div>
+
+      {/* Score */}
+      <div className={styles.matchScore}>
+        <span className={styles.teamName}>{m.homeTeam}</span>
+        <span className={styles.score}>
+          {hasScore ? `${m.homeScore} \u2014 ${m.awayScore}` : 'vs'}
+        </span>
+        <span className={[styles.teamName, styles.teamAway].join(' ')}>{m.awayTeam}</span>
+      </div>
+
+    </div>
+  );
+}
 
 export function FootballWidget() {
-  const [query, setQuery] = useState('m');
-  const { players, loading, error } = useFootballPlayers(query);
+  const { matches, loading, error, lastFetch } = useFootballLive();
+
+  const timeStr = lastFetch
+    ? lastFetch.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+    : null;
 
   return (
     <div className={styles.widget}>
 
-      {/* En-tête */}
+      {/* En-tete */}
       <div className={styles.header}>
         <div className={styles.titleRow}>
           <span className={styles.liveTag}>Live</span>
-          <h3 className={styles.title}>Joueurs — Coupe du Monde</h3>
+          <h3 className={styles.title}>Matchs en cours</h3>
         </div>
-        {/* Filtres rapides */}
-        <div className={styles.filters}>
-          {QUERIES.map(q => (
-            <button
-              key={q.value}
-              className={`${styles.filterBtn} ${query === q.value ? styles.filterBtnActive : ''}`}
-              onClick={() => setQuery(q.value)}
-            >
-              {q.label}
-            </button>
-          ))}
-        </div>
+        {timeStr && (
+          <span className={styles.lastUpdate}>MAJ {timeStr}</span>
+        )}
       </div>
 
-      {/* Contenu */}
+      {/* Corps */}
       <div className={styles.body}>
+
         {loading && (
           <div className={styles.state}>
             <span className={styles.loadingDot} />
@@ -57,43 +76,31 @@ export function FootballWidget() {
           </div>
         )}
 
-        {!loading && !error && players.length === 0 && (
-          <p className={styles.empty}>Aucun résultat pour « {query} »</p>
+        {!loading && !error && matches.length === 0 && (
+          <div className={styles.noMatch}>
+            <div className={styles.noMatchDot} />
+            <p className={styles.noMatchText}>Aucun match en cours</p>
+            <p className={styles.noMatchSub}>Prochain rafraichissement dans 30 s</p>
+          </div>
         )}
 
-        {!loading && players.length > 0 && (
+        {!loading && matches.length > 0 && (
           <ul className={styles.list}>
-            {players.map((p, i) => (
-              <li key={p.id} className={styles.playerRow}>
-                <span className={styles.playerIndex}>
-                  {String(i + 1).padStart(2, '0')}
-                </span>
-                {p.photo ? (
-                  <img
-                    src={p.photo}
-                    alt={p.name}
-                    className={styles.playerPhoto}
-                    loading="lazy"
-                  />
-                ) : (
-                  <span className={styles.playerPhotoFallback} aria-hidden="true" />
-                )}
-                <div className={styles.playerInfo}>
-                  <span className={styles.playerName}>{p.name}</span>
-                  <span className={styles.playerMeta}>
-                    {[p.position, p.team, p.nationality].filter(Boolean).join(' · ')}
-                  </span>
-                </div>
+            {matches.map(m => (
+              <li key={m.id}>
+                <ScoreBoard m={m} />
               </li>
             ))}
           </ul>
         )}
+
       </div>
 
       {/* Source */}
       <div className={styles.source}>
-        Données : Free API Live Football Data · RapidAPI
+        Football Live Data · RapidAPI &nbsp;·&nbsp; Actualisation 30 s
       </div>
+
     </div>
   );
 }
