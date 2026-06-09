@@ -3,8 +3,8 @@
 // =========================================================
 import { Link } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
-import { FootballWidget } from '../components/FootballWidget';
 import heroImg from '../../images/Homepage_illustration.jpg';
+import matchVideo from '../../images/Fans at Ashton Gate Stadium, Bristol, celebrate England winner against Wales at Euro 2016.mp4';
 import styles from './HomePage.module.css';
 
 const STATS = [
@@ -129,9 +129,17 @@ export function HomePage() {
       <section className={styles.gallery} aria-label="Galerie bar">
         <div className={styles.galleryGrid}>
 
-          {/* Widget football live */}
+          {/* Video fans en boucle */}
           <div className={styles.galleryMain}>
-            <FootballWidget />
+            <video
+              className={styles.galleryVideo}
+              src={matchVideo}
+              autoPlay
+              loop
+              muted
+              playsInline
+              aria-label="Supporters fêtant un but"
+            />
           </div>
 
           {/* Photos bar */}
