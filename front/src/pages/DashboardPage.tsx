@@ -83,7 +83,13 @@ export function DashboardPage() {
     limit: 500,
   });
 
-  const latest = measurements[0];
+  const { measurements: humMeas } = useMeasurements({
+    deviceId: OUR_DEVICES.humidity,
+    limit: 10,
+  });
+
+  const latest    = measurements[0];
+  const latestHum = humMeas[0];
 
   const stats = useMemo(() => {
     if (!measurements.length) return null;
@@ -123,9 +129,15 @@ export function DashboardPage() {
         <StatTile
           label="Temperature actuelle"
           value={latest ? `${latest.value.toFixed(1)} °C` : '—'}
-          sub={latest ? 'mise a jour il y a < 1s' : 'En attente de donnees'}
+          sub={latest ? 'DHT15 · mis a jour < 1 s' : 'En attente de donnees'}
           accent={!!latest}
           live
+        />
+        <StatTile
+          label="Humidite"
+          value={latestHum ? `${latestHum.value.toFixed(0)} %` : '—'}
+          sub={latestHum ? 'DHT15 · humidite relative' : 'En attente de donnees'}
+          live={!!latestHum}
         />
         <StatTile
           label="Min session"

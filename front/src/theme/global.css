@@ -21,13 +21,13 @@ body {
   color: var(--clr-text);
   line-height: 1.6;
   min-height: 100vh;
-  /* Texture raphia discrète en fond */
+  /* Texture subtile en fond - ton neutre */
   background-image:
     repeating-linear-gradient(
       45deg,
       transparent,
       transparent 2px,
-      rgba(74,56,40,0.06) 2px,
+      rgba(35,34,53,0.08) 2px,
       rgba(74,56,40,0.06) 4px
     );
 }

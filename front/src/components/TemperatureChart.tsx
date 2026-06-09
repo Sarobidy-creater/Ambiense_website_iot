@@ -1,11 +1,12 @@
-// =========================================================
-//  TemperatureChart — courbe de température G1E (Recharts)
-//  Sélecteur de fenêtre : 5 min / 1 h / tout
+﻿// =========================================================
+//  TemperatureChart — courbe temperature + humidite G1E
+//  Capteur DHT15 (SEN-KY015TF) — area chart Recharts
+//  Mise a jour automatique via polling 1 s
 // =========================================================
 import { useMemo, useState } from 'react';
 import {
-  ResponsiveContainer, LineChart, Line, XAxis, YAxis,
-  CartesianGrid, Tooltip, ReferenceLine, Legend,
+  ResponsiveContainer, ComposedChart, Area, Line,
+  XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine, Legend,
 } from 'recharts';
 import { useMeasurements } from '../hooks/useMeasurements';
 import { OUR_DEVICES } from '../lib/supabase';
@@ -14,7 +15,7 @@ import styles from './TemperatureChart.module.css';
 
 const WINDOWS: { value: TimeWindow; label: string }[] = [
   { value: '5min', label: '5 min' },
-  { value: '1h',   label: '1 heure' },
+  { value: '1h',   label: '1 h' },
   { value: 'all',  label: 'Tout' },
 ];
 
@@ -23,44 +24,94 @@ interface Props {
 }
 
 function formatTime(iso: string): string {
-  return new Date(iso).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  return new Date(iso).toLocaleTimeString('fr-FR', {
+    hour: '2-digit', minute: '2-digit',
+  });
 }
+
+// ── Tooltip personnalise ─────────────────────────────────
+
+function ChartTooltip({ active, payload, label }: {
+  active?: boolean;
+  payload?: Array<{ name: string; value: number; color: string }>;
+  label?: string;
+}) {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className={styles.tooltip}>
+      <p className={styles.tooltipTime}>{label}</p>
+      {payload.map(p => (
+        <p key={p.name} className={styles.tooltipRow} style={{ color: p.color }}>
+          {p.name} : <strong>{p.value.toFixed(1)}</strong>
+        </p>
+      ))}
+    </div>
+  );
+}
+
+// ── Composant principal ──────────────────────────────────
 
 export function TemperatureChart({ alertThreshold }: Props) {
   const [window_, setWindow] = useState<TimeWindow>('1h');
-  const { measurements, loading } = useMeasurements({
+
+  const { measurements: tempMeas, loading: tempLoading } = useMeasurements({
     deviceId: OUR_DEVICES.temperature,
     since:    window_,
-    limit:    500,
+    limit:    200,
+  });
+  const { measurements: humMeas } = useMeasurements({
+    deviceId: OUR_DEVICES.humidity,
+    since:    window_,
+    limit:    200,
   });
 
-  const data = useMemo(
-    () =>
-      [...measurements]
-        .reverse()
-        .map((m) => ({ time: formatTime(m.created_at), value: m.value, raw: m.created_at })),
-    [measurements]
-  );
+  // Fusionne temp + humidite sur le meme axe temporel
+  const data = useMemo(() => {
+    const tempByTime = new Map(
+      [...tempMeas].reverse().map(m => [formatTime(m.created_at), m.value])
+    );
+    const humByTime = new Map(
+      [...humMeas].reverse().map(m => [formatTime(m.created_at), m.value])
+    );
+    const allTimes = [...new Set([...tempByTime.keys(), ...humByTime.keys()])].sort();
+    return allTimes.map(t => ({
+      time: t,
+      temp: tempByTime.get(t) ?? null,
+      hum:  humByTime.get(t)  ?? null,
+    }));
+  }, [tempMeas, humMeas]);
 
   const stats = useMemo<MeasurementStats | null>(() => {
-    if (measurements.length === 0) return null;
-    const vals = measurements.map((m) => m.value);
+    if (!tempMeas.length) return null;
+    const vals = tempMeas.map(m => m.value);
     return {
       min:   Math.min(...vals),
       max:   Math.max(...vals),
       avg:   vals.reduce((a, b) => a + b, 0) / vals.length,
       count: vals.length,
     };
-  }, [measurements]);
+  }, [tempMeas]);
+
+  const hasData = data.length > 0;
+  const isLive  = !tempLoading;
 
   return (
     <section className={styles.panel} aria-labelledby="chart-title">
-      <div className={styles.header}>
-        <h3 id="chart-title">Temperature G1E</h3>
 
-        {/* Sélecteur de fenêtre */}
-        <fieldset className={styles.windowPicker} aria-label="Fenêtre temporelle">
-          <legend className="sr-only">Fenêtre temporelle</legend>
+      {/* En-tete */}
+      <div className={styles.header}>
+        <div className={styles.titleRow}>
+          <h3 id="chart-title" className={styles.title}>
+            Ambiance thermique
+          </h3>
+          {isLive && hasData && (
+            <span className={styles.liveDot} aria-label="Mise a jour en direct" />
+          )}
+        </div>
+
+        {/* Selecteur de fenetres */}
+        <fieldset className={styles.windowPicker} aria-label="Fenetre temporelle">
+          <legend className="sr-only">Fenetre temporelle</legend>
           {WINDOWS.map(({ value, label }) => (
             <label key={value} className={styles.windowLabel}>
               <input
@@ -71,7 +122,7 @@ export function TemperatureChart({ alertThreshold }: Props) {
                 onChange={() => setWindow(value)}
                 className="sr-only"
               />
-              <span className={`${styles.windowBtn} ${window_ === value ? styles.windowBtnActive : ''}`}>
+              <span className={[styles.windowBtn, window_ === value ? styles.windowBtnActive : ''].filter(Boolean).join(' ')}>
                 {label}
               </span>
             </label>
@@ -79,9 +130,9 @@ export function TemperatureChart({ alertThreshold }: Props) {
         </fieldset>
       </div>
 
-      {/* Stats */}
+      {/* Stats temperature */}
       {stats && (
-        <div className={styles.stats} role="region" aria-label="Statistiques de température">
+        <div className={styles.stats} role="region" aria-label="Statistiques temperature">
           <div className={styles.stat}>
             <span className={styles.statLabel}>Min</span>
             <span className={styles.statValue}>{stats.min.toFixed(1)} °C</span>
@@ -92,7 +143,10 @@ export function TemperatureChart({ alertThreshold }: Props) {
           </div>
           <div className={styles.stat}>
             <span className={styles.statLabel}>Max</span>
-            <span className={styles.statValue} style={{ color: stats.max >= (alertThreshold ?? 99) ? 'var(--clr-danger)' : 'inherit' }}>
+            <span
+              className={styles.statValue}
+              style={{ color: stats.max >= (alertThreshold ?? 99) ? 'var(--clr-danger)' : undefined }}
+            >
               {stats.max.toFixed(1)} °C
             </span>
           </div>
@@ -104,58 +158,105 @@ export function TemperatureChart({ alertThreshold }: Props) {
       )}
 
       {/* Graphique */}
-      {loading ? (
-        <div className={styles.loading} role="status" aria-live="polite">Chargement…</div>
-      ) : data.length === 0 ? (
-        <div className={styles.empty} role="status">Aucune donnée pour cette période.</div>
+      {tempLoading ? (
+        <div className={styles.loading} role="status">Chargement…</div>
+      ) : !hasData ? (
+        <div className={styles.empty} role="status">
+          Aucune donnee — le capteur n&rsquo;a pas encore envoy&eacute; de mesures.
+        </div>
       ) : (
         <div className={styles.chartWrap}>
-          <ResponsiveContainer width="100%" height={240}>
-            <LineChart data={data} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(74,56,40,0.4)" />
+          <ResponsiveContainer width="100%" height={280}>
+            <ComposedChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
+              <defs>
+                <linearGradient id="gradTemp" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%"  stopColor="#C9A240" stopOpacity={0.25} />
+                  <stop offset="95%" stopColor="#C9A240" stopOpacity={0}    />
+                </linearGradient>
+                <linearGradient id="gradHum" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%"  stopColor="#2BBFBF" stopOpacity={0.20} />
+                  <stop offset="95%" stopColor="#2BBFBF" stopOpacity={0}    />
+                </linearGradient>
+              </defs>
+
+              <CartesianGrid
+                strokeDasharray="0"
+                stroke="rgba(35,34,53,0.8)"
+                horizontal vertical={false}
+              />
               <XAxis
                 dataKey="time"
-                tick={{ fill: '#9E8C78', fontSize: 11 }}
+                tick={{ fill: '#57566A', fontSize: 10 }}
                 tickLine={false}
-                axisLine={{ stroke: '#4A3828' }}
+                axisLine={{ stroke: '#232235' }}
                 interval="preserveStartEnd"
               />
+              {/* Axe gauche : temperature */}
               <YAxis
-                tick={{ fill: '#9E8C78', fontSize: 11 }}
+                yAxisId="temp"
+                tick={{ fill: '#C9A240', fontSize: 10 }}
                 tickLine={false}
                 axisLine={false}
-                unit="°C"
+                unit="°"
                 domain={['auto', 'auto']}
               />
-              <Tooltip
-                contentStyle={{
-                  background: '#2A2018', border: '1px solid #4A3828',
-                  borderRadius: 8, color: '#F5EFE2',
-                }}
-                labelStyle={{ color: '#9E8C78', fontSize: 12 }}
+              {/* Axe droit : humidite */}
+              <YAxis
+                yAxisId="hum"
+                orientation="right"
+                tick={{ fill: '#2BBFBF', fontSize: 10 }}
+                tickLine={false}
+                axisLine={false}
+                unit="%"
+                domain={[0, 100]}
               />
+              <Tooltip content={<ChartTooltip />} />
               <Legend
-                wrapperStyle={{ color: '#9E8C78', fontSize: 12, paddingTop: 8 }}
+                wrapperStyle={{ fontSize: 11, paddingTop: 8, color: '#8A8898' }}
               />
-              {/* Seuil d'alerte */}
+
+              {/* Seuil alerte */}
               {alertThreshold !== undefined && (
                 <ReferenceLine
+                  yAxisId="temp"
                   y={alertThreshold}
-                  stroke="var(--clr-danger)"
+                  stroke="#C0392B"
                   strokeDasharray="6 3"
-                  label={{ value: `Seuil ${alertThreshold}°C`, fill: '#C0392B', fontSize: 11, position: 'insideTopRight' }}
+                  label={{
+                    value: `${alertThreshold}\u00b0C`,
+                    fill: '#C0392B', fontSize: 10,
+                    position: 'insideTopRight',
+                  }}
                 />
               )}
-              <Line
+
+              {/* Aire temperature */}
+              <Area
+                yAxisId="temp"
                 type="monotone"
-                dataKey="value"
-                name="Température"
-                stroke="var(--clr-ambre)"
+                dataKey="temp"
+                name="Temperature (°C)"
+                stroke="#C9A240"
                 strokeWidth={2}
+                fill="url(#gradTemp)"
                 dot={false}
-                activeDot={{ r: 4, fill: 'var(--clr-ambre-clair)' }}
+                activeDot={{ r: 4, fill: '#E5BC6A', strokeWidth: 0 }}
+                connectNulls
               />
-            </LineChart>
+              {/* Ligne humidite */}
+              <Line
+                yAxisId="hum"
+                type="monotone"
+                dataKey="hum"
+                name="Humidite (%)"
+                stroke="#2BBFBF"
+                strokeWidth={1.5}
+                strokeDasharray="4 2"
+                dot={false}
+                activeDot={{ r: 3, fill: '#3DD6D6', strokeWidth: 0 }}
+                connectNulls
+              />
+            </ComposedChart>
           </ResponsiveContainer>
         </div>
       )}

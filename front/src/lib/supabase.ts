@@ -20,8 +20,9 @@ export const TEAM_CODE = (import.meta.env.VITE_TEAM_CODE as string) || 'G1E';
 /** Activer le Realtime Supabase (sinon polling) */
 export const USE_REALTIME = import.meta.env.VITE_USE_REALTIME === 'true';
 
-/** IDs de nos appareils */
+/** IDs de nos appareils (capteur DHT15 + servo S148) */
 export const OUR_DEVICES = {
   temperature: `${TEAM_CODE}_temperature`,
+  humidity:    `${TEAM_CODE}_humidity`,
   ventilateur: `${TEAM_CODE}_ventilateur`,
 } as const;
