@@ -1,0 +1,3 @@
+pyserial
+supabase
+python-dotenv

@@ -1,0 +1,93 @@
+.card {
+  background: var(--clr-surface);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-xl);
+  padding: var(--sp-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.card:hover {
+  border-color: var(--clr-ambre);
+  box-shadow: var(--shadow-glow-ambre);
+}
+
+/* En-tête */
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.label {
+  display: block;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--clr-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.team {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--clr-text-muted);
+  margin-top: 2px;
+}
+
+/* Valeur principale */
+.valueBlock {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-2);
+  min-height: 48px;
+}
+
+.value {
+  font-family: var(--font-display);
+  font-size: var(--text-4xl);
+  font-weight: 700;
+  color: var(--clr-text-muted);
+  line-height: 1;
+  transition: color var(--transition-normal);
+}
+
+.valueActive {
+  color: var(--clr-ambre-clair);
+}
+
+.unit {
+  font-size: var(--text-lg);
+  color: var(--clr-text-muted);
+}
+
+.noData {
+  font-size: var(--text-3xl);
+  color: var(--clr-text-faint);
+}
+
+/* Pied */
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+}
+
+.age {
+  font-size: var(--text-xs);
+  color: var(--clr-text-faint);
+}

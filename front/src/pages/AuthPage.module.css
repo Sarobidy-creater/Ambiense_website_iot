@@ -1,0 +1,180 @@
+/* =========================================================
+   AuthPage — styles partagés Login / Signup
+   ========================================================= */
+
+.page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--clr-bg);
+  position: relative;
+  overflow: hidden;
+  padding: var(--sp-6);
+}
+
+/* Dégradé coucher de soleil en fond */
+.page::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 70% 50% at 50% 0%,
+    rgba(168,52,28,0.12) 0%,
+    rgba(232,163,61,0.06) 40%,
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+/* Baobabs décoratifs */
+.baobabLeft {
+  position: absolute;
+  bottom: 0;
+  left: var(--sp-8);
+  pointer-events: none;
+}
+
+.baobabRight {
+  position: absolute;
+  bottom: 0;
+  right: var(--sp-8);
+  pointer-events: none;
+}
+
+/* Carte centrale */
+.card {
+  position: relative;
+  z-index: 1;
+  background: var(--clr-surface);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-2xl);
+  padding: var(--sp-10) var(--sp-8);
+  width: 100%;
+  max-width: 420px;
+  box-shadow: var(--shadow-lg);
+}
+
+.successCard {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-4);
+}
+
+/* En-tête */
+.header {
+  text-align: center;
+  margin-bottom: var(--sp-8);
+}
+
+.emoji {
+  display: block;
+  font-size: 2.5rem;
+  margin-bottom: var(--sp-3);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  color: var(--clr-ambre);
+  margin-bottom: var(--sp-2);
+}
+
+.subtitle {
+  font-size: var(--text-sm);
+  color: var(--clr-text-muted);
+}
+
+/* Formulaire */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.label {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--clr-text);
+}
+
+.input {
+  background: var(--clr-surface-2);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-md);
+  padding: var(--sp-3) var(--sp-4);
+  color: var(--clr-text);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  width: 100%;
+}
+
+.input::placeholder { color: var(--clr-text-faint); }
+
+.input:focus {
+  outline: none;
+  border-color: var(--clr-ambre);
+  box-shadow: 0 0 0 3px rgba(232,163,61,0.2);
+}
+
+/* Erreur */
+.error {
+  background: rgba(192,57,43,0.12);
+  border: 1px solid rgba(192,57,43,0.3);
+  border-radius: var(--radius-md);
+  padding: var(--sp-3) var(--sp-4);
+  color: var(--clr-danger);
+  font-size: var(--text-sm);
+}
+
+/* Bouton principal */
+.submitBtn {
+  padding: var(--sp-4);
+  background: var(--clr-terre);
+  color: var(--clr-ivoire);
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition-fast), box-shadow var(--transition-fast);
+  margin-top: var(--sp-2);
+}
+
+.submitBtn:hover:not(:disabled) {
+  background: var(--clr-terre-dark);
+  box-shadow: var(--shadow-glow-terre);
+}
+
+.submitBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Lien de bascule */
+.switchLink {
+  text-align: center;
+  margin-top: var(--sp-6);
+  font-size: var(--text-sm);
+  color: var(--clr-text-muted);
+}
+
+.switchLink a {
+  color: var(--clr-ambre);
+  font-weight: 500;
+}
+
+@media (max-width: 480px) {
+  .card { padding: var(--sp-8) var(--sp-5); }
+  .baobabLeft, .baobabRight { display: none; }
+}

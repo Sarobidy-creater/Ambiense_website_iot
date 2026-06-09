@@ -1,0 +1,93 @@
+/* =========================================================
+   Design tokens — Bar Coupe du Monde · Thème Madagascar
+   Palette : terre rouge · ambre coucher de soleil · vert
+   ravinala · turquoise océan · ivoire raphia · nuit savane
+   ========================================================= */
+
+:root {
+  /* --- Couleurs principales --- */
+  --clr-terre:        #A8341C;   /* rouge latérite, accent/CTA */
+  --clr-terre-dark:   #8A2815;
+  --clr-ambre:        #E8A33D;   /* coucher de soleil */
+  --clr-ambre-clair:  #F4C25B;   /* highlight, données actives */
+  --clr-vert:         #2E7D5B;   /* vert ravinala */
+  --clr-vert-clair:   #3E9E74;
+  --clr-turquoise:    #178C8C;   /* océan Indien */
+  --clr-turquoise-clair: #1EACAC;
+  --clr-ivoire:       #F5EFE2;   /* raphia clair */
+  --clr-nuit:         #1F1712;   /* fond principal (mode sombre) */
+  --clr-nuit-claire:  #2A2018;   /* surface secondaire */
+  --clr-nuit-moyen:   #352A1E;   /* cards, inputs */
+  --clr-nuit-bord:    #4A3828;   /* bordures subtiles */
+
+  /* --- Sémantique --- */
+  --clr-bg:           var(--clr-nuit);
+  --clr-surface:      var(--clr-nuit-claire);
+  --clr-surface-2:    var(--clr-nuit-moyen);
+  --clr-border:       var(--clr-nuit-bord);
+  --clr-text:         var(--clr-ivoire);
+  --clr-text-muted:   #9E8C78;
+  --clr-text-faint:   #6B5B4B;
+  --clr-accent:       var(--clr-terre);
+  --clr-accent-hover: var(--clr-terre-dark);
+  --clr-highlight:    var(--clr-ambre);
+  --clr-success:      var(--clr-vert);
+  --clr-info:         var(--clr-turquoise);
+  --clr-warning:      #D4870A;
+  --clr-danger:       #C0392B;
+
+  /* --- Typographie --- */
+  --font-display:  'Cormorant Garamond', Georgia, serif;
+  --font-body:     'DM Sans', system-ui, sans-serif;
+
+  --text-xs:   0.75rem;   /* 12px */
+  --text-sm:   0.875rem;  /* 14px */
+  --text-base: 1rem;      /* 16px */
+  --text-lg:   1.125rem;  /* 18px */
+  --text-xl:   1.25rem;   /* 20px */
+  --text-2xl:  1.5rem;    /* 24px */
+  --text-3xl:  1.875rem;  /* 30px */
+  --text-4xl:  2.25rem;   /* 36px */
+  --text-5xl:  3rem;      /* 48px */
+
+  /* --- Espacements --- */
+  --sp-1:  0.25rem;
+  --sp-2:  0.5rem;
+  --sp-3:  0.75rem;
+  --sp-4:  1rem;
+  --sp-5:  1.25rem;
+  --sp-6:  1.5rem;
+  --sp-8:  2rem;
+  --sp-10: 2.5rem;
+  --sp-12: 3rem;
+  --sp-16: 4rem;
+
+  /* --- Rayons --- */
+  --radius-sm:  4px;
+  --radius-md:  8px;
+  --radius-lg:  12px;
+  --radius-xl:  16px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
+
+  /* --- Ombres --- */
+  --shadow-sm:  0 1px 3px rgba(0,0,0,0.4);
+  --shadow-md:  0 4px 12px rgba(0,0,0,0.5);
+  --shadow-lg:  0 8px 24px rgba(0,0,0,0.6);
+  --shadow-glow-ambre: 0 0 20px rgba(232,163,61,0.25);
+  --shadow-glow-terre: 0 0 20px rgba(168,52,28,0.3);
+
+  /* --- Transitions --- */
+  --transition-fast:   150ms ease;
+  --transition-normal: 250ms ease;
+  --transition-slow:   400ms ease;
+
+  /* --- Layout --- */
+  --nav-h:    72px;
+  --max-w:    1440px;
+  --px:       clamp(1.5rem, 4vw, 4.5rem);
+  /* Aliases legacy conservés pour les composants existants */
+  --sidebar-width: 220px;
+  --header-height: 64px;
+  --content-max:   1440px;
+}

@@ -1,0 +1,116 @@
+/* =========================================================
+   Styles globaux — reset + base typographique + utilitaires
+   ========================================================= */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap');
+@import './tokens.css';
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--clr-bg);
+  color: var(--clr-text);
+  line-height: 1.6;
+  min-height: 100vh;
+  /* Texture raphia discrète en fond */
+  background-image:
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 2px,
+      rgba(74,56,40,0.06) 2px,
+      rgba(74,56,40,0.06) 4px
+    );
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- Typographie --- */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+h1 { font-size: var(--text-4xl); }
+h2 { font-size: var(--text-3xl); }
+h3 { font-size: var(--text-2xl); }
+h4 { font-size: var(--text-xl);  }
+h5 { font-size: var(--text-lg);  }
+
+a {
+  color: var(--clr-ambre);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+a:hover { color: var(--clr-ambre-clair); }
+
+/* --- Focus visible accessible --- */
+:focus-visible {
+  outline: 2px solid var(--clr-ambre);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* --- Scrollbar custom (Webkit) --- */
+::-webkit-scrollbar       { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--clr-nuit); }
+::-webkit-scrollbar-thumb { background: var(--clr-nuit-bord); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--clr-text-faint); }
+
+/* --- Utilitaires --- */
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0,0,0,0); white-space: nowrap; border-width: 0;
+}
+
+.text-muted    { color: var(--clr-text-muted); }
+.text-ambre    { color: var(--clr-ambre); }
+.text-terre    { color: var(--clr-terre); }
+.text-vert     { color: var(--clr-vert); }
+.text-turquoise{ color: var(--clr-turquoise); }
+
+.badge {
+  display: inline-flex; align-items: center; gap: var(--sp-1);
+  padding: var(--sp-1) var(--sp-2);
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.badge-pending  { background: rgba(232,163,61,0.15); color: var(--clr-ambre); }
+.badge-done     { background: rgba(46,125,91,0.15);  color: var(--clr-vert); }
+.badge-error    { background: rgba(192,57,43,0.15);  color: var(--clr-danger); }
+.badge-sensor   { background: rgba(23,140,140,0.15); color: var(--clr-turquoise); }
+.badge-actuator { background: rgba(168,52,28,0.15);  color: var(--clr-terre); }
+.badge-online   { background: rgba(46,125,91,0.2);   color: var(--clr-vert); }
+.badge-offline  { background: rgba(155,135,115,0.15); color: var(--clr-text-muted); }
+
+/* Animation pulse pour les données fraîches */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(232,163,61,0); }
+  50%       { box-shadow: 0 0 0 4px rgba(232,163,61,0.2); }
+}
+.pulse { animation: pulse-glow 2s ease-in-out infinite; }
+
+/* Transitions lever de soleil sur hover de cartes */
+@keyframes sunrise {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-in { animation: sunrise var(--transition-normal) ease both; }

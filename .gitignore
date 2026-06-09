@@ -1,0 +1,11 @@
+# dépendances (se réinstallent, on ne les versionne pas)
+node_modules/
+.venv/
+__pycache__/
+
+# secrets (NE JAMAIS commiter)
+.env
+.env.local
+
+# build
+dist/
