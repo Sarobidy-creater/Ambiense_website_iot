@@ -4,28 +4,36 @@ from dotenv import load_dotenv
 from supabase import create_client
 
 load_dotenv()
-sb = create_client(os.environ["SUPABASE_URL"], os.environ["SUPABASE_SERVICE_KEY"])
+sb  = create_client(os.environ["SUPABASE_URL"], os.environ["SUPABASE_SERVICE_KEY"])
 ser = serial.Serial(os.environ["SERIAL_PORT"], 115200, timeout=1)
-TEAM = int(os.environ["TEAM_ID"])
-FAN, TEMP = f"team{TEAM}_fan", f"team{TEAM}_temp"
+
+# Nomenclature G1E : les tables et IDs d'appareils sont préfixés G1E_
+TEMP_ID = "G1E_temperature"
+FAN_ID  = "G1E_ventilateur"
 
 def read_loop():       # TIVA -> Supabase
     while True:
         line = ser.readline().decode(errors="ignore").strip()
         if line.startswith("TEMP:"):
-            sb.table("measurements").insert({
-                "device_id": TEMP, "team_id": TEAM,
-                "type": "temperature", "value": float(line[5:]), "unit": "C"
+            sb.table("G1E_measurements").insert({
+                "device_id": TEMP_ID,
+                "type":      "temperature",
+                "value":     float(line[5:]),
+                "unit":      "C",
             }).execute()
 
 def command_loop():    # Supabase -> TIVA
     while True:
-        res = sb.table("commands").select("*") \
-            .eq("device_id", FAN).eq("status", "pending").execute()
+        res = sb.table("G1E_commands").select("*") \
+            .eq("device_id", FAN_ID).eq("status", "pending").execute()
         for cmd in res.data:
             if cmd["action"] == "set_speed":
                 ser.write(f"FAN:{cmd['payload']['speed']}\n".encode())
-            sb.table("commands").update({"status": "done"}).eq("id", cmd["id"]).execute()
+            elif cmd["action"] == "on":
+                ser.write(b"FAN:100\n")
+            elif cmd["action"] == "off":
+                ser.write(b"FAN:0\n")
+            sb.table("G1E_commands").update({"status": "done"}).eq("id", cmd["id"]).execute()
         time.sleep(0.5)
 
 if __name__ == "__main__":

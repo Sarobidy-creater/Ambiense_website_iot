@@ -10,8 +10,6 @@ import type { Measurement } from '../lib/types';
 interface Options {
   /** Filtrer par device_id (optionnel) */
   deviceId?: string;
-  /** Filtrer par team_code (optionnel) */
-  teamCode?: string;
   /** Filtrer par type (optionnel) */
   type?: string;
   /** Fenêtre temporelle : '5min' | '1h' | 'all' (défaut 'all') */
@@ -35,7 +33,7 @@ function sinceTimestamp(since: Options['since']): string | null {
 }
 
 export function useMeasurements(opts: Options = {}): Result {
-  const { deviceId, teamCode, type, since = 'all', limit = 200 } = opts;
+  const { deviceId, type, since = 'all', limit = 200 } = opts;
 
   const [measurements, setMeasurements] = useState<Measurement[]>([]);
   const [loading, setLoading]           = useState(true);
@@ -46,20 +44,19 @@ export function useMeasurements(opts: Options = {}): Result {
 
   const buildQuery = useCallback(() => {
     let q = supabase
-      .from('measurements')
+      .from('G1E_measurements')
       .select('*')
       .order('created_at', { ascending: false })
       .limit(limit);
 
     if (deviceId) q = q.eq('device_id', deviceId);
-    if (teamCode) q = q.eq('team_code', teamCode);
     if (type)     q = q.eq('type', type);
 
     const ts = sinceTimestamp(since);
     if (ts) q = q.gte('created_at', ts);
 
     return q;
-  }, [deviceId, teamCode, type, since, limit]);
+  }, [deviceId, type, since, limit]);
 
   // Charge initial
   const initialLoad = useCallback(async () => {
