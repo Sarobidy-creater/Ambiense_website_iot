@@ -5,6 +5,7 @@ import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './auth/AuthContext';
 import { Layout } from './components/Layout';
+import { AdminLayout } from './components/AdminLayout';
 import { ProtectedRoute } from './components/ProtectedRoute';
 
 const HomePage         = lazy(() => import('./pages/HomePage').then(m => ({ default: m.HomePage })));
@@ -15,6 +16,13 @@ const NetworkPage      = lazy(() => import('./pages/NetworkPage').then(m => ({ d
 const AdvancedPage     = lazy(() => import('./pages/AdvancedPage').then(m => ({ default: m.AdvancedPage })));
 const ProfilePage      = lazy(() => import('./pages/ProfilePage').then(m => ({ default: m.ProfilePage })));
 const SensorDetailPage = lazy(() => import('./pages/SensorDetailPage').then(m => ({ default: m.SensorDetailPage })));
+
+// Pages admin (chargées en code-split séparé)
+const AdminOverviewPage      = lazy(() => import('./pages/admin/AdminOverviewPage').then(m => ({ default: m.AdminOverviewPage })));
+const AdminDevicesPage       = lazy(() => import('./pages/admin/AdminDevicesPage').then(m => ({ default: m.AdminDevicesPage })));
+const AdminMeasurementsPage  = lazy(() => import('./pages/admin/AdminMeasurementsPage').then(m => ({ default: m.AdminMeasurementsPage })));
+const AdminCommandsPage      = lazy(() => import('./pages/admin/AdminCommandsPage').then(m => ({ default: m.AdminCommandsPage })));
+const AdminSchemaPage        = lazy(() => import('./pages/admin/AdminSchemaPage').then(m => ({ default: m.AdminSchemaPage })));
 
 function PageLoader() {
   return (
@@ -65,6 +73,23 @@ function App() {
 
             {/* Anciennes routes — redirige */}
             <Route path="/devices" element={<Navigate to="/network" replace />} />
+
+            {/* ── Admin (layout dédié) ── */}
+            <Route path="/admin" element={
+              <ProtectedRoute><AdminLayout><AdminOverviewPage /></AdminLayout></ProtectedRoute>
+            } />
+            <Route path="/admin/devices" element={
+              <ProtectedRoute><AdminLayout><AdminDevicesPage /></AdminLayout></ProtectedRoute>
+            } />
+            <Route path="/admin/measurements" element={
+              <ProtectedRoute><AdminLayout><AdminMeasurementsPage /></AdminLayout></ProtectedRoute>
+            } />
+            <Route path="/admin/commands" element={
+              <ProtectedRoute><AdminLayout><AdminCommandsPage /></AdminLayout></ProtectedRoute>
+            } />
+            <Route path="/admin/schema" element={
+              <ProtectedRoute><AdminLayout><AdminSchemaPage /></AdminLayout></ProtectedRoute>
+            } />
 
             {/* Fallback */}
             <Route path="*" element={<Navigate to="/" replace />} />

@@ -1,0 +1,168 @@
+/* =========================================================
+   AdminLayout — sidebar admin + contenu
+   ========================================================= */
+
+.shell {
+  display: flex;
+  min-height: 100vh;
+  background: var(--clr-bg);
+}
+
+/* ── Sidebar ─────────────────────────────────────────────── */
+
+.sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  background: #04040A;
+  border-right: 1px solid var(--clr-nuit-bord);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+/* En-tete sidebar */
+.sideHead {
+  padding: var(--sp-6) var(--sp-5) var(--sp-5);
+  border-bottom: 1px solid var(--clr-nuit-bord);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.wordmark {
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--clr-ivoire) !important;
+  text-decoration: none;
+  transition: color 180ms;
+}
+.wordmark:hover { color: var(--clr-or) !important; }
+
+.adminBadge {
+  font-family: var(--font-body);
+  font-size: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #06050A;
+  background: var(--clr-or);
+  padding: 2px 6px;
+  flex-shrink: 0;
+}
+
+/* Navigation sidebar */
+.sideNav {
+  flex: 1;
+  padding: var(--sp-4) 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-5);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 400;
+  color: var(--clr-text-faint);
+  text-decoration: none;
+  transition: background 150ms, color 150ms;
+  border-left: 2px solid transparent;
+}
+
+.navItem:hover {
+  background: rgba(201,162,64,0.05);
+  color: var(--clr-text-muted);
+}
+
+.navItemActive {
+  color: var(--clr-or) !important;
+  background: rgba(201,162,64,0.08);
+  border-left-color: var(--clr-or);
+}
+
+.navIcon {
+  color: inherit;
+  flex-shrink: 0;
+  display: flex;
+}
+
+/* Pied sidebar */
+.sideFoot {
+  padding: var(--sp-5);
+  border-top: 1px solid var(--clr-nuit-bord);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.backLink {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  color: var(--clr-text-faint);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  transition: color 150ms;
+}
+.backLink:hover { color: var(--clr-or); }
+
+.userRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+}
+
+.userEmail {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  color: var(--clr-text-faint);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.signOutBtn {
+  background: none;
+  border: 1px solid var(--clr-nuit-bord);
+  color: var(--clr-text-faint);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  letter-spacing: 0.06em;
+  padding: 2px var(--sp-3);
+  cursor: pointer;
+  transition: border-color 150ms, color 150ms;
+  flex-shrink: 0;
+}
+.signOutBtn:hover {
+  border-color: var(--clr-text-faint);
+  color: var(--clr-ivoire);
+}
+
+/* ── Contenu ─────────────────────────────────────────────── */
+
+.main {
+  flex: 1;
+  min-width: 0;
+  padding: var(--sp-10) var(--sp-10);
+  max-width: 1200px;
+}
+
+/* ── Responsive ──────────────────────────────────────────── */
+
+@media (max-width: 860px) {
+  .sidebar { display: none; }
+  .main    { padding: var(--sp-6) var(--sp-4); }
+}
