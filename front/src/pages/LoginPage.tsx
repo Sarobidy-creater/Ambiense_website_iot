@@ -1,10 +1,11 @@
-// =========================================================
+﻿// =========================================================
 //  LoginPage — connexion email + mot de passe
+//  Design split : photo gauche (desktop) + formulaire droite
 // =========================================================
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
-import { Baobab } from '../components/svg/Baobab';
+import heroImg from '../../images/Homepage_illustration.jpg';
 import styles from './AuthPage.module.css';
 
 export function LoginPage() {
@@ -25,8 +26,7 @@ export function LoginPage() {
     const err = await signIn(email, password);
     setLoading(false);
     if (err) {
-      // Message générique pour ne pas exposer d'info sensible
-      setError('Identifiants incorrects. Vérifiez votre email et mot de passe.');
+      setError('Identifiants incorrects. Verifiez votre email et mot de passe.');
     } else {
       navigate(from, { replace: true });
     }
@@ -34,72 +34,91 @@ export function LoginPage() {
 
   return (
     <div className={styles.page}>
-      {/* Décoration baobabs en fond */}
-      <div className={styles.baobabLeft}  aria-hidden="true"><Baobab height={200} opacity={0.15} /></div>
-      <div className={styles.baobabRight} aria-hidden="true"><Baobab height={160} opacity={0.1} color="#E8A33D" /></div>
 
-      <main className={styles.card} aria-labelledby="login-title">
-        {/* En-tête */}
-        <div className={styles.header}>
-          <span className={styles.emoji} aria-hidden="true">🏟️</span>
-          <h1 id="login-title" className={styles.title}>Connexion</h1>
-          <p className={styles.subtitle}>Bar G1E · Coupe du Monde</p>
+      {/* ── Panneau gauche : photo bar ── */}
+      <div
+        className={styles.panel}
+        style={{ backgroundImage: "url(" + heroImg + ")" }}
+        aria-hidden="true"
+      >
+        <div className={styles.panelOverlay}>
+          <Link to="/" className={styles.panelWordmark} aria-label="AMBIENSE">
+            AMBIENSE
+          </Link>
+          <div className={styles.panelContent}>
+            <blockquote className={styles.panelQuote}>
+              &ldquo;Intelligence environnementale<br />pour les soirees parfaites.&rdquo;
+            </blockquote>
+            <ul className={styles.panelFeatures}>
+              <li className={styles.panelFeat}>Surveillance temps reel</li>
+              <li className={styles.panelFeat}>Alertes thermiques</li>
+              <li className={styles.panelFeat}>Controle a distance</li>
+            </ul>
+          </div>
         </div>
+      </div>
 
-        {/* Formulaire */}
-        <form onSubmit={handleSubmit} className={styles.form} noValidate>
-          <div className={styles.field}>
-            <label htmlFor="email" className={styles.label}>Adresse e-mail</label>
-            <input
-              id="email"
-              type="email"
-              className={styles.input}
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              required
-              autoComplete="email"
-              placeholder="vous@exemple.com"
-              aria-required="true"
-            />
+      {/* ── Panneau droit : formulaire ── */}
+      <main className={styles.formSide} aria-labelledby="login-title">
+        <div className={styles.formInner}>
+
+          <Link to="/" className={styles.wordmarkMobile}>AMBIENSE</Link>
+
+          <div className={styles.header}>
+            <h1 id="login-title" className={styles.title}>Connexion</h1>
+            <p className={styles.subtitle}>Acces a votre tableau de bord</p>
           </div>
 
-          <div className={styles.field}>
-            <label htmlFor="password" className={styles.label}>Mot de passe</label>
-            <input
-              id="password"
-              type="password"
-              className={styles.input}
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              required
-              autoComplete="current-password"
-              placeholder="••••••••"
-              aria-required="true"
-            />
-          </div>
-
-          {/* Message d'erreur accessible */}
-          {error && (
-            <div className={styles.error} role="alert" aria-live="assertive">
-              {error}
+          <form onSubmit={handleSubmit} className={styles.form} noValidate>
+            <div className={styles.field}>
+              <label htmlFor="email" className={styles.label}>Adresse e-mail</label>
+              <input
+                id="email"
+                type="email"
+                className={styles.input}
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                required
+                autoComplete="email"
+                placeholder="vous@exemple.com"
+                aria-required="true"
+              />
             </div>
-          )}
 
-          <button
-            type="submit"
-            className={styles.submitBtn}
-            disabled={loading}
-            aria-busy={loading}
-          >
-            {loading ? 'Connexion…' : 'Se connecter'}
-          </button>
-        </form>
+            <div className={styles.field}>
+              <label htmlFor="password" className={styles.label}>Mot de passe</label>
+              <input
+                id="password"
+                type="password"
+                className={styles.input}
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                required
+                autoComplete="current-password"
+                placeholder="Mot de passe"
+                aria-required="true"
+              />
+            </div>
 
-        {/* Lien inscription */}
-        <p className={styles.switchLink}>
-          Pas encore de compte ?{' '}
-          <Link to="/signup">Créer un compte</Link>
-        </p>
+            {error && (
+              <p className={styles.error} role="alert">{error}</p>
+            )}
+
+            <button
+              type="submit"
+              className={styles.submitBtn}
+              disabled={loading || !email || !password}
+            >
+              {loading ? 'Connexion...' : 'Se connecter'}
+            </button>
+          </form>
+
+          <p className={styles.switchLink}>
+            Pas de compte ?{' '}
+            <Link to="/signup">Creer un compte</Link>
+          </p>
+
+        </div>
       </main>
     </div>
   );

@@ -1,36 +1,62 @@
+﻿/* =========================================================
+   FanControl — controle ventilateur avec SVG fan
+   ========================================================= */
+
 .panel {
   background: var(--clr-surface);
   border: 1px solid var(--clr-border);
-  border-radius: var(--radius-xl);
   padding: var(--sp-6);
   display: flex;
   flex-direction: column;
   gap: var(--sp-5);
 }
 
-.header {
+/* SVG fan central */
+.fanVisual {
   display: flex;
   align-items: center;
-  gap: var(--sp-3);
+  gap: var(--sp-6);
+  padding: var(--sp-4) 0;
 }
 
-.icon {
-  font-size: 2rem;
-  animation: spin 4s linear infinite;
+.fanState {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
 }
 
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
+.fanOn {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--clr-vert);
 }
-
-.header h3 {
+.fanOff {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--clr-text-faint);
+}
+.fanSpeed {
   font-family: var(--font-display);
-  font-size: var(--text-xl);
-  color: var(--clr-ambre);
+  font-size: var(--text-2xl);
+  color: var(--clr-or);
+  line-height: 1;
 }
 
-/* Actions on/off */
+.title {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 400;
+  color: var(--clr-text-muted);
+  letter-spacing: 0.04em;
+}
+
+/* Boutons */
 .actions {
   display: flex;
   gap: var(--sp-3);
@@ -39,99 +65,132 @@
 .btn {
   flex: 1;
   padding: var(--sp-3) var(--sp-4);
-  border-radius: var(--radius-md);
-  font-size: var(--text-sm);
+  border: 1px solid var(--clr-border);
+  border-radius: 0;
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
   font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   cursor: pointer;
-  transition: all var(--transition-fast);
-  border: none;
-}
-
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.btnOn {
-  background: var(--clr-vert);
-  color: var(--clr-ivoire);
-}
-.btnOn:hover:not(:disabled) { background: var(--clr-vert-clair); }
-
-.btnOff {
+  transition: all 180ms;
   background: var(--clr-surface-2);
   color: var(--clr-text-muted);
-  border: 1px solid var(--clr-border);
 }
-.btnOff:hover:not(:disabled) { background: var(--clr-nuit-bord); color: var(--clr-text); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-.btnSpeed {
-  background: var(--clr-terre);
-  color: var(--clr-ivoire);
+.btnOn:hover:not(:disabled)    { border-color: var(--clr-vert); color: var(--clr-vert); }
+.btnOff:hover:not(:disabled)   { border-color: var(--clr-danger); color: var(--clr-danger); }
+.btnApply:hover:not(:disabled) { border-color: var(--clr-or); color: var(--clr-or); }
+
+/* Etat actif */
+.btnActive {
+  background: rgba(201,162,64,0.08);
+  border-color: var(--clr-or);
+  color: var(--clr-or);
+}
+.btnOn.btnActive {
+  background: rgba(46,158,116,0.1);
+  border-color: var(--clr-vert);
+  color: var(--clr-vert);
+}
+.btnOff.btnActive {
+  background: transparent;
+  border-color: var(--clr-nuit-bord);
+  color: var(--clr-text-faint);
+}
+
+.btnApply {
   flex: none;
   padding: var(--sp-2) var(--sp-5);
+  margin-top: var(--sp-2);
 }
-.btnSpeed:hover:not(:disabled) { background: var(--clr-terre-dark); }
 
 /* Slider */
-.sliderGroup {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-2);
-}
+.sliderGroup { display: flex; flex-direction: column; gap: var(--sp-3); }
 
+.sliderHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 .sliderLabel {
-  font-size: var(--text-sm);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   color: var(--clr-text-muted);
+}
+.sliderValue {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  color: var(--clr-or);
+  line-height: 1;
 }
 
 .slider {
   -webkit-appearance: none;
   width: 100%;
-  height: 6px;
-  border-radius: 3px;
-  background: var(--clr-surface-2);
+  height: 2px;
+  border-radius: 0;
+  background: var(--clr-nuit-bord);
   outline: none;
   cursor: pointer;
 }
-
 .slider::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
-  background: var(--clr-ambre);
+  background: var(--clr-or);
   cursor: pointer;
-  box-shadow: var(--shadow-sm);
-  transition: background var(--transition-fast);
+  border: 2px solid var(--clr-nuit);
 }
-
-.slider::-webkit-slider-thumb:hover {
-  background: var(--clr-ambre-clair);
+.slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--clr-or);
+  border: 2px solid var(--clr-nuit);
+  cursor: pointer;
 }
+.slider:focus-visible { outline: 2px solid var(--clr-or); outline-offset: 4px; }
 
 /* Statut commande */
-.status {
+.cmdStatus {
   display: flex;
   align-items: center;
   gap: var(--sp-3);
-  padding: var(--sp-3) var(--sp-4);
-  border-radius: var(--radius-md);
-  border: 1px solid;
-  background: rgba(0,0,0,0.2);
-  transition: border-color var(--transition-normal);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  color: var(--clr-text-faint);
+  padding: var(--sp-3) 0;
+  border-top: 1px solid var(--clr-nuit-bord);
 }
 
-.statusDetail {
-  font-size: var(--text-sm);
-  color: var(--clr-text-muted);
+.cmdDot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--clr-text-faint);
+  flex-shrink: 0;
+}
+.statusPending .cmdDot {
+  background: var(--clr-ambre);
+  animation: _cmdPulse 1s ease-in-out infinite;
+}
+.statusDone  .cmdDot { background: var(--clr-vert); }
+.statusError .cmdDot { background: var(--clr-danger); }
+
+@keyframes _cmdPulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
 }
 
-.error {
-  font-size: var(--text-sm);
+.errorMsg {
+  font-size: var(--text-xs);
   color: var(--clr-danger);
-  padding: var(--sp-2) var(--sp-3);
-  background: rgba(192,57,43,0.1);
-  border-radius: var(--radius-sm);
-  border: 1px solid rgba(192,57,43,0.2);
+  margin: 0;
 }

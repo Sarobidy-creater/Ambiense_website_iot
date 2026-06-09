@@ -15,9 +15,11 @@ interface AuthContextValue {
   session: Session | null;
   user: User | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<AuthError | null>;
-  signUp: (email: string, password: string) => Promise<AuthError | null>;
-  signOut: () => Promise<void>;
+  signIn:          (email: string, password: string) => Promise<AuthError | null>;
+  signUp:          (email: string, password: string) => Promise<AuthError | null>;
+  signOut:         () => Promise<void>;
+  updatePassword:  (currentPassword: string, newPassword: string) => Promise<AuthError | null>;
+  updateDisplayName: (name: string) => Promise<AuthError | null>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -55,6 +57,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await supabase.auth.signOut();
   }, []);
 
+  const updatePassword = useCallback(async (
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<AuthError | null> => {
+    const email = session?.user?.email;
+    if (!email) return { message: 'Non authentifié', name: 'AuthError', status: 401 } as unknown as AuthError;
+    // Re-vérifie le mot de passe actuel avant de changer
+    const { error: verifyErr } = await supabase.auth.signInWithPassword({ email, password: currentPassword });
+    if (verifyErr) return verifyErr;
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    return error;
+  }, [session]);
+
+  const updateDisplayName = useCallback(async (name: string): Promise<AuthError | null> => {
+    const { error } = await supabase.auth.updateUser({ data: { display_name: name } });
+    return error;
+  }, []);
+
   return (
     <AuthContext.Provider
       value={{
@@ -64,6 +84,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         signIn,
         signUp,
         signOut,
+        updatePassword,
+        updateDisplayName,
       }}
     >
       {children}

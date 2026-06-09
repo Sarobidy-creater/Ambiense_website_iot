@@ -31,7 +31,9 @@ function ExternalActuatorPanel({ device }: { device: Device }) {
   return (
     <article className={styles.actuatorCard} aria-labelledby={`act-${device.id}`}>
       <header className={styles.cardHeader}>
-        <span aria-hidden="true">⚙️</span>
+        <div className={styles.cardIcon}>
+          {/* icone actionneur generique */}
+        </div>
         <div>
           <h3 id={`act-${device.id}`}>{device.label ?? device.id}</h3>
           <span className={styles.teamBadge}>{device.id}</span>
@@ -82,9 +84,7 @@ function ExternalActuatorPanel({ device }: { device: Device }) {
       {/* Statut de la dernière commande */}
       {lastCommand && (
         <div className={styles.status} style={{ color: statusColors[lastCommand.status] ?? 'inherit' }}>
-          <span aria-hidden="true">
-            {lastCommand.status === 'pending' ? '⏳' : lastCommand.status === 'done' ? '✅' : '❌'}
-          </span>
+          <span className={styles.statusDot} />
           Commande {lastCommand.action} — {lastCommand.status}
         </div>
       )}
@@ -111,7 +111,6 @@ export function AdvancedPage() {
 
       {/* Avertissement */}
       <div className={styles.infoBox} role="note">
-        <span aria-hidden="true">ℹ️</span>
         <div>
           <strong>Accès inter-groupes</strong>
           <p>

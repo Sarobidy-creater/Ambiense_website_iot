@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<!--
+  AMBIENSE — Template email de confirmation d'inscription
+  ─────────────────────────────────────────────────────────
+  À coller dans : Supabase > Authentication > Email Templates
+  > Confirm signup
+
+  Variables Supabase disponibles :
+    {{ .ConfirmationURL }}   → lien de confirmation
+    {{ .Email }}             → adresse email du destinataire
+    {{ .SiteURL }}           → URL du site (ex: https://ambiense.isep.fr)
+-->
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Confirmez votre compte — AMBIENSE</title>
+  <style>
+    /* Reset */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background-color: #06050A;
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      color: #EDE9E0;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    /* Wrapper principal */
+    .wrapper {
+      width: 100%;
+      padding: 40px 16px;
+      background-color: #06050A;
+    }
+
+    /* Container email */
+    .container {
+      max-width: 560px;
+      margin: 0 auto;
+      background-color: #0E0D14;
+      border: 1px solid #232235;
+    }
+
+    /* Bandeau photo */
+    .hero {
+      width: 100%;
+      height: 180px;
+      background: linear-gradient(
+          to bottom,
+          rgba(6,5,10,0.4) 0%,
+          rgba(6,5,10,0.92) 100%
+        ),
+        url('https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=600&q=75&auto=format') center/cover no-repeat;
+      display: flex;
+      align-items: flex-end;
+      padding: 24px 32px;
+    }
+
+    /* Marque */
+    .wordmark {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: #EDE9E0;
+      text-decoration: none;
+    }
+
+    /* Corps */
+    .body {
+      padding: 36px 32px;
+    }
+
+    .eyebrow {
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #C9A240;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    h1 {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 28px;
+      font-weight: 300;
+      color: #EDE9E0;
+      line-height: 1.15;
+      margin-bottom: 16px;
+    }
+
+    h1 em {
+      font-style: italic;
+      color: #E5BC6A;
+    }
+
+    p {
+      font-size: 14px;
+      line-height: 1.75;
+      color: #8A8898;
+      margin-bottom: 16px;
+    }
+
+    /* Bouton CTA */
+    .cta-wrap {
+      margin: 28px 0;
+    }
+    .cta {
+      display: inline-block;
+      background-color: #C9A240;
+      color: #06050A !important;
+      text-decoration: none;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 14px 36px;
+    }
+
+    /* Separateur */
+    .sep {
+      border: none;
+      border-top: 1px solid #232235;
+      margin: 28px 0;
+    }
+
+    /* Lien brut */
+    .raw-link {
+      font-size: 11px;
+      color: #57566A;
+      word-break: break-all;
+      line-height: 1.6;
+    }
+
+    /* Pied de page */
+    .footer {
+      background-color: #040409;
+      border-top: 1px solid #232235;
+      padding: 20px 32px;
+    }
+    .footer p {
+      font-size: 10px;
+      color: #3D3C4E;
+      line-height: 1.6;
+      margin-bottom: 4px;
+    }
+    .footer a {
+      color: #57566A;
+      text-decoration: none;
+    }
+    .footer strong {
+      color: #57566A;
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      .body, .footer { padding: 24px 20px; }
+      h1 { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="container" role="main">
+
+      <!-- Bandeau image -->
+      <div class="hero">
+        <a href="{{ .SiteURL }}" class="wordmark" aria-label="AMBIENSE">AMBIENSE</a>
+      </div>
+
+      <!-- Corps du message -->
+      <div class="body">
+        <span class="eyebrow">Confirmation d'inscription</span>
+
+        <h1>
+          Bienvenue sur<br />
+          <em>AMBIENSE</em>
+        </h1>
+
+        <p>
+          Votre compte a bien été créé avec l'adresse
+          <strong style="color: #EDE9E0;">{{ .Email }}</strong>.
+        </p>
+        <p>
+          Cliquez sur le bouton ci-dessous pour confirmer votre adresse e-mail
+          et activer votre accès à la plateforme de surveillance IoT.
+        </p>
+
+        <!-- Bouton principal -->
+        <div class="cta-wrap">
+          <a href="{{ .ConfirmationURL }}" class="cta">
+            Confirmer mon compte &rarr;
+          </a>
+        </div>
+
+        <p style="font-size: 12px; color: #57566A;">
+          Ce lien expire dans <strong style="color: #8A8898;">24 heures</strong>.
+          Si vous n'avez pas créé de compte, ignorez cet email.
+        </p>
+
+        <hr class="sep" />
+
+        <p class="raw-link">
+          Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :<br />
+          <span style="color: #C9A240;">{{ .ConfirmationURL }}</span>
+        </p>
+      </div>
+
+      <!-- Pied de page -->
+      <div class="footer">
+        <p>
+          <strong>AMBIENSE</strong> — Plateforme IoT de surveillance de bar
+        </p>
+        <p>
+          Projet pédagogique — <strong>ISEP</strong>, Institut Supérieur d'Électronique de Paris<br />
+          10 Rue de Vanves, 92130 Issy-les-Moulineaux ·
+          <a href="https://www.isep.fr">isep.fr</a>
+        </p>
+        <p>
+          Groupe G1E · Coupe du Monde IoT · Promo 2024<br />
+          Données hébergées par Supabase Inc. — Conforme RGPD · UE 2016/679
+        </p>
+        <p>
+          Vous recevez cet email car une demande d'inscription a été effectuée
+          avec votre adresse e-mail. Si ce n'est pas vous, aucune action n'est nécessaire.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>

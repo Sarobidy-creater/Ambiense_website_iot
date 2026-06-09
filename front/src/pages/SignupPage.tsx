@@ -1,10 +1,11 @@
-// =========================================================
+﻿// =========================================================
 //  SignupPage — inscription email + mot de passe
+//  Design split : photo gauche (desktop) + formulaire droite
 // =========================================================
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
-import { Baobab } from '../components/svg/Baobab';
+import heroImg from '../../images/Homepage_illustration.jpg';
 import styles from './AuthPage.module.css';
 
 export function SignupPage() {
@@ -27,7 +28,7 @@ export function SignupPage() {
       return;
     }
     if (password.length < 8) {
-      setError('Le mot de passe doit contenir au moins 8 caractères.');
+      setError('Le mot de passe doit contenir au moins 8 caracteres.');
       return;
     }
 
@@ -36,7 +37,7 @@ export function SignupPage() {
     setLoading(false);
 
     if (err) {
-      setError("Impossible de créer le compte. Vérifiez l'email ou réessayez.");
+      setError("Impossible de creer le compte. Verifiez l'email ou reessayez.");
     } else {
       setSuccess(true);
       setTimeout(() => navigate('/login'), 3000);
@@ -46,12 +47,12 @@ export function SignupPage() {
   if (success) {
     return (
       <div className={styles.page}>
-        <main className={`${styles.card} ${styles.successCard}`} role="status">
-          <span className={styles.emoji} aria-hidden="true">✅</span>
-          <h1 className={styles.title}>Compte créé !</h1>
+        <main className={[styles.formSide, styles.successCard].join(' ')} role="status">
+          <span className={styles.emoji} aria-hidden="true">checkmark</span>
+          <h1 className={styles.title}>Compte cree !</h1>
           <p className={styles.subtitle}>
-            Vérifiez votre boîte mail pour confirmer votre inscription.<br />
-            Redirection dans 3 secondes…
+            Verifiez votre boite mail pour confirmer votre inscription.<br />
+            Redirection dans 3 secondes...
           </p>
         </main>
       </div>
@@ -60,81 +61,106 @@ export function SignupPage() {
 
   return (
     <div className={styles.page}>
-      <div className={styles.baobabLeft}  aria-hidden="true"><Baobab height={200} opacity={0.15} /></div>
-      <div className={styles.baobabRight} aria-hidden="true"><Baobab height={160} opacity={0.1} color="#E8A33D" /></div>
 
-      <main className={styles.card} aria-labelledby="signup-title">
-        <div className={styles.header}>
-          <span className={styles.emoji} aria-hidden="true">🌿</span>
-          <h1 id="signup-title" className={styles.title}>Créer un compte</h1>
-          <p className={styles.subtitle}>Bar G1E · Coupe du Monde</p>
+      {/* ── Panneau gauche : photo bar ── */}
+      <div
+        className={styles.panel}
+        style={{ backgroundImage: "url(" + heroImg + ")" }}
+        aria-hidden="true"
+      >
+        <div className={styles.panelOverlay}>
+          <Link to="/" className={styles.panelWordmark} aria-label="AMBIENSE">
+            AMBIENSE
+          </Link>
+          <div className={styles.panelContent}>
+            <blockquote className={styles.panelQuote}>
+              &ldquo;Rejoignez la plateforme de<br />surveillance intelligente.&rdquo;
+            </blockquote>
+            <ul className={styles.panelFeatures}>
+              <li className={styles.panelFeat}>Acces tableau de bord</li>
+              <li className={styles.panelFeat}>Donnees en temps reel</li>
+              <li className={styles.panelFeat}>Controle des actionneurs</li>
+            </ul>
+          </div>
         </div>
+      </div>
 
-        <form onSubmit={handleSubmit} className={styles.form} noValidate>
-          <div className={styles.field}>
-            <label htmlFor="email" className={styles.label}>Adresse e-mail</label>
-            <input
-              id="email"
-              type="email"
-              className={styles.input}
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              required
-              autoComplete="email"
-              placeholder="vous@exemple.com"
-              aria-required="true"
-            />
+      {/* ── Panneau droit : formulaire ── */}
+      <main className={styles.formSide} aria-labelledby="signup-title">
+        <div className={styles.formInner}>
+
+          <Link to="/" className={styles.wordmarkMobile}>AMBIENSE</Link>
+
+          <div className={styles.header}>
+            <h1 id="signup-title" className={styles.title}>Creer un compte</h1>
+            <p className={styles.subtitle}>Acces a la plateforme AMBIENSE</p>
           </div>
 
-          <div className={styles.field}>
-            <label htmlFor="password" className={styles.label}>Mot de passe</label>
-            <input
-              id="password"
-              type="password"
-              className={styles.input}
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              required
-              autoComplete="new-password"
-              placeholder="8 caractères minimum"
-              aria-required="true"
-            />
-          </div>
-
-          <div className={styles.field}>
-            <label htmlFor="confirm" className={styles.label}>Confirmer le mot de passe</label>
-            <input
-              id="confirm"
-              type="password"
-              className={styles.input}
-              value={confirm}
-              onChange={e => setConfirm(e.target.value)}
-              required
-              autoComplete="new-password"
-              placeholder="••••••••"
-              aria-required="true"
-            />
-          </div>
-
-          {error && (
-            <div className={styles.error} role="alert" aria-live="assertive">
-              {error}
+          <form onSubmit={handleSubmit} className={styles.form} noValidate>
+            <div className={styles.field}>
+              <label htmlFor="email" className={styles.label}>Adresse e-mail</label>
+              <input
+                id="email"
+                type="email"
+                className={styles.input}
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                required
+                autoComplete="email"
+                placeholder="vous@exemple.com"
+                aria-required="true"
+              />
             </div>
-          )}
 
-          <button
-            type="submit"
-            className={styles.submitBtn}
-            disabled={loading}
-            aria-busy={loading}
-          >
-            {loading ? 'Création…' : "Créer mon compte"}
-          </button>
-        </form>
+            <div className={styles.field}>
+              <label htmlFor="password" className={styles.label}>Mot de passe</label>
+              <input
+                id="password"
+                type="password"
+                className={styles.input}
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                required
+                autoComplete="new-password"
+                placeholder="8 caracteres minimum"
+                aria-required="true"
+              />
+            </div>
 
-        <p className={styles.switchLink}>
-          Déjà un compte ? <Link to="/login">Se connecter</Link>
-        </p>
+            <div className={styles.field}>
+              <label htmlFor="confirm" className={styles.label}>Confirmer</label>
+              <input
+                id="confirm"
+                type="password"
+                className={styles.input}
+                value={confirm}
+                onChange={e => setConfirm(e.target.value)}
+                required
+                autoComplete="new-password"
+                placeholder="Repetez le mot de passe"
+                aria-required="true"
+              />
+            </div>
+
+            {error && (
+              <p className={styles.error} role="alert">{error}</p>
+            )}
+
+            <button
+              type="submit"
+              className={styles.submitBtn}
+              disabled={loading || !email || !password || !confirm}
+            >
+              {loading ? 'Creation...' : 'Creer mon compte'}
+            </button>
+          </form>
+
+          <p className={styles.switchLink}>
+            Deja un compte ?{' '}
+            <Link to="/login">Se connecter</Link>
+          </p>
+
+        </div>
       </main>
     </div>
   );

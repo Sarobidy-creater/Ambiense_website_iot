@@ -1,40 +1,29 @@
-// =========================================================
-//  DashboardPage — tableau de bord principal
-//  · Données de toutes les équipes (polling/realtime)
-//  · Contrôle ventilateur G1E
-//  · Graphique température + météo extérieure
-//  · Alertes seuil configurable
+﻿// =========================================================
+//  DashboardPage — station G1E : temperature + ventilateur
+//  Pas d'emoji. Panel de surveillance professionnel.
 // =========================================================
 import { useState, useMemo } from 'react';
-import { useDevices }       from '../hooks/useDevices';
 import { useMeasurements }  from '../hooks/useMeasurements';
 import { useWeather }       from '../hooks/useWeather';
-import { DeviceCard }       from '../components/DeviceCard';
 import { FanControl }       from '../components/FanControl';
 import { TemperatureChart } from '../components/TemperatureChart';
-import { EmptyBaobab }      from '../components/svg/EmptyBaobab';
-import type { Measurement } from '../lib/types';
+import { SensorIcon }       from '../components/svg/SensorIcon';
+import { OUR_DEVICES }      from '../lib/supabase';
 import styles from './DashboardPage.module.css';
 
-/** Renvoie la dernière mesure pour chaque device_id */
-function buildLastMeasMap(measurements: Measurement[]): Map<string, Measurement> {
-  const map = new Map<string, Measurement>();
-  for (const m of measurements) {
-    if (!map.has(m.device_id)) map.set(m.device_id, m);
-  }
-  return map;
-}
+// ── Meteo exterieure ────────────────────────────────────
 
-/** Panneau de la température extérieure Open-Meteo */
-function WeatherPanel() {
+function WeatherWidget() {
   const { weather, loading, error } = useWeather();
   return (
-    <div className={styles.weatherPanel}>
-      <span className={styles.weatherIcon} aria-hidden="true">🌤️</span>
+    <div className={styles.weatherWidget}>
+      <div className={styles.weatherIcon}>
+        <SensorIcon type="temperature" size={18} />
+      </div>
       <div>
-        <div className={styles.weatherLabel}>Extérieur (Paris)</div>
-        {loading && <span className={styles.weatherValue}>…</span>}
-        {error   && <span className={styles.weatherError}>N/A</span>}
+        <div className={styles.weatherLabel}>Exterieur Paris</div>
+        {loading && <span className={styles.weatherValue}>—</span>}
+        {error   && <span className={styles.weatherValue}>N/A</span>}
         {weather && (
           <span className={styles.weatherValue}>
             {weather.temperature.toFixed(1)} {weather.unit}
@@ -45,178 +34,162 @@ function WeatherPanel() {
   );
 }
 
-/** Bannière d'alerte température */
+// ── Bandeau d'alerte ─────────────────────────────────────
+
 function AlertBanner({ value, threshold }: { value: number; threshold: number }) {
   if (value < threshold) return null;
   return (
     <div className={styles.alertBanner} role="alert" aria-live="assertive">
-      <span aria-hidden="true">🚨</span>
-      <strong>Alerte chaleur !</strong>
-      Température mesurée ({value.toFixed(1)} °C) au-dessus du seuil ({threshold} °C).
-      Pensez à activer le ventilateur.
-      {/* TODO: brancher l'envoi d'email via une Edge Function Supabase
-          — ne jamais exposer la clé service ici. Appeler /functions/v1/alert-email
-          avec un appel fetch authentifié depuis le contexte utilisateur connecté. */}
+      <span className={styles.alertDot} />
+      <div>
+        <strong>Alerte chaleur</strong>
+        {' — '}Mesure : {value.toFixed(1)} °C au-dessus du seuil de {threshold} °C.
+        Activez le ventilateur.
+      </div>
     </div>
   );
 }
 
-export function DashboardPage() {
-  const [typeFilter, setTypeFilter] = useState('');
+// ── Tuile stat ────────────────────────────────────────────
 
-  // Configuration du seuil d'alerte (persisté localement)
+interface StatTileProps {
+  label: string;
+  value: string;
+  sub?: string;
+  accent?: boolean;
+  live?: boolean;
+}
+function StatTile({ label, value, sub, accent, live }: StatTileProps) {
+  return (
+    <div className={[styles.statTile, accent ? styles.statTileAccent : ''].filter(Boolean).join(' ')}>
+      <div className={styles.statLabel}>
+        {label}
+        {live && <span className={styles.liveIndicator} aria-label="Temps reel" />}
+      </div>
+      <div className={styles.statValue}>{value}</div>
+      {sub && <div className={styles.statSub}>{sub}</div>}
+    </div>
+  );
+}
+
+// ── Page principale ───────────────────────────────────────
+
+export function DashboardPage() {
   const [alertEnabled,   setAlertEnabled]   = useState(true);
   const [alertThreshold, setAlertThreshold] = useState(28);
 
-  // Tous les appareils (toutes équipes)
-  const { devices, loading: devLoading, error: devError, refresh } = useDevices();
-
-  // Toutes les dernières mesures (polling 1 s)
-  const { measurements, loading: measLoading, error: measError } = useMeasurements({
+  const { measurements, loading: measLoading, error: measError, refresh } = useMeasurements({
+    deviceId: OUR_DEVICES.temperature,
     limit: 500,
   });
 
-  const lastMeasMap = useMemo(
-    () => buildLastMeasMap(measurements),
-    [measurements]
-  );
+  const latest = measurements[0];
 
-  // Dernière température G1E pour l'alerte
-  const lastTempMeas = useMemo(
-    () => measurements.find(m => m.device_id === 'G1E_temperature'),
-    [measurements]
-  );
-
-  // Filtrage des appareils affichés
-  const filteredDevices = useMemo(() => {
-    return devices.filter(d => {
-      if (typeFilter && d.type !== typeFilter) return false;
-      return true;
-    });
-  }, [devices, typeFilter]);
-
-  // Types disponibles pour le filtre
-  const availableTypes = useMemo(
-    () => [...new Set(devices.map(d => d.type))].sort(),
-    [devices]
-  );
+  const stats = useMemo(() => {
+    if (!measurements.length) return null;
+    const vals = measurements.map(m => m.value);
+    return {
+      min: Math.min(...vals),
+      max: Math.max(...vals),
+      avg: vals.reduce((a, b) => a + b, 0) / vals.length,
+    };
+  }, [measurements]);
 
   return (
     <div className={styles.page}>
-      {/* ---- Alerte seuil ---- */}
-      {alertEnabled && lastTempMeas && (
-        <AlertBanner value={lastTempMeas.value} threshold={alertThreshold} />
+
+      {/* Bandeau alerte */}
+      {alertEnabled && latest && (
+        <AlertBanner value={latest.value} threshold={alertThreshold} />
       )}
 
-      {/* ---- Titre + météo ---- */}
+      {/* En-tete */}
       <header className={styles.pageHeader}>
         <div>
-          <h1>Dashboard</h1>
-          <p className={styles.subtitle}>
-            Données en direct G1E
-            {(measLoading || devLoading) && (
-              <span className={styles.syncDot} title="Synchronisation…" aria-label="Synchronisation en cours" />
-            )}
-          </p>
+          <p className={styles.pageEye}>Station de surveillance</p>
+          <h1 className={styles.pageTitle}>G1E — Bar Coupe du Monde</h1>
           {measError && (
             <span className={styles.inlineError} role="alert">
               Erreur : {measError} —{' '}
-              <button onClick={refresh} className={styles.retryInline}>réessayer</button>
+              <button onClick={refresh} className={styles.retryBtn}>reessayer</button>
             </span>
           )}
         </div>
-        <WeatherPanel />
+        <WeatherWidget />
       </header>
 
-      {/* ---- Configuration alerte ---- */}
-      <section className={styles.alertConfig} aria-labelledby="alert-config-title">
-        <h2 id="alert-config-title" className={styles.sectionTitle}>
-          Seuil d’alerte thermique
-        </h2>
+      {/* Tuiles stats */}
+      <div className={styles.statsRow}>
+        <StatTile
+          label="Temperature actuelle"
+          value={latest ? `${latest.value.toFixed(1)} °C` : '—'}
+          sub={latest ? 'mise a jour il y a < 1s' : 'En attente de donnees'}
+          accent={!!latest}
+          live
+        />
+        <StatTile
+          label="Min session"
+          value={stats ? `${stats.min.toFixed(1)} °C` : '—'}
+        />
+        <StatTile
+          label="Max session"
+          value={stats ? `${stats.max.toFixed(1)} °C` : '—'}
+        />
+        <StatTile
+          label="Moyenne"
+          value={stats ? `${stats.avg.toFixed(1)} °C` : '—'}
+          sub={measurements.length ? `${measurements.length} mesures` : undefined}
+        />
+        {measLoading && (
+          <StatTile label="Sync" value="..." live />
+        )}
+      </div>
+
+      {/* Graphique + Ventilateur */}
+      <div className={styles.mainGrid}>
+        <div className={styles.chartPanel}>
+          <TemperatureChart alertThreshold={alertEnabled ? alertThreshold : undefined} />
+        </div>
+        <div className={styles.fanPanel}>
+          <FanControl />
+        </div>
+      </div>
+
+      {/* Configuration seuil */}
+      <section className={styles.alertSection} aria-labelledby="alert-cfg">
+        <h2 id="alert-cfg" className={styles.sectionTitle}>Seuil d'alerte thermique</h2>
         <div className={styles.alertControls}>
           <label className={styles.checkLabel}>
             <input
               type="checkbox"
               checked={alertEnabled}
               onChange={e => setAlertEnabled(e.target.checked)}
-              aria-label="Activer l'alerte de seuil"
+              className={styles.checkbox}
             />
             Activer l'alerte
           </label>
           <div className={styles.thresholdGroup}>
-            <label htmlFor="threshold-slider">
-              Seuil : <strong>{alertThreshold} °C</strong>
-            </label>
+            <div className={styles.thresholdHeader}>
+              <span className={styles.thresholdLabel}>Seuil</span>
+              <span className={styles.thresholdValue}>{alertThreshold} °C</span>
+            </div>
             <input
               id="threshold-slider"
               type="range"
-              min={20}
-              max={40}
-              step={1}
+              min={20} max={40} step={1}
               value={alertThreshold}
               onChange={e => setAlertThreshold(Number(e.target.value))}
               className={styles.thresholdSlider}
-              aria-valuemin={20}
-              aria-valuemax={40}
-              aria-valuenow={alertThreshold}
-              aria-label={`Seuil d'alerte : ${alertThreshold} degrés Celsius`}
+              aria-valuemin={20} aria-valuemax={40} aria-valuenow={alertThreshold}
               disabled={!alertEnabled}
             />
+            <div className={styles.thresholdRange}>
+              <span>20 °C</span><span>40 °C</span>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ---- Contrôle ventilateur + graphique ---- */}
-      <section className={styles.g1eRow} aria-labelledby="g1e-section">
-        <h2 id="g1e-section" className={styles.sectionTitle}>
-          Ventilation
-        </h2>
-        <div className={styles.g1eGrid}>
-          <FanControl />
-          <TemperatureChart alertThreshold={alertEnabled ? alertThreshold : undefined} />
-        </div>
-      </section>
-
-      {/* ---- Filtres ---- */}
-      <div className={styles.filtersBar} role="group" aria-label="Filtres des appareils">
-        <span className={styles.filtersLabel}>Filtrer :</span>
-
-        <select
-          value={typeFilter}
-          onChange={e => setTypeFilter(e.target.value)}
-          className={styles.typeSelect}
-          aria-label="Type de capteur"
-        >
-          <option value="">Tous les types</option>
-          {availableTypes.map(t => (
-            <option key={t} value={t}>{t}</option>
-          ))}
-        </select>
-      </div>
-
-      {/* ---- Grille des appareils ---- */}
-      <section aria-label="Appareils et mesures en direct">
-        {devError && (
-          <div className={styles.errorBanner} role="alert">
-            Erreur appareils : {devError}
-          </div>
-        )}
-        {!devLoading && filteredDevices.length === 0 && (
-          <div className={styles.empty}>
-            <EmptyBaobab />
-            <p>Aucun appareil pour ces filtres</p>
-          </div>
-        )}
-        <div className={styles.devicesGrid}>
-          {filteredDevices.map(device => (
-            <DeviceCard
-              key={device.id}
-              device={device}
-              lastMeasurement={lastMeasMap.get(device.id)}
-            />
-          ))}
-        </div>
-      </section>
     </div>
   );
 }

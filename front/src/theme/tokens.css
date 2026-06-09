@@ -6,19 +6,27 @@
 
 :root {
   /* --- Couleurs principales --- */
-  --clr-terre:        #A8341C;   /* rouge latérite, accent/CTA */
-  --clr-terre-dark:   #8A2815;
-  --clr-ambre:        #E8A33D;   /* coucher de soleil */
-  --clr-ambre-clair:  #F4C25B;   /* highlight, données actives */
-  --clr-vert:         #2E7D5B;   /* vert ravinala */
-  --clr-vert-clair:   #3E9E74;
-  --clr-turquoise:    #178C8C;   /* océan Indien */
-  --clr-turquoise-clair: #1EACAC;
-  --clr-ivoire:       #F5EFE2;   /* raphia clair */
-  --clr-nuit:         #1F1712;   /* fond principal (mode sombre) */
-  --clr-nuit-claire:  #2A2018;   /* surface secondaire */
-  --clr-nuit-moyen:   #352A1E;   /* cards, inputs */
-  --clr-nuit-bord:    #4A3828;   /* bordures subtiles */
+  /* Or/doré : accent premium bar — remplace le marron latérite */
+  --clr-or:           #C9A240;   /* or premium — accent/CTA */
+  --clr-or-dark:      #A8832A;
+  --clr-or-clair:     #E5BC6A;   /* highlight, données actives */
+  --clr-ambre:        #E8A33D;   /* coucher de soleil — chaleur douce */
+  --clr-ambre-clair:  #F4C25B;
+  --clr-teal:         #2BBFBF;   /* teal — info, états actifs */
+  --clr-teal-clair:   #3DD6D6;
+  --clr-vert:         #2E9E74;   /* succès */
+  --clr-vert-clair:   #3AC98A;
+  /* Nuit : noirs purs — aucune teinte chaude marron */
+  --clr-ivoire:       #EDE9E0;   /* texte principal */
+  --clr-nuit:         #06050A;   /* fond principal */
+  --clr-nuit-claire:  #0E0D14;   /* surface secondaire */
+  --clr-nuit-moyen:   #151420;   /* cards, inputs */
+  --clr-nuit-bord:    #232235;   /* bordures subtiles */
+  /* Aliases backward-compat pour les composants existants */
+  --clr-terre:        var(--clr-or);
+  --clr-terre-dark:   var(--clr-or-dark);
+  --clr-turquoise:    var(--clr-teal);
+  --clr-turquoise-clair: var(--clr-teal-clair);
 
   /* --- Sémantique --- */
   --clr-bg:           var(--clr-nuit);
@@ -26,13 +34,13 @@
   --clr-surface-2:    var(--clr-nuit-moyen);
   --clr-border:       var(--clr-nuit-bord);
   --clr-text:         var(--clr-ivoire);
-  --clr-text-muted:   #9E8C78;
-  --clr-text-faint:   #6B5B4B;
-  --clr-accent:       var(--clr-terre);
-  --clr-accent-hover: var(--clr-terre-dark);
-  --clr-highlight:    var(--clr-ambre);
+  --clr-text-muted:   #8A8898;
+  --clr-text-faint:   #57566A;
+  --clr-accent:       var(--clr-or);
+  --clr-accent-hover: var(--clr-or-dark);
+  --clr-highlight:    var(--clr-or-clair);
   --clr-success:      var(--clr-vert);
-  --clr-info:         var(--clr-turquoise);
+  --clr-info:         var(--clr-teal);
   --clr-warning:      #D4870A;
   --clr-danger:       #C0392B;
 
@@ -74,8 +82,9 @@
   --shadow-sm:  0 1px 3px rgba(0,0,0,0.4);
   --shadow-md:  0 4px 12px rgba(0,0,0,0.5);
   --shadow-lg:  0 8px 24px rgba(0,0,0,0.6);
-  --shadow-glow-ambre: 0 0 20px rgba(232,163,61,0.25);
-  --shadow-glow-terre: 0 0 20px rgba(168,52,28,0.3);
+  --shadow-glow-ambre: 0 0 20px rgba(201,162,64,0.25);
+  --shadow-glow-or:    0 0 20px rgba(201,162,64,0.3);
+  --shadow-glow-terre: var(--shadow-glow-or);
 
   /* --- Transitions --- */
   --transition-fast:   150ms ease;

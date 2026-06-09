@@ -56,7 +56,7 @@ export function TemperatureChart({ alertThreshold }: Props) {
   return (
     <section className={styles.panel} aria-labelledby="chart-title">
       <div className={styles.header}>
-        <h3 id="chart-title">🌡️ Température — Bar G1E</h3>
+        <h3 id="chart-title">Temperature G1E</h3>
 
         {/* Sélecteur de fenêtre */}
         <fieldset className={styles.windowPicker} aria-label="Fenêtre temporelle">

@@ -132,6 +132,25 @@
   align-items: center;
   gap: var(--sp-2);
 }
+.statusDot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+/* icone card */
+.cardIcon {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--clr-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--clr-text-faint);
+  flex-shrink: 0;
+}
 
 .errorMsg {
   font-size: var(--text-xs);
