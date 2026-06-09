@@ -145,7 +145,7 @@ export function useAdminMeasurements(): MeasResult {
 // =========================================================
 //  useAdminCommands — historique des commandes
 // =========================================================
-interface CommandRow {
+export interface CommandRow {
   id:         number;
   device_id:  string;
   action:     string;
@@ -202,4 +202,154 @@ export function useAdminCommands(): CmdResult {
   }, [fetch_]);
 
   return { commands, total, loading, error, fetch: fetch_, cancel };
+}
+
+// =========================================================
+//  useAdminAggregates — statistiques agregees par capteur
+//  Calcul cote client a partir des N dernieres mesures
+// =========================================================
+
+export interface DeviceStat {
+  deviceId: string;
+  count:    number;
+  min:      number;
+  max:      number;
+  avg:      number;
+  std:      number;
+  last:     number;
+  lastAt:   string;
+  trend:    number; // diff last - prev (positif = hausse)
+  points:   { time: string; value: number }[]; // sparkline
+}
+
+interface AggResult {
+  stats:   DeviceStat[];
+  loading: boolean;
+  error:   string | null;
+  refresh: () => void;
+}
+
+export function useAdminAggregates(deviceIds: string[], limit = 120): AggResult {
+  const [stats,   setStats]   = useState<DeviceStat[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error,   setError]   = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    if (!deviceIds.length) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const results = await Promise.all(
+        deviceIds.map(id =>
+          supabase
+            .from('G1E_measurements')
+            .select('id, value, created_at')
+            .eq('device_id', id)
+            .order('created_at', { ascending: false })
+            .limit(limit)
+        )
+      );
+
+      const built: DeviceStat[] = deviceIds.map((id, i) => {
+        const rows = (results[i].data ?? []) as { id: number; value: number; created_at: string }[];
+        if (!rows.length) return {
+          deviceId: id, count: 0, min: 0, max: 0, avg: 0, std: 0,
+          last: 0, lastAt: '', trend: 0, points: [],
+        };
+        const vals = rows.map(r => r.value);
+        const avg  = vals.reduce((a, b) => a + b, 0) / vals.length;
+        const std  = Math.sqrt(vals.reduce((s, v) => s + (v - avg) ** 2, 0) / vals.length);
+        const sorted = [...rows].reverse();
+        const pts = sorted.map(r => ({
+          time:  new Date(r.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+          value: r.value,
+        }));
+        return {
+          deviceId: id,
+          count:    rows.length,
+          min:      Math.min(...vals),
+          max:      Math.max(...vals),
+          avg,
+          std,
+          last:     rows[0].value,
+          lastAt:   rows[0].created_at,
+          trend:    rows.length > 1 ? rows[0].value - rows[1].value : 0,
+          points:   pts.slice(-30),
+        };
+      });
+      setStats(built);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Erreur');
+    } finally {
+      setLoading(false);
+    }
+  }, [deviceIds.join(','), limit]); // eslint-disable-line
+
+  useEffect(() => { load(); }, [load]);
+
+  return { stats, loading, error, refresh: load };
+}
+
+// =========================================================
+//  useAdminHourly — agregat mesures par heure (24h)
+// =========================================================
+
+export interface HourlyBucket {
+  hour:  string; // 'HH:00'
+  count: number;
+  avg:   number;
+  min:   number;
+  max:   number;
+}
+
+interface HourlyResult {
+  buckets:  HourlyBucket[];
+  loading:  boolean;
+  error:    string | null;
+  refresh:  () => void;
+}
+
+export function useAdminHourly(deviceId: string): HourlyResult {
+  const [buckets,  setBuckets]  = useState<HourlyBucket[]>([]);
+  const [loading,  setLoading]  = useState(false);
+  const [error,    setError]    = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    if (!deviceId) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const since = new Date(Date.now() - 24 * 3600_000).toISOString();
+      const { data, error: err } = await supabase
+        .from('G1E_measurements')
+        .select('value, created_at')
+        .eq('device_id', deviceId)
+        .gte('created_at', since)
+        .order('created_at', { ascending: true });
+
+      if (err) { setError(err.message); return; }
+      const rows = (data ?? []) as { value: number; created_at: string }[];
+
+      // Grouper par heure
+      const map = new Map<string, number[]>();
+      for (const r of rows) {
+        const h = new Date(r.created_at).getHours();
+        const key = `${String(h).padStart(2, '0')}:00`;
+        if (!map.has(key)) map.set(key, []);
+        map.get(key)!.push(r.value);
+      }
+      const built: HourlyBucket[] = [];
+      for (const [hour, vals] of map) {
+        const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
+        built.push({ hour, count: vals.length, avg, min: Math.min(...vals), max: Math.max(...vals) });
+      }
+      setBuckets(built.sort((a, b) => a.hour.localeCompare(b.hour)));
+    } finally {
+      setLoading(false);
+    }
+  }, [deviceId]);
+
+  useEffect(() => { load(); }, [load]);
+
+  return { buckets, loading, error, refresh: load };
 }

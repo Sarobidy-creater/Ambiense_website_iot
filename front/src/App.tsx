@@ -20,6 +20,7 @@ const SensorDetailPage = lazy(() => import('./pages/SensorDetailPage').then(m =>
 
 // Pages admin (chargées en code-split séparé)
 const AdminOverviewPage      = lazy(() => import('./pages/admin/AdminOverviewPage').then(m => ({ default: m.AdminOverviewPage })));
+const AdminAnalyticsPage     = lazy(() => import('./pages/admin/AdminAnalyticsPage').then(m => ({ default: m.AdminAnalyticsPage })));
 const AdminDevicesPage       = lazy(() => import('./pages/admin/AdminDevicesPage').then(m => ({ default: m.AdminDevicesPage })));
 const AdminMeasurementsPage  = lazy(() => import('./pages/admin/AdminMeasurementsPage').then(m => ({ default: m.AdminMeasurementsPage })));
 const AdminCommandsPage      = lazy(() => import('./pages/admin/AdminCommandsPage').then(m => ({ default: m.AdminCommandsPage })));
@@ -78,6 +79,9 @@ function App() {
             {/* ── Admin (layout dedie + verification role) ── */}
             <Route path="/admin" element={
               <AdminRoute><AdminLayout><AdminOverviewPage /></AdminLayout></AdminRoute>
+            } />
+            <Route path="/admin/analytics" element={
+              <AdminRoute><AdminLayout><AdminAnalyticsPage /></AdminLayout></AdminRoute>
             } />
             <Route path="/admin/devices" element={
               <AdminRoute><AdminLayout><AdminDevicesPage /></AdminLayout></AdminRoute>

@@ -8,11 +8,12 @@ import { useAuth } from '../auth/AuthContext';
 import styles from './AdminLayout.module.css';
 
 const ADMIN_NAV = [
-  { to: '/admin',              label: 'Vue d\'ensemble',  icon: 'overview' },
-  { to: '/admin/devices',      label: 'Appareils',        icon: 'devices'  },
-  { to: '/admin/measurements', label: 'Mesures',          icon: 'chart'    },
-  { to: '/admin/commands',     label: 'Commandes',        icon: 'cmd'      },
-  { to: '/admin/schema',       label: 'Schéma SQL',       icon: 'db'       },
+  { to: '/admin',              label: 'Vue d\'ensemble',  icon: 'overview'   },
+  { to: '/admin/analytics',    label: 'Analytics',        icon: 'analytics'  },
+  { to: '/admin/devices',      label: 'Appareils',        icon: 'devices'    },
+  { to: '/admin/measurements', label: 'Mesures',          icon: 'chart'      },
+  { to: '/admin/commands',     label: 'Commandes',        icon: 'cmd'        },
+  { to: '/admin/schema',       label: 'Schéma SQL',       icon: 'db'         },
 ] as const;
 
 function NavIcon({ type }: { type: string }) {
@@ -23,6 +24,12 @@ function NavIcon({ type }: { type: string }) {
         <rect x="13" y="2" width="9" height="9" rx="1" stroke="currentColor" strokeWidth="1.5"/>
         <rect x="2" y="13" width="9" height="9" rx="1" stroke="currentColor" strokeWidth="1.5"/>
         <rect x="13" y="13" width="9" height="9" rx="1" stroke="currentColor" strokeWidth="1.5"/>
+      </svg>
+    ),
+    analytics: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M3 3v18h18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+        <path d="M7 16l4-5 4 3 4-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
     ),
     devices: (
