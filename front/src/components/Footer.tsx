@@ -9,14 +9,19 @@ export function Footer() {
     <footer className={styles.footer} aria-label="Pied de page">
       <div className={styles.inner}>
 
-        {/* Gauche : marque + ISEP */}
+        {/* Gauche : marque + tagline + legal */}
         <div className={styles.left}>
-          <Link to="/" className={styles.wordmark} aria-label="AMBIENSE">
-            AMBIENSE
-          </Link>
+          <div className={styles.brand}>
+            <Link to="/" className={styles.wordmark} aria-label="AMBIENSE">
+              AMBIENSE
+            </Link>
+            <p className={styles.tagline}>Intelligence environnementale en temps r&eacute;el</p>
+          </div>
           <span className={styles.sep} aria-hidden="true" />
           <span className={styles.legal}>
-            &copy; {new Date().getFullYear()} ISEP &mdash; Projet G1E
+            &copy; {new Date().getFullYear()} ISEP &mdash; Groupe G1E
+            &nbsp;&middot;&nbsp;
+            <a href="mailto:info@isep.fr" className={styles.legalLink}>info@isep.fr</a>
           </span>
         </div>
 

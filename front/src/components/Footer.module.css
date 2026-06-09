@@ -23,7 +23,21 @@
 .left {
   display: flex;
   align-items: center;
-  gap: var(--sp-4);
+  gap: var(--sp-5);
+}
+
+.brand {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.tagline {
+  font-family: var(--font-body);
+  font-size: 0.6875rem;
+  color: var(--clr-text-faint);
+  white-space: nowrap;
+  margin: 0;
 }
 
 .wordmark {
@@ -53,6 +67,13 @@
   color: var(--clr-text-faint);
   white-space: nowrap;
 }
+
+.legalLink {
+  color: var(--clr-text-faint);
+  text-decoration: none;
+  transition: color 200ms;
+}
+.legalLink:hover { color: var(--clr-or); }
 
 /* ── Droite ──────────────────────────────────────────────── */
 
