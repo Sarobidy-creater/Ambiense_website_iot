@@ -7,13 +7,14 @@ import { AuthProvider } from './auth/AuthContext';
 import { Layout } from './components/Layout';
 import { ProtectedRoute } from './components/ProtectedRoute';
 
-const HomePage      = lazy(() => import('./pages/HomePage').then(m => ({ default: m.HomePage })));
-const LoginPage     = lazy(() => import('./pages/LoginPage').then(m => ({ default: m.LoginPage })));
-const SignupPage    = lazy(() => import('./pages/SignupPage').then(m => ({ default: m.SignupPage })));
-const DashboardPage = lazy(() => import('./pages/DashboardPage').then(m => ({ default: m.DashboardPage })));
-const NetworkPage   = lazy(() => import('./pages/NetworkPage').then(m => ({ default: m.NetworkPage })));
-const AdvancedPage  = lazy(() => import('./pages/AdvancedPage').then(m => ({ default: m.AdvancedPage })));
-const ProfilePage   = lazy(() => import('./pages/ProfilePage').then(m => ({ default: m.ProfilePage })));
+const HomePage         = lazy(() => import('./pages/HomePage').then(m => ({ default: m.HomePage })));
+const LoginPage        = lazy(() => import('./pages/LoginPage').then(m => ({ default: m.LoginPage })));
+const SignupPage       = lazy(() => import('./pages/SignupPage').then(m => ({ default: m.SignupPage })));
+const DashboardPage    = lazy(() => import('./pages/DashboardPage').then(m => ({ default: m.DashboardPage })));
+const NetworkPage      = lazy(() => import('./pages/NetworkPage').then(m => ({ default: m.NetworkPage })));
+const AdvancedPage     = lazy(() => import('./pages/AdvancedPage').then(m => ({ default: m.AdvancedPage })));
+const ProfilePage      = lazy(() => import('./pages/ProfilePage').then(m => ({ default: m.ProfilePage })));
+const SensorDetailPage = lazy(() => import('./pages/SensorDetailPage').then(m => ({ default: m.SensorDetailPage })));
 
 function PageLoader() {
   return (
@@ -56,6 +57,10 @@ function App() {
             } />
             <Route path="/profile" element={
               <ProtectedRoute><Layout><ProfilePage /></Layout></ProtectedRoute>
+            } />
+            {/* Page de surveillance detail d'un capteur */}
+            <Route path="/sensor/:deviceId" element={
+              <ProtectedRoute><Layout><SensorDetailPage /></Layout></ProtectedRoute>
             } />
 
             {/* Anciennes routes — redirige */}

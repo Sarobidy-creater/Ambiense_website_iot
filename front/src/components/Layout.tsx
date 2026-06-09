@@ -4,29 +4,32 @@ import { useAuth } from '../auth/AuthContext';
 import { Footer } from './Footer';
 import styles from './Layout.module.css';
 
-interface MegaItem { to: string; label: string; desc: string; }
-interface NavItem  { to: string; label: string; mega: MegaItem[]; }
+interface MegaItem { to: string; label: string; desc: string; badge?: string; badgeColor?: string; }
+interface NavItem  { to: string; label: string; mega: MegaItem[]; wide?: boolean; }
 
 const NAV_ITEMS: NavItem[] = [
   {
     to: '/dashboard', label: 'Surveillance',
     mega: [
-      { to: '/dashboard', label: "Vue d'ensemble",    desc: 'Donnees G1E en direct' },
-      { to: '/dashboard', label: 'Alertes thermiques', desc: 'Seuils et notifications configurables' },
+      { to: '/dashboard', label: 'Station G1E',   desc: 'Temperature, humidite, ventilateur' },
+      { to: '/network',   label: 'Reseau global', desc: 'Tous les groupes connectes' },
     ],
   },
   {
-    to: '/network', label: 'Reseau',
+    to: '/network', label: 'Capteurs', wide: true,
     mega: [
-      { to: '/network',          label: 'Tous les groupes', desc: 'Vue globale des 5 groupes IoT' },
-      { to: '/network#g1e',      label: 'Nos capteurs G1E', desc: 'Temperature et ventilateur G1E' },
+      { to: '/sensor/G1E_temperature', label: 'Temperature',  desc: 'DHT15 · °C',    badge: 'G1E', badgeColor: '#C9A240' },
+      { to: '/sensor/G1E_humidity',    label: 'Humidite',     desc: 'DHT15 · %',     badge: 'G1E', badgeColor: '#C9A240' },
+      { to: '/sensor/G1A_sound',       label: 'Son ambiant',  desc: 'G1A · dB',      badge: 'G1A', badgeColor: '#2BBFBF' },
+      { to: '/sensor/G1B_presence',    label: 'Presence',     desc: 'G1B · pers.',   badge: 'G1B', badgeColor: '#3AC98A' },
+      { to: '/sensor/G1C_smoke',       label: 'Fumee',        desc: 'G1C · ppm',     badge: 'G1C', badgeColor: '#E8A33D' },
+      { to: '/sensor/G1D_alcohol',     label: 'Alcool',       desc: 'G1D · ppm',     badge: 'G1D', badgeColor: '#8B7CF8' },
     ],
   },
   {
     to: '/advanced', label: 'Controle',
     mega: [
-      { to: '/advanced', label: 'Ventilation G1E',     desc: 'Pilotage du ventilateur principal' },
-      { to: '/advanced', label: 'Actionneurs externes', desc: 'Inter-groupes - module beta' },
+      { to: '/advanced', label: 'Ventilation G1E', desc: 'Servo S148 Futaba — pilotage a distance' },
     ],
   },
 ];
@@ -152,15 +155,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
         {/* Mega menu panel */}
         {activeMega && (
           <div
-            className={styles.mega}
+            className={`${styles.mega} ${activeMega.wide ? styles.megaWide : ''}`}
             onMouseEnter={stayOpen}
             onMouseLeave={delayClose}
             role="navigation"
             aria-label={`Sous-menu ${activeMega.label}`}
           >
-            <div className={styles.megaInner}>
+            <div className={activeMega.wide ? styles.megaInnerWide : styles.megaInner}>
               <div className={styles.megaAccent} />
-              <div className={styles.megaItems}>
+              <div className={activeMega.wide ? styles.megaItemsGrid : styles.megaItems}>
                 {activeMega.mega.map(item => (
                   <Link
                     key={item.label}
@@ -168,14 +171,24 @@ export function Layout({ children }: { children: React.ReactNode }) {
                     className={styles.megaItem}
                     onClick={() => setMegaKey(null)}
                   >
+                    {item.badge && (
+                      <span
+                        className={styles.megaBadge}
+                        style={{ color: item.badgeColor, borderColor: `${item.badgeColor}50` }}
+                      >
+                        {item.badge}
+                      </span>
+                    )}
                     <span className={styles.megaLabel}>{item.label}</span>
                     <span className={styles.megaDesc}>{item.desc}</span>
                   </Link>
                 ))}
               </div>
-              <div className={styles.megaCategory} aria-hidden="true">
-                <span>{activeMega.label}</span>
-              </div>
+              {!activeMega.wide && (
+                <div className={styles.megaCategory} aria-hidden="true">
+                  <span>{activeMega.label}</span>
+                </div>
+              )}
             </div>
           </div>
         )}

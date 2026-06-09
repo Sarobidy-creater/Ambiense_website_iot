@@ -402,6 +402,40 @@
   user-select: none;
 }
 
+/* ── Wide mega panel (Capteurs) ────────────────────────── */
+
+.megaWide { /* overrides nothing, same base */ }
+
+.megaInnerWide {
+  max-width: var(--max-w, 1440px);
+  margin: 0 auto;
+  padding: var(--sp-5) var(--px, clamp(1.5rem, 4vw, 4.5rem));
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-8);
+}
+
+.megaItemsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--sp-2);
+  flex: 1;
+}
+
+/* Badge groupe dans le mega item */
+.megaBadge {
+  font-family: var(--font-body);
+  font-size: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border: 1px solid;
+  padding: 1px 5px;
+  display: block;
+  width: fit-content;
+  margin-bottom: 3px;
+}
+
 /* ── Responsive ────────────────────────────────────────── */
 
 @media (max-width: 860px) {

@@ -1,17 +1,16 @@
-// =========================================================
-//  NetworkPage — vue de tous les groupes du réseau IoT
-//  G1E : données live depuis la BDD
-//  G1A–G1D : en attente de connexion (integration future)
+﻿// =========================================================
+//  NetworkPage — vue globale de tous les groupes IoT
+//  G1E : donnees live · G1A-G1D : integration prevue
 // =========================================================
 import { useMemo } from 'react';
-import { useDevices }       from '../hooks/useDevices';
-import { useMeasurements }  from '../hooks/useMeasurements';
-import { DeviceCard }       from '../components/DeviceCard';
-import { SensorIcon }       from '../components/svg/SensorIcon';
-import type { Device, Measurement } from '../lib/types';
+import { Link }            from 'react-router-dom';
+import { useDevices }      from '../hooks/useDevices';
+import { useMeasurements } from '../hooks/useMeasurements';
+import { SensorIcon }      from '../components/svg/SensorIcon';
+import { GROUPS, formatValue } from '../lib/groups';
+import type { Measurement } from '../lib/types';
 import styles from './NetworkPage.module.css';
 
-/** Associe device_id → dernière mesure */
 function buildLastMeasMap(measurements: Measurement[]): Map<string, Measurement> {
   const map = new Map<string, Measurement>();
   for (const m of measurements) {
@@ -20,132 +19,13 @@ function buildLastMeasMap(measurements: Measurement[]): Map<string, Measurement>
   return map;
 }
 
-// ── Définition statique des groupes et capteurs attendus ──
-
-interface ExpectedDevice {
-  type: string;
-  label: string;
-  unit: string;
-  kind: 'sensor' | 'actuator';
+function isOnline(meas?: Measurement): boolean {
+  if (!meas) return false;
+  return Date.now() - new Date(meas.created_at).getTime() < 5 * 60_000;
 }
-interface GroupDef {
-  code: string;
-  name: string;
-  ours: boolean;
-  expected: ExpectedDevice[];
-}
-
-const GROUPS: GroupDef[] = [
-  {
-    code: 'G1E', name: 'Bar G1E', ours: true,
-    expected: [
-      { type: 'temperature', label: 'Temperature', unit: '°C',   kind: 'sensor' },
-      { type: 'motor',       label: 'Ventilateur', unit: '',      kind: 'actuator' },
-    ],
-  },
-  {
-    code: 'G1A', name: 'Groupe G1A', ours: false,
-    expected: [
-      { type: 'sound', label: 'Son ambiant', unit: 'dB', kind: 'sensor' },
-    ],
-  },
-  {
-    code: 'G1B', name: 'Groupe G1B', ours: false,
-    expected: [
-      { type: 'presence', label: 'Presence', unit: 'pers.', kind: 'sensor' },
-    ],
-  },
-  {
-    code: 'G1C', name: 'Groupe G1C', ours: false,
-    expected: [
-      { type: 'smoke', label: 'Fumee', unit: 'ppm', kind: 'sensor' },
-    ],
-  },
-  {
-    code: 'G1D', name: 'Groupe G1D', ours: false,
-    expected: [
-      { type: 'alcohol', label: 'Alcool', unit: 'ppm',  kind: 'sensor'   },
-      { type: 'buzzer',  label: 'Buzzer', unit: '',      kind: 'actuator' },
-    ],
-  },
-];
-
-// ── Panneau d'un groupe en attente ────────────────────────
-
-function PendingGroupPanel({ group }: { group: GroupDef }) {
-  return (
-    <div className={styles.groupPanel}>
-      <div className={styles.groupHeader}>
-        <div>
-          <span className={styles.groupCode}>{group.code}</span>
-          <span className={styles.groupName}>{group.name}</span>
-        </div>
-        <span className={styles.pendingBadge}>En attente</span>
-      </div>
-
-      <div className={styles.pendingDevices}>
-        {group.expected.map(d => (
-          <div key={d.label} className={styles.pendingDevice}>
-            <span className={styles.pendingIcon}>
-              <SensorIcon type={d.type} size={16} />
-            </span>
-            <span className={styles.pendingLabel}>{d.label}</span>
-            {d.unit && <span className={styles.pendingUnit}>{d.unit}</span>}
-            <span className={`${styles.kindTag} ${d.kind === 'sensor' ? styles.kindSensor : styles.kindActuator}`}>
-              {d.kind === 'sensor' ? 'Capteur' : 'Actionneur'}
-            </span>
-          </div>
-        ))}
-      </div>
-
-      <p className={styles.pendingNote}>
-        Integration disponible des connexion du groupe
-      </p>
-    </div>
-  );
-}
-
-// ── Panneau G1E live ─────────────────────────────────────
-
-function G1EPanel({ devices, lastMeasMap }: {
-  devices: Device[];
-  lastMeasMap: Map<string, Measurement>;
-}) {
-  const group = GROUPS[0];
-  return (
-    <div className={`${styles.groupPanel} ${styles.groupPanelOwn}`}>
-      <div className={styles.groupHeader}>
-        <div>
-          <span className={styles.groupCode}>{group.code}</span>
-          <span className={styles.groupName}>{group.name}</span>
-        </div>
-        <span className={styles.liveBadge}>
-          <span className={styles.liveDot} />
-          Live
-        </span>
-      </div>
-
-      {devices.length === 0 ? (
-        <p className={styles.pendingNote}>Aucun appareil enregistre en BDD</p>
-      ) : (
-        <div className={styles.deviceGrid}>
-          {devices.map(d => (
-            <DeviceCard
-              key={d.id}
-              device={d}
-              lastMeasurement={lastMeasMap.get(d.id)}
-            />
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ── Page ──────────────────────────────────────────────────
 
 export function NetworkPage() {
-  const { devices, loading, error, refresh } = useDevices();
+  const { loading, error, refresh } = useDevices();
   const { measurements } = useMeasurements({ limit: 200 });
   const lastMeasMap = useMemo(() => buildLastMeasMap(measurements), [measurements]);
 
@@ -158,15 +38,12 @@ export function NetworkPage() {
           <p className={styles.pageEye}>Infrastructure IoT</p>
           <h1 className={styles.pageTitle}>Reseau de capteurs</h1>
           <p className={styles.pageSubtitle}>
-            5 groupes — {GROUPS.reduce((n, g) => n + g.expected.length, 0)} appareils au total
+            {GROUPS.length} groupes &mdash; {GROUPS.reduce((n, g) => n + g.sensors.length, 0)} appareils au total
           </p>
         </div>
       </header>
 
-      {/* Etats globaux */}
-      {loading && (
-        <p className={styles.stateMsg} role="status">Chargement des appareils…</p>
-      )}
+      {loading && <p className={styles.stateMsg} role="status">Chargement…</p>}
       {error && (
         <div className={styles.errorBanner} role="alert">
           Erreur : {error}
@@ -174,16 +51,70 @@ export function NetworkPage() {
         </div>
       )}
 
-      {/* Grille des groupes */}
+      {/* Un panneau par groupe */}
       <div className={styles.groupsGrid}>
+        {GROUPS.map(group => {
+          const isOurs = group.ours;
+          return (
+            <div
+              key={group.code}
+              className={`${styles.groupPanel} ${isOurs ? styles.groupPanelOwn : ''}`}
+            >
+              {/* Header groupe */}
+              <div className={styles.groupHeader}>
+                <div>
+                  <span className={styles.groupCode} style={{ color: group.color }}>
+                    {group.code}
+                  </span>
+                  <span className={styles.groupName}>{group.name}</span>
+                </div>
+                {isOurs ? (
+                  <span className={styles.liveBadge}>
+                    <span className={styles.liveDot} />
+                    Live
+                  </span>
+                ) : (
+                  <span className={styles.pendingBadge}>En attente</span>
+                )}
+              </div>
 
-        {/* Notre groupe : live */}
-        <G1EPanel devices={devices} lastMeasMap={lastMeasMap} />
+              {/* Liste des capteurs */}
+              <div className={styles.sensorList}>
+                {group.sensors.map(sensor => {
+                  const meas   = lastMeasMap.get(sensor.deviceId);
+                  const online = isOurs && isOnline(meas);
 
-        {/* Autres groupes : en attente */}
-        {GROUPS.filter(g => !g.ours).map(g => (
-          <PendingGroupPanel key={g.code} group={g} />
-        ))}
+                  return (
+                    <Link
+                      key={sensor.deviceId}
+                      to={`/sensor/${sensor.deviceId}`}
+                      className={`${styles.sensorRow} ${online ? styles.sensorOnline : ''}`}
+                    >
+                      <span className={styles.sensorIcon} style={{ color: online ? group.color : undefined }}>
+                        <SensorIcon type={sensor.type} size={16} />
+                      </span>
+                      <div className={styles.sensorInfo}>
+                        <span className={styles.sensorLabel}>{sensor.label}</span>
+                        <span className={styles.sensorId}>{sensor.deviceId}</span>
+                      </div>
+                      <div className={styles.sensorRight}>
+                        {isOurs && meas ? (
+                          <span className={styles.sensorValue} style={{ color: group.color }}>
+                            {formatValue(meas.value, sensor.type, sensor.unit)}
+                          </span>
+                        ) : (
+                          <span className={styles.sensorUnit}>{sensor.unit || sensor.kind}</span>
+                        )}
+                        <span className={styles.sensorArrow}>›</span>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+
+            </div>
+          );
+        })}
       </div>
 
       {/* Note d'integration */}
@@ -191,7 +122,8 @@ export function NetworkPage() {
         <p className={styles.noteTitle}>Integration des autres groupes</p>
         <p className={styles.noteText}>
           Chaque groupe suit la nomenclature <code>GXX_devices</code> / <code>GXX_measurements</code>.
-          Des qu'un groupe connecte ses tables, leurs donnees apparaitront ici en temps reel.
+          Des qu&rsquo;un groupe connecte ses tables, leurs donnees apparaissent ici en temps reel.
+          Cliquez sur un capteur pour accceder a sa page de surveillance detaillee.
         </p>
       </aside>
 
