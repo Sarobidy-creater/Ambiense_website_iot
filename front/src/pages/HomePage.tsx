@@ -3,11 +3,9 @@
 // =========================================================
 import { Link } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import { FootballWidget } from '../components/FootballWidget';
 import heroImg from '../../images/Homepage_illustration.jpg';
 import styles from './HomePage.module.css';
-
-// Video fans (Unsplash licence libre)
-const MATCH_VIDEO = 'https://videos.pexels.com/video-files/5624204/5624204-uhd_2560_1440_30fps.mp4';
 
 const STATS = [
   { value: '5',    label: 'Groupes actifs'       },
@@ -131,21 +129,9 @@ export function HomePage() {
       <section className={styles.gallery} aria-label="Galerie bar">
         <div className={styles.galleryGrid}>
 
-          {/* Video : fans au bar */}
+          {/* Widget football live */}
           <div className={styles.galleryMain}>
-            <video
-              className={styles.galleryVideo}
-              src={MATCH_VIDEO}
-              autoPlay
-              loop
-              muted
-              playsInline
-              aria-label="Supporters celebrant un but"
-            />
-            <div className={styles.galleryCaption}>
-              <span className={styles.galleryCaptionLabel}>Live</span>
-              <span className={styles.galleryCaptionText}>Supporters G1E en direct</span>
-            </div>
+            <FootballWidget />
           </div>
 
           {/* Photos bar */}
