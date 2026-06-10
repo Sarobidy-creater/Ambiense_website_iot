@@ -24,7 +24,7 @@ interface Result {
   error:      string | null;
   refresh:    () => void;
   setRole:    (userId: string, role: 'admin' | 'user') => Promise<string | null>;
-  resetPwd:   (userId: string, newPassword: string) => Promise<string | null>;
+  resetPwd:   (userEmail: string) => Promise<string | null>;
   deleteUser: (userId: string) => Promise<string | null>;
 }
 
@@ -78,31 +78,45 @@ export function useAdminUsers(): Result {
     return null;
   }, [load]);
 
-  // Reset mot de passe via API admin (requiert service_role)
-  const resetPwd = useCallback(async (userId: string, newPassword: string): Promise<string | null> => {
+  // Reset mot de passe : envoie un email de reinitialisation a l'utilisateur
+  // Fonctionne avec la cle publishable (pas besoin de service_role)
+  const resetPwd = useCallback(async (userEmail: string): Promise<string | null> => {
     setSaving(true);
-    const { error: err } = await supabase.auth.admin.updateUserById(userId, {
-      password: newPassword,
+    const { error: err } = await supabase.auth.resetPasswordForEmail(userEmail, {
+      redirectTo: `${window.location.origin}/reset-password`,
     });
     setSaving(false);
-    // Si erreur 401 : la cle publishable ne permet pas cette operation
-    if (err?.status === 401 || err?.status === 403) {
-      return 'Le reset de mot de passe necessite un acces service_role. Utilisez le dashboard Supabase.';
-    }
     return err?.message ?? null;
   }, []);
 
-  // Suppression via API admin (requiert service_role)
+  // Suppression via Edge Function 'admin-delete-user'
+  // Voir supabase/functions/admin-delete-user/index.ts dans le repo
   const deleteUser = useCallback(async (userId: string): Promise<string | null> => {
     setSaving(true);
-    const { error: err } = await supabase.auth.admin.deleteUser(userId);
-    setSaving(false);
-    if (err?.status === 401 || err?.status === 403) {
-      return 'La suppression necessite un acces service_role. Utilisez le dashboard Supabase → Authentication → Users.';
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-delete-user`,
+        {
+          method:  'POST',
+          headers: {
+            'Content-Type':  'application/json',
+            'Authorization': `Bearer ${session?.access_token ?? ''}`,
+          },
+          body: JSON.stringify({ userId }),
+        }
+      );
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        return body.error ?? `Erreur HTTP ${res.status} — la fonction Edge n'est peut-etre pas deployee.`;
+      }
+      await load();
+      return null;
+    } catch (e) {
+      return e instanceof Error ? e.message : 'Erreur reseau';
+    } finally {
+      setSaving(false);
     }
-    if (err) return err.message;
-    await load();
-    return null;
   }, [load]);
 
   return { users, loading, saving, error, refresh: load, setRole, resetPwd, deleteUser };

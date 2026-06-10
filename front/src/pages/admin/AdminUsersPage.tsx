@@ -2,7 +2,7 @@
 //  AdminUsersPage — gestion des comptes utilisateurs
 //  Liste, rôle admin/user, reset mot de passe, suppression
 // =========================================================
-import { useState, type FormEvent } from 'react';
+import { useState } from 'react';
 import { useAdminUsers, type AdminUser } from '../../hooks/useAdminUsers';
 import { useAuth } from '../../auth/AuthContext';
 import styles from './AdminPage.module.css';
@@ -16,23 +16,16 @@ function fmtDate(iso: string | null) {
 
 // ── Modal reset mot de passe ─────────────────────────────
 
-function ResetModal({ user, onClose, onSave }: {
+function ResetModal({ user, onClose, onSend }: {
   user: AdminUser;
   onClose: () => void;
-  onSave:  (pwd: string) => Promise<void>;
+  onSend:  () => Promise<void>;
 }) {
-  const [pwd,     setPwd]     = useState('');
-  const [confirm, setConfirm] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error,   setError]   = useState<string | null>(null);
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    if (pwd.length < 8) { setError('Au moins 8 caractères.'); return; }
-    if (pwd !== confirm) { setError('Les mots de passe ne correspondent pas.'); return; }
+  const handleSend = async () => {
     setLoading(true);
-    await onSave(pwd);
+    await onSend();
     setLoading(false);
     onClose();
   };
@@ -42,27 +35,24 @@ function ResetModal({ user, onClose, onSave }: {
       <div className={styles.modal} onClick={e => e.stopPropagation()}>
         <h2 className={styles.modalTitle}>Réinitialiser le mot de passe</h2>
         <p className={styles.modalSub}>{user.email}</p>
-        <form onSubmit={handleSubmit} className={styles.form}>
-          <div className={styles.field}>
-            <label className={styles.label}>Nouveau mot de passe</label>
-            <input className={styles.input} type="password" value={pwd}
-              onChange={e => setPwd(e.target.value)} required placeholder="8 caractères minimum" />
-          </div>
-          <div className={styles.field}>
-            <label className={styles.label}>Confirmer</label>
-            <input className={styles.input} type="password" value={confirm}
-              onChange={e => setConfirm(e.target.value)} required placeholder="Répéter" />
-          </div>
-          {error && <p className={styles.errorMsg}>{error}</p>}
-          <div className={styles.formActions}>
-            <button type="submit" className={`${styles.btn} ${styles.btnPrimary}`} disabled={loading}>
-              {loading ? 'Sauvegarde…' : 'Mettre à jour'}
-            </button>
-            <button type="button" className={`${styles.btn} ${styles.btnSecondary}`} onClick={onClose}>
-              Annuler
-            </button>
-          </div>
-        </form>
+        <p style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)',
+          color: 'var(--clr-text-muted)', lineHeight: 1.6, margin: 0 }}>
+          Un email de réinitialisation sera envoyé à l'utilisateur.
+          Il pourra définir un nouveau mot de passe via le lien reçu.
+        </p>
+        <div className={styles.formActions}>
+          <button
+            type="button"
+            className={`${styles.btn} ${styles.btnPrimary}`}
+            onClick={handleSend}
+            disabled={loading}
+          >
+            {loading ? 'Envoi…' : 'Envoyer le lien de reset'}
+          </button>
+          <button type="button" className={`${styles.btn} ${styles.btnSecondary}`} onClick={onClose}>
+            Annuler
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -246,10 +236,10 @@ export function AdminUsersPage() {
         <ResetModal
           user={resetTarget}
           onClose={() => setResetTarget(null)}
-          onSave={async (pwd) => {
-            const err = await resetPwd(resetTarget.id, pwd);
+          onSend={async () => {
+            const err = await resetPwd(resetTarget.email);
             if (err) flash(err, false);
-            else flash(`Mot de passe de ${resetTarget.email} réinitialisé.`, true);
+            else flash(`Email de reset envoyé à ${resetTarget.email}.`, true);
           }}
         />
       )}
