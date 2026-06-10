@@ -13,7 +13,7 @@ const NAV_ITEMS: NavItem[] = [
     to: '/dashboard', label: 'Surveillance',
     mega: [
       { to: '/dashboard', label: 'Station G1E',   desc: 'Temperature, humidite, ventilateur' },
-      { to: '/network',   label: 'Reseau global', desc: 'Tous les groupes connectes' },
+      { to: '/network',   label: 'Réseau global', desc: 'Tous les groupes connectes' },
     ],
   },
   {
@@ -147,7 +147,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <Link
                   to="/profile"
                   className={styles.btnProfile}
-                  aria-label="Acceder au profil"
+                  aria-label="Accéder au profil"
                 >
                   Profil
                 </Link>

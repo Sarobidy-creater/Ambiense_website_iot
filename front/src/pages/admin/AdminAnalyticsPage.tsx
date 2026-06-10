@@ -69,7 +69,7 @@ export function AdminAnalyticsPage() {
         </button>
       </div>
 
-      {/* Stats capteur selectionne */}
+      {/* Stats capteur sélectionné */}
       {currentStat && (
         <div className={styles.kpiGrid}>
           {[

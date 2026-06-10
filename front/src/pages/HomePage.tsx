@@ -94,12 +94,12 @@ export function HomePage() {
           <div className={styles.heroCta}>
             {user ? (
               <Link to="/dashboard" className={styles.ctaPrimary}>
-                Acceder a la plateforme &rarr;
+                Accéder a la plateforme &rarr;
               </Link>
             ) : (
               <>
                 <Link to="/login"  className={styles.ctaPrimary}>Se connecter &rarr;</Link>
-                <Link to="/signup" className={styles.ctaSecondary}>Creer un compte</Link>
+                <Link to="/signup" className={styles.ctaSecondary}>Créer un compte</Link>
               </>
             )}
           </div>
@@ -107,7 +107,7 @@ export function HomePage() {
 
         <div className={styles.scrollHint} aria-hidden="true">
           <span className={styles.scrollLine} />
-          <span className={styles.scrollWord}>Decouvrir</span>
+          <span className={styles.scrollWord}>Découvrir</span>
         </div>
       </section>
 
@@ -210,12 +210,12 @@ export function HomePage() {
       </section>
 
       {/* ============================================================
-          Reseau IoT — six capteurs
+          Réseau IoT — six capteurs
       ============================================================ */}
       <section id="capteurs" className={styles.sensors} aria-labelledby="sensors-title">
         <div className={styles.sensorsInner}>
           <div className={styles.sensorsHead}>
-            <span className={styles.sectionEye}>Reseau IoT</span>
+            <span className={styles.sectionEye}>Réseau IoT</span>
             <h2 id="sensors-title" className={styles.sectionTitle}>
               Six capteurs,<br />un seul ecran.
             </h2>
@@ -258,7 +258,7 @@ export function HomePage() {
             Pret a surveiller<br /><em>votre soiree ?</em>
           </h2>
           <p className={styles.ctaSub}>
-            Connectez-vous pour acceder au tableau de bord en temps reel.
+            Connectez-vous pour accéder au tableau de bord en temps reel.
           </p>
           <div className={styles.heroCta}>
             {user ? (
@@ -268,7 +268,7 @@ export function HomePage() {
             ) : (
               <>
                 <Link to="/login"  className={styles.ctaPrimary}>Se connecter &rarr;</Link>
-                <Link to="/signup" className={styles.ctaSecondary}>Creer un compte</Link>
+                <Link to="/signup" className={styles.ctaSecondary}>Créer un compte</Link>
               </>
             )}
           </div>

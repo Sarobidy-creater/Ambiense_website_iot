@@ -13,7 +13,7 @@
 .sidebar {
   width: 220px;
   flex-shrink: 0;
-  background: #04040A;
+  background: var(--clr-surface);
   border-right: 1px solid var(--clr-nuit-bord);
   display: flex;
   flex-direction: column;

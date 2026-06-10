@@ -36,7 +36,7 @@ export function NetworkPage() {
       <header className={styles.pageHeader}>
         <div>
           <p className={styles.pageEye}>Infrastructure IoT</p>
-          <h1 className={styles.pageTitle}>Reseau de capteurs</h1>
+          <h1 className={styles.pageTitle}>Réseau de capteurs</h1>
           <p className={styles.pageSubtitle}>
             {GROUPS.length} groupes &mdash; {GROUPS.reduce((n, g) => n + g.sensors.length, 0)} appareils au total
           </p>
@@ -47,7 +47,7 @@ export function NetworkPage() {
       {error && (
         <div className={styles.errorBanner} role="alert">
           Erreur : {error}
-          <button onClick={refresh} className={styles.retryBtn}>Reessayer</button>
+          <button onClick={refresh} className={styles.retryBtn}>Réessayer</button>
         </div>
       )}
 

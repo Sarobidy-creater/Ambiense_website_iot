@@ -66,7 +66,7 @@ export function LoginPage() {
 
           <div className={styles.header}>
             <h1 id="login-title" className={styles.title}>Connexion</h1>
-            <p className={styles.subtitle}>Acces a votre tableau de bord</p>
+            <p className={styles.subtitle}>Accès a votre tableau de bord</p>
           </div>
 
           <form onSubmit={handleSubmit} className={styles.form} noValidate>
@@ -115,7 +115,7 @@ export function LoginPage() {
 
           <p className={styles.switchLink}>
             Pas de compte ?{' '}
-            <Link to="/signup">Creer un compte</Link>
+            <Link to="/signup">Créer un compte</Link>
           </p>
 
         </div>

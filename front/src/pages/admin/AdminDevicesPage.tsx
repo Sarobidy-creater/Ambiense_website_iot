@@ -117,7 +117,7 @@ export function AdminDevicesPage() {
           </div>
           <div className={styles.formActions}>
             <button type="submit" className={`${styles.btn} ${styles.btnPrimary}`} disabled={saving}>
-              {saving ? 'Sauvegarde…' : editId ? 'Mettre a jour' : 'Creer'}
+              {saving ? 'Sauvegarde…' : editId ? 'Mettre a jour' : 'Créer'}
             </button>
             {editId && (
               <button
@@ -135,7 +135,7 @@ export function AdminDevicesPage() {
 
       {/* Liste appareils */}
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>Appareils enregistrés ({devices.length})</h2>
+        <h2 className={styles.sectionTitle}>Appareils enregistrésés ({devices.length})</h2>
         {loading ? (
           <p className={styles.stateMsg}>Chargement…</p>
         ) : (

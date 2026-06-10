@@ -117,7 +117,7 @@ export function DashboardPage() {
           {measError && (
             <span className={styles.inlineError} role="alert">
               Erreur : {measError} —{' '}
-              <button onClick={refresh} className={styles.retryBtn}>reessayer</button>
+              <button onClick={refresh} className={styles.retryBtn}>réessayer</button>
             </span>
           )}
         </div>

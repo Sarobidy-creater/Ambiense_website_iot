@@ -3,7 +3,7 @@
    ========================================================= */
 
 .footer {
-  background: #040409;
+  background: var(--clr-bg);
   border-top: 1px solid var(--clr-nuit-bord);
   margin-top: auto;
 }

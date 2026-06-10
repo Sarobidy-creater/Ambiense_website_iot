@@ -111,7 +111,7 @@ export function AdminMeasurementsPage() {
       <header className={styles.pageHeader}>
         <p className={styles.pageEye}>Administration</p>
         <h1 className={styles.pageTitle}>Mesures</h1>
-        <p className={styles.pageSub}>{total.toLocaleString('fr-FR')} entrees dans G1E_measurements</p>
+        <p className={styles.pageSub}>{total.toLocaleString('fr-FR')} entrées dans G1E_measurements</p>
       </header>
 
       {/* Agregats par capteur */}
@@ -169,7 +169,7 @@ export function AdminMeasurementsPage() {
             onClick={() => setTab(t)}
           >
             {t === 'graph' ? 'Graphique' : 'Tableau'}
-            {t === 'table' && selected.size > 0 && ` (${selected.size} selectionnes)`}
+            {t === 'table' && selected.size > 0 && ` (${selected.size} sélectionnés)`}
           </button>
         ))}
       </div>
@@ -206,9 +206,9 @@ export function AdminMeasurementsPage() {
         <>
           {selected.size > 0 && (
             <div className={styles.toolbar}>
-              <span className={styles.toolbarLabel}>{selected.size} selectionnes</span>
+              <span className={styles.toolbarLabel}>{selected.size} sélectionnés</span>
               <button className={`${styles.btn} ${styles.btnSecondary}`} onClick={() => setSelected(new Set())}>
-                Deselectionner
+                Desélectionnér
               </button>
               <button className={`${styles.btn} ${styles.btnSecondary}`} onClick={() => exportCSV(rows, selected)}>
                 Exporter selection CSV
@@ -221,7 +221,7 @@ export function AdminMeasurementsPage() {
               <tr>
                 <th style={{ width: 36 }}>
                   <input type="checkbox" checked={selected.size === rows.length && rows.length > 0}
-                    onChange={toggleAll} title="Tout selectionner" />
+                    onChange={toggleAll} title="Tout sélectionner" />
                 </th>
                 <th>ID</th><th>Appareil</th><th>Type</th><th>Valeur</th><th>Unite</th><th>Horodatage</th>
               </tr>

@@ -29,7 +29,7 @@ export function Footer() {
           <h3 className={styles.colTitle}>Plateforme</h3>
           <ul className={styles.colLinks}>
             <li><Link to="/dashboard" className={styles.link}>Surveillance</Link></li>
-            <li><Link to="/network"   className={styles.link}>R&eacute;seau de capteurs</Link></li>
+            <li><Link to="/network"   className={styles.link}>Réseau de capteurs</Link></li>
             <li><Link to="/advanced"  className={styles.link}>Centre de contr&ocirc;le</Link></li>
             <li><Link to="/profile"   className={styles.link}>Mon profil</Link></li>
           </ul>

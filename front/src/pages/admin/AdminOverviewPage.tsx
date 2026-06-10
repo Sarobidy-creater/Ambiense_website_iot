@@ -124,7 +124,7 @@ export function AdminOverviewPage() {
       <header className={styles.pageHeader}>
         <p className={styles.pageEye}>Espace administration</p>
         <h1 className={styles.pageTitle}>Vue d&rsquo;ensemble</h1>
-        <p className={styles.pageSub}>{new Date().toLocaleString('fr-FR')} &mdash; Reseau G1E</p>
+        <p className={styles.pageSub}>{new Date().toLocaleString('fr-FR')} &mdash; Réseau G1E</p>
       </header>
 
       {/* KPIs */}

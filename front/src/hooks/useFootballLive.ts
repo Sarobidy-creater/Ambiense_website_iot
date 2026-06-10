@@ -98,7 +98,7 @@ export function useFootballLive(): Result {
 
   const fetch_ = useCallback(async () => {
     if (!API_KEY) {
-      setError('Cle API manquante — ajoutez VITE_RAPIDAPI_KEY dans .env.local');
+      setError('Clé API manquante — ajoutez VITE_RAPIDAPI_KEY dans .env.local');
       setLoading(false);
       return;
     }

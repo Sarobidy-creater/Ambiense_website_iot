@@ -56,13 +56,13 @@ export function AdminCommandsPage() {
   const handleCancel = async (id: number) => {
     const err = await cancel(id);
     if (err) flash(err, false);
-    else { flash('Commande annulee.', true); load(); }
+    else { flash('Commande annulée.', true); load(); }
   };
 
   // Annuler selection
   const bulkCancel = async () => {
     const pending = commands.filter(c => selected.has(c.id) && c.status === 'pending');
-    if (!pending.length) { flash('Aucune commande en attente selectionnee.', false); return; }
+    if (!pending.length) { flash('Aucune commande en attente sélectionnée.', false); return; }
     setBulkBusy(true);
     let errors = 0;
     for (const c of pending) {
@@ -70,7 +70,7 @@ export function AdminCommandsPage() {
       if (err) errors++;
     }
     setBulkBusy(false);
-    flash(`${pending.length - errors} commandes annulees.${errors ? ' ' + errors + ' erreurs.' : ''}`, errors === 0);
+    flash(`${pending.length - errors} commandes annulées.${errors ? ' ' + errors + ' erreurs.' : ''}`, errors === 0);
     load();
   };
 
@@ -97,13 +97,13 @@ export function AdminCommandsPage() {
       <header className={styles.pageHeader}>
         <p className={styles.pageEye}>Administration</p>
         <h1 className={styles.pageTitle}>Commandes</h1>
-        <p className={styles.pageSub}>{total.toLocaleString('fr-FR')} entrees dans G1E_commands</p>
+        <p className={styles.pageSub}>{total.toLocaleString('fr-FR')} entrées dans G1E_commands</p>
       </header>
 
       {/* Distribution statuts */}
       <div className={styles.kpiGrid}>
         {[
-          { label: 'Terminee',    value: distrib.done,    color: 'var(--clr-vert)' },
+          { label: 'Terminée',    value: distrib.done,    color: 'var(--clr-vert)' },
           { label: 'En attente',  value: distrib.pending, color: 'var(--clr-ambre)' },
           { label: 'Erreur',      value: distrib.error,   color: 'var(--clr-danger)' },
         ].map(k => (
@@ -145,14 +145,14 @@ export function AdminCommandsPage() {
       {selected.size > 0 && (
         <div className={styles.toolbar} style={{ background: 'rgba(201,162,64,0.06)', borderColor: 'rgba(201,162,64,0.25)' }}>
           <span className={styles.toolbarLabel} style={{ color: 'var(--clr-or)' }}>
-            {selected.size} selectionnes — {selPending} en attente
+            {selected.size} sélectionnés — {selPending} en attente
           </span>
           <button className={`${styles.btn} ${styles.btnDanger}`}
             onClick={bulkCancel} disabled={bulkBusy || selPending === 0}>
             {bulkBusy ? 'Annulation…' : `Annuler ${selPending} pending`}
           </button>
           <button className={`${styles.btn} ${styles.btnSecondary}`} onClick={() => setSelected(new Set())}>
-            Deselectionner
+            Desélectionnér
           </button>
         </div>
       )}

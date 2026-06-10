@@ -275,6 +275,10 @@
   flex-direction: column;
 }
 
+[data-theme="light"] .mobile {
+  background: rgba(247,246,242,0.97);
+}
+
 .mLink {
   font-family: var(--font-body);
   font-size: var(--text-lg);
@@ -352,6 +356,10 @@
   border-bottom: 1px solid var(--clr-nuit-bord);
   z-index: 199;
   animation: megaIn 180ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+[data-theme="light"] .mega {
+  background: rgba(247,246,242,0.97);
 }
 
 @keyframes megaIn {

@@ -37,7 +37,7 @@ export function SignupPage() {
     setLoading(false);
 
     if (err) {
-      setError("Impossible de creer le compte. Verifiez l'email ou reessayez.");
+      setError("Impossible de créer le compte. Vérifiez l'email ou réessayez.");
     } else {
       setSuccess(true);
       setTimeout(() => navigate('/login'), 3000);
@@ -77,7 +77,7 @@ export function SignupPage() {
               &ldquo;Rejoignez la plateforme de<br />surveillance intelligente.&rdquo;
             </blockquote>
             <ul className={styles.panelFeatures}>
-              <li className={styles.panelFeat}>Acces tableau de bord</li>
+              <li className={styles.panelFeat}>Accès tableau de bord</li>
               <li className={styles.panelFeat}>Donnees en temps reel</li>
               <li className={styles.panelFeat}>Controle des actionneurs</li>
             </ul>
@@ -92,8 +92,8 @@ export function SignupPage() {
           <Link to="/" className={styles.wordmarkMobile}>AMBIENSE</Link>
 
           <div className={styles.header}>
-            <h1 id="signup-title" className={styles.title}>Creer un compte</h1>
-            <p className={styles.subtitle}>Acces a la plateforme AMBIENSE</p>
+            <h1 id="signup-title" className={styles.title}>Créer un compte</h1>
+            <p className={styles.subtitle}>Accès a la plateforme AMBIENSE</p>
           </div>
 
           <form onSubmit={handleSubmit} className={styles.form} noValidate>
@@ -151,7 +151,7 @@ export function SignupPage() {
               className={styles.submitBtn}
               disabled={loading || !email || !password || !confirm}
             >
-              {loading ? 'Creation...' : 'Creer mon compte'}
+              {loading ? 'Creation...' : 'Créer mon compte'}
             </button>
           </form>
 
