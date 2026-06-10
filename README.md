@@ -1,7 +1,22 @@
 ﻿# AMBIENSE — Plateforme IoT Bar G1E
 
-> Intelligence environnementale en temps reel pour les bars et salles d'evenements.
-> Projet pedagogique ISEP · Groupe G1E · Coupe du Monde IoT
+> Intelligence environnementale en temps réel pour les bars et salles d'événements.
+> Projet pédagogique ISEP · Groupe G1E · Coupe du Monde IoT
+
+---
+
+## ⚡ Démarrage rapide (toutes plateformes)
+
+```bash
+git clone https://github.com/Sarobidy-creater/Ambiense_website_iot.git
+cd Ambiense_website_iot/front
+npm install && npm run dev
+```
+
+**C'est tout.** Ouvrez http://localhost:5173 — le site démarre avec les credentials Supabase G1E déjà inclus dans `.env` (clé publishable publique, sécurisée par RLS).
+
+> **Mac / Linux** : si `npm` n'est pas installé → [nodejs.org](https://nodejs.org) ou `brew install node`  
+> **Windows** : si `npm` n'est pas reconnu → installer Node.js LTS depuis [nodejs.org](https://nodejs.org) et redémarrer le terminal
 
 ---
 

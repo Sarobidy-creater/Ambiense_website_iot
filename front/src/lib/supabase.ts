@@ -6,9 +6,15 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl  = import.meta.env.VITE_SUPABASE_URL  as string;
 const supabaseKey  = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string;
 
+// Affiche un message clair dans la console si les variables manquent
+// (ne crash pas pour éviter l'écran noir)
 if (!supabaseUrl || !supabaseKey) {
-  throw new Error(
-    'Variables VITE_SUPABASE_URL et VITE_SUPABASE_PUBLISHABLE_KEY manquantes dans .env.local'
+  console.error(
+    '[AMBIENSE] ⚠️  Variables Supabase manquantes.\n' +
+    'Créez front/.env.local avec :\n' +
+    '  VITE_SUPABASE_URL=https://...\n' +
+    '  VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...\n' +
+    'Voir front/.env.local.example pour le modèle complet.'
   );
 }
 
