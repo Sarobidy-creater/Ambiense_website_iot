@@ -1,6 +1,7 @@
 ﻿import React, { useState, useEffect, useRef } from 'react';
 import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import { useTheme } from '../theme/ThemeContext';
 import { Footer } from './Footer';
 import styles from './Layout.module.css';
 
@@ -44,6 +45,7 @@ function UserAvatar({ email }: { email: string }) {
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const { user, signOut } = useAuth();
+  const { theme, toggle } = useTheme();
   const navigate           = useNavigate();
   const location           = useLocation();
   const [open, setOpen]         = useState(false);
@@ -116,6 +118,28 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
           {/* Actions droite */}
           <div className={styles.actions}>
+            {/* Toggle dark/light */}
+            <button
+              className={styles.themeToggle}
+              onClick={toggle}
+              aria-label={theme === 'dark' ? 'Passer en mode clair' : 'Passer en mode sombre'}
+              title={theme === 'dark' ? 'Mode clair' : 'Mode sombre'}
+            >
+              {theme === 'dark' ? (
+                /* Soleil */
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="1.5"/>
+                  <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"
+                    stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                </svg>
+              ) : (
+                /* Lune */
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"
+                    stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              )}
+            </button>
             {user ? (
               <div className={styles.userRow}>
                 <UserAvatar email={user.email ?? '?'} />

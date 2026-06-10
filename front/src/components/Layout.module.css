@@ -34,6 +34,10 @@
   border-bottom-color: var(--clr-nuit-bord);
 }
 
+[data-theme="light"] .navSolid {
+  background: rgba(247,246,242,0.95);
+}
+
 /* Contenu de la barre */
 .inner {
   max-width: var(--max-w, 1440px);
@@ -154,8 +158,28 @@
   white-space: nowrap;
 }
 
+/* ── Theme toggle ──────────────────────────────────────── */
+
+.themeToggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: 1px solid var(--clr-nuit-bord);
+  color: var(--clr-text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: border-color 150ms, color 150ms, background 150ms;
+}
+.themeToggle:hover {
+  border-color: var(--clr-or);
+  color: var(--clr-or);
+  background: rgba(201,162,64,0.06);
+}
+
 .btnProfile {
-  font-family: var(--font-body);
   font-size: var(--text-xs);
   font-weight: 400;
   letter-spacing: 0.09em;

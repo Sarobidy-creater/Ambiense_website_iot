@@ -4,6 +4,7 @@
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './auth/AuthContext';
+import { ThemeProvider } from './theme/ThemeContext';
 import { Layout } from './components/Layout';
 import { AdminLayout } from './components/AdminLayout';
 import { ProtectedRoute } from './components/ProtectedRoute';
@@ -44,6 +45,7 @@ function PageLoader() {
 
 function App() {
   return (
+    <ThemeProvider>
     <BrowserRouter>
       <AuthProvider>
         <Suspense fallback={<PageLoader />}>
@@ -102,6 +104,7 @@ function App() {
         </Suspense>
       </AuthProvider>
     </BrowserRouter>
+    </ThemeProvider>
   );
 }
 

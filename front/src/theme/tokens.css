@@ -100,3 +100,34 @@
   --header-height: 64px;
   --content-max:   1440px;
 }
+
+/* =========================================================
+   Mode LIGHT — surcharge des tokens sémantiques uniquement
+   Tous les composants utilisent les variables sémantiques
+   donc ça marche sans toucher les composants.
+   ========================================================= */
+
+[data-theme="light"] {
+  /* Fonds : blanc chaud */
+  --clr-nuit:         #F7F6F2;
+  --clr-nuit-claire:  #FFFFFF;
+  --clr-nuit-moyen:   #EEECE6;
+  --clr-nuit-bord:    #DDDAD0;
+
+  /* Texte : inversé */
+  --clr-ivoire:       #1C1A28;
+  --clr-text-muted:   #4A4858;
+  --clr-text-faint:   #78778A;
+
+  /* Sémantique (tous les composants lisent ces vars) */
+  --clr-bg:           #F7F6F2;
+  --clr-surface:      #FFFFFF;
+  --clr-surface-2:    #EEECE6;
+  --clr-border:       #DDDAD0;
+  --clr-text:         #1C1A28;
+
+  /* Ombres plus légères */
+  --shadow-sm:  0 1px 3px rgba(0,0,0,0.10);
+  --shadow-md:  0 4px 12px rgba(0,0,0,0.12);
+  --shadow-lg:  0 8px 24px rgba(0,0,0,0.14);
+}
