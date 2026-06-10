@@ -55,10 +55,13 @@ export function SensorChart({ deviceId, unit, label, color = '#C9A240', ours = t
   });
 
   const data = useMemo(() =>
-    [...measurements].reverse().map(m => ({
-      time:  formatTime(m.created_at),
-      value: m.value,
-    })),
+    // Tri par horodatage ISO avant d'afficher (chronologique garanti)
+    [...measurements]
+      .sort((a, b) => a.created_at.localeCompare(b.created_at))
+      .map(m => ({
+        time:  formatTime(m.created_at),
+        value: m.value,
+      })),
     [measurements]
   );
 

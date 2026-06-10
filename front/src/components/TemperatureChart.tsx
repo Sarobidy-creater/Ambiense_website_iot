@@ -65,19 +65,26 @@ export function TemperatureChart({ alertThreshold }: Props) {
     limit:    200,
   });
 
-  // Fusionne temp + humidite sur le meme axe temporel
+  // Fusionne temp + humidite en triant par horodatage ISO (chronologique)
+  // La cle de fusion est l'ISO tronque a la minute pour aligner les deux series
   const data = useMemo(() => {
-    const tempByTime = new Map(
-      [...tempMeas].reverse().map(m => [formatTime(m.created_at), m.value])
+    // Cle = ISO a la minute (ex: "2026-06-10T11:28"), tri chronologique garanti
+    const isoMin = (iso: string) => iso.slice(0, 16);
+
+    const tempByMin = new Map(
+      [...tempMeas].reverse().map(m => [isoMin(m.created_at), { value: m.value, raw: m.created_at }])
     );
-    const humByTime = new Map(
-      [...humMeas].reverse().map(m => [formatTime(m.created_at), m.value])
+    const humByMin = new Map(
+      [...humMeas].reverse().map(m => [isoMin(m.created_at), { value: m.value, raw: m.created_at }])
     );
-    const allTimes = [...new Set([...tempByTime.keys(), ...humByTime.keys()])].sort();
-    return allTimes.map(t => ({
-      time: t,
-      temp: tempByTime.get(t) ?? null,
-      hum:  humByTime.get(t)  ?? null,
+
+    // Tri ISO = tri chronologique correct, meme sur plusieurs jours
+    const allKeys = [...new Set([...tempByMin.keys(), ...humByMin.keys()])].sort();
+
+    return allKeys.map(k => ({
+      time: formatTime((tempByMin.get(k) ?? humByMin.get(k))!.raw),
+      temp: tempByMin.get(k)?.value ?? null,
+      hum:  humByMin.get(k)?.value  ?? null,
     }));
   }, [tempMeas, humMeas]);
 
