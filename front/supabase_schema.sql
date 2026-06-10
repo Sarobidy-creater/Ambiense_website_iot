@@ -5,26 +5,64 @@
 -- =========================================================
 
 -- ─── ROLES UTILISATEURS ───────────────────────────────────
--- Chaque utilisateur peut avoir le role 'admin' ou 'user' (defaut)
 
 create table if not exists "user_roles" (
-  user_id  uuid primary key references auth.users(id) on delete cascade,
-  role     text not null default 'user'   -- 'user' | 'admin'
+  user_id    uuid primary key references auth.users(id) on delete cascade,
+  role       text not null default 'user',   -- 'user' | 'admin'
+  created_at timestamptz default now()
 );
 
 alter table "user_roles" enable row level security;
 
-drop policy if exists "user_roles_select_own" on "user_roles";
-drop policy if exists "user_roles_select_all" on "user_roles";
+drop policy if exists "user_roles_select_own"   on "user_roles";
+drop policy if exists "user_roles_select_all"   on "user_roles";
+drop policy if exists "user_roles_admin_select" on "user_roles";
+drop policy if exists "user_roles_admin_update" on "user_roles";
 
--- Chaque utilisateur peut lire son propre role
+-- Chaque utilisateur lit son propre role
 create policy "user_roles_select_own" on "user_roles"
   for select to authenticated
   using (user_id = auth.uid());
 
--- Le service_role peut tout faire (admin via Edge Function ou SQL)
--- (pas de policy INSERT/UPDATE/DELETE pour authenticated :
---  seul un admin Supabase/service_role peut modifier les roles)
+-- Un admin peut lire TOUS les roles
+create policy "user_roles_admin_select" on "user_roles"
+  for select to authenticated
+  using (
+    exists (
+      select 1 from "user_roles" r
+      where r.user_id = auth.uid() and r.role = 'admin'
+    )
+  );
+
+-- Un admin peut modifier les roles
+create policy "user_roles_admin_update" on "user_roles"
+  for all to authenticated
+  using (
+    exists (
+      select 1 from "user_roles" r
+      where r.user_id = auth.uid() and r.role = 'admin'
+    )
+  )
+  with check (true);
+
+
+-- ─── VUE PROFILS UTILISATEURS (lisible par les admins) ────
+-- Expose les infos de auth.users sans donner acces direct a la table
+
+create or replace view "user_profiles" as
+  select
+    u.id,
+    u.email,
+    u.created_at,
+    u.last_sign_in_at,
+    u.email_confirmed_at,
+    coalesce(r.role, 'user') as role
+  from auth.users u
+  left join "user_roles" r on r.user_id = u.id;
+
+-- Donne acces a la vue aux utilisateurs authentifies
+-- (la securite est assuree par RLS sur user_roles)
+grant select on "user_profiles" to authenticated;
 
 
 -- ─── TABLES G1E ───────────────────────────────────────────
