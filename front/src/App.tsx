@@ -13,6 +13,7 @@ import { AdminRoute } from './components/AdminRoute';
 const HomePage         = lazy(() => import('./pages/HomePage').then(m => ({ default: m.HomePage })));
 const LoginPage        = lazy(() => import('./pages/LoginPage').then(m => ({ default: m.LoginPage })));
 const SignupPage       = lazy(() => import('./pages/SignupPage').then(m => ({ default: m.SignupPage })));
+const ForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage').then(m => ({ default: m.ForgotPasswordPage })));
 const DashboardPage    = lazy(() => import('./pages/DashboardPage').then(m => ({ default: m.DashboardPage })));
 const NetworkPage      = lazy(() => import('./pages/NetworkPage').then(m => ({ default: m.NetworkPage })));
 const AdvancedPage     = lazy(() => import('./pages/AdvancedPage').then(m => ({ default: m.AdvancedPage })));
@@ -22,6 +23,7 @@ const SensorDetailPage = lazy(() => import('./pages/SensorDetailPage').then(m =>
 // Pages admin (chargées en code-split séparé)
 const AdminOverviewPage      = lazy(() => import('./pages/admin/AdminOverviewPage').then(m => ({ default: m.AdminOverviewPage })));
 const AdminAnalyticsPage     = lazy(() => import('./pages/admin/AdminAnalyticsPage').then(m => ({ default: m.AdminAnalyticsPage })));
+const AdminUsersPage         = lazy(() => import('./pages/admin/AdminUsersPage').then(m => ({ default: m.AdminUsersPage })));
 const AdminDevicesPage       = lazy(() => import('./pages/admin/AdminDevicesPage').then(m => ({ default: m.AdminDevicesPage })));
 const AdminMeasurementsPage  = lazy(() => import('./pages/admin/AdminMeasurementsPage').then(m => ({ default: m.AdminMeasurementsPage })));
 const AdminCommandsPage      = lazy(() => import('./pages/admin/AdminCommandsPage').then(m => ({ default: m.AdminCommandsPage })));
@@ -51,8 +53,9 @@ function App() {
         <Suspense fallback={<PageLoader />}>
           <Routes>
             {/* Pages publiques */}
-            <Route path="/login"  element={<LoginPage />} />
-            <Route path="/signup" element={<SignupPage />} />
+            <Route path="/login"          element={<LoginPage />} />
+            <Route path="/signup"         element={<SignupPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
             {/* Page d'accueil avec Layout */}
             <Route path="/" element={<Layout><HomePage /></Layout>} />
@@ -84,6 +87,9 @@ function App() {
             } />
             <Route path="/admin/analytics" element={
               <AdminRoute><AdminLayout><AdminAnalyticsPage /></AdminLayout></AdminRoute>
+            } />
+            <Route path="/admin/users" element={
+              <AdminRoute><AdminLayout><AdminUsersPage /></AdminLayout></AdminRoute>
             } />
             <Route path="/admin/devices" element={
               <AdminRoute><AdminLayout><AdminDevicesPage /></AdminLayout></AdminRoute>

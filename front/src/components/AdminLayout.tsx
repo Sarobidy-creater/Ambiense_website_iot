@@ -10,6 +10,7 @@ import styles from './AdminLayout.module.css';
 const ADMIN_NAV = [
   { to: '/admin',              label: 'Vue d\'ensemble',  icon: 'overview'   },
   { to: '/admin/analytics',    label: 'Analytics',        icon: 'analytics'  },
+  { to: '/admin/users',        label: 'Utilisateurs',     icon: 'users'      },
   { to: '/admin/devices',      label: 'Appareils',        icon: 'devices'    },
   { to: '/admin/measurements', label: 'Mesures',          icon: 'chart'      },
   { to: '/admin/commands',     label: 'Commandes',        icon: 'cmd'        },
@@ -30,6 +31,14 @@ function NavIcon({ type }: { type: string }) {
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <path d="M3 3v18h18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
         <path d="M7 16l4-5 4 3 4-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    ),
+    users: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="9" cy="7" r="3.5" stroke="currentColor" strokeWidth="1.5"/>
+        <path d="M2 21c0-3.9 3.1-7 7-7s7 3.1 7 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+        <path d="M16 3.1a3.5 3.5 0 0 1 0 6.8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+        <path d="M21 21a5 5 0 0 0-5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
       </svg>
     ),
     devices: (

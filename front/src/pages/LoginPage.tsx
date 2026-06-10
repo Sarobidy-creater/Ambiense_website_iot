@@ -113,6 +113,12 @@ export function LoginPage() {
             </button>
           </form>
 
+          <p className={styles.switchLink} style={{ textAlign: 'right', marginTop: 'var(--sp-3)' }}>
+            <Link to="/forgot-password" style={{ fontSize: 'var(--text-xs)', color: 'var(--clr-text-faint)' }}>
+              Mot de passe oublié ?
+            </Link>
+          </p>
+
           <p className={styles.switchLink}>
             Pas de compte ?{' '}
             <Link to="/signup">Créer un compte</Link>
