@@ -6,8 +6,8 @@
 //  Déploiement :
 //    npx supabase functions deploy admin-delete-user --project-ref fdlwkvsovkewlfwnrpvm
 //
-//  Variables d'environnement Supabase à définir (Settings > Edge Functions) :
-//    SUPABASE_SERVICE_ROLE_KEY = eyJ...  (votre clé service_role)
+//  Variables d'environnement Supabase à définir (Settings > Edge Functions secrets) :
+//    SERVICE_ROLE_KEY = eyJ...  (votre clé service_role)
 // =========================================================
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
@@ -33,7 +33,7 @@ Deno.serve(async (req) => {
     }
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!
-    const serviceKey  = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    const serviceKey  = Deno.env.get('SERVICE_ROLE_KEY')!
 
     // Client utilisateur (pour vérifier qu'il est admin)
     const userClient = createClient(supabaseUrl, Deno.env.get('SUPABASE_ANON_KEY')!, {
