@@ -72,8 +72,6 @@ export function HomePage() {
           className={styles.heroMedia}
           style={{ backgroundImage: "url(" + heroImg + ")" }}
           aria-hidden="true"
-          role="img"
-          aria-label="Ambiance bar lors d'un match"
         />
         <div className={styles.heroOverlay} aria-hidden="true" />
         <div className={styles.navSpacer}   aria-hidden="true" />
@@ -138,7 +136,7 @@ export function HomePage() {
               loop
               muted
               playsInline
-              aria-label="Supporters fêtant un but"
+              aria-hidden="true"
             />
           </div>
 

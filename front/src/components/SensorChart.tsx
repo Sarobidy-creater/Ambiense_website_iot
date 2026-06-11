@@ -8,6 +8,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip,
 } from 'recharts';
 import { useMeasurements } from '../hooks/useMeasurements';
+import { useTheme } from '../theme/ThemeContext';
 import type { TimeWindow } from '../lib/types';
 import styles from './SensorChart.module.css';
 
@@ -46,6 +47,8 @@ function formatTime(iso: string): string {
 }
 
 export function SensorChart({ deviceId, unit, label, color = '#C9A240', ours = true }: Props) {
+  const { theme } = useTheme();
+  const tickFaint = theme === 'light' ? '#5A596E' : '#787790';
   const [window_, setWindow] = useState<TimeWindow>('1h');
 
   const { measurements, loading } = useMeasurements({
@@ -97,7 +100,7 @@ export function SensorChart({ deviceId, unit, label, color = '#C9A240', ours = t
         <div className={styles.titleRow}>
           <h3 className={styles.title}>{label}</h3>
           {!loading && data.length > 0 && (
-            <span className={styles.liveDot} aria-label="Temps reel" />
+            <span className={styles.liveDot} role="img" aria-label="Temps réel" />
           )}
         </div>
 
@@ -153,7 +156,11 @@ export function SensorChart({ deviceId, unit, label, color = '#C9A240', ours = t
           Aucune donnee pour cette periode.
         </div>
       ) : (
-        <div className={styles.chartWrap}>
+        <div
+          className={styles.chartWrap}
+          role="img"
+          aria-label={`Graphique ${label} — Min ${stats ? stats.min.toFixed(1) : '—'}, Moy ${stats ? stats.avg.toFixed(1) : '—'}, Max ${stats ? stats.max.toFixed(1) : '—'} ${unit}`}
+        >
           <ResponsiveContainer width="100%" height={260}>
             <ComposedChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
               <defs>
@@ -165,13 +172,13 @@ export function SensorChart({ deviceId, unit, label, color = '#C9A240', ours = t
               <CartesianGrid strokeDasharray="0" stroke="rgba(35,34,53,0.7)" horizontal vertical={false} />
               <XAxis
                 dataKey="time"
-                tick={{ fill: '#57566A', fontSize: 10 }}
+                tick={{ fill: tickFaint, fontSize: 10 }}
                 tickLine={false}
                 axisLine={{ stroke: '#232235' }}
                 interval="preserveStartEnd"
               />
               <YAxis
-                tick={{ fill: '#57566A', fontSize: 10 }}
+                tick={{ fill: tickFaint, fontSize: 10 }}
                 tickLine={false}
                 axisLine={false}
                 unit={` ${unit}`.trimEnd()}

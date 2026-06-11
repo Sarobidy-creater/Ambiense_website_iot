@@ -2,6 +2,25 @@
    Layout — AMBIENSE · Navigation horizontale premium
    ========================================================= */
 
+/* ── Lien de saut (WCAG 2.4.1) ───────────────────────────────── */
+.skipLink {
+  position: absolute;
+  left: -9999px;
+  top: var(--sp-2);
+  z-index: 9999;
+  background: var(--clr-or);
+  color: #06050A;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  padding: var(--sp-2) var(--sp-5);
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+}
+.skipLink:focus {
+  left: var(--sp-4);
+}
+
 .shell {
   min-height: 100vh;
   display: flex;
@@ -428,10 +447,14 @@
   font-family: var(--font-display);
   font-size: clamp(2rem, 3vw, 3.5rem);
   font-weight: 300;
-  color: rgba(201,162,64,0.07);
+  color: rgba(201,162,64,0.35);
   letter-spacing: -0.02em;
   white-space: nowrap;
   user-select: none;
+}
+
+[data-theme="light"] .megaCategory span {
+  color: rgba(150,110,20,0.40);
 }
 
 /* ── Wide mega panel (Capteurs) ────────────────────────── */

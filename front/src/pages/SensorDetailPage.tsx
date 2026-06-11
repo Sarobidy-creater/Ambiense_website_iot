@@ -76,8 +76,14 @@ export function SensorDetailPage() {
         <div className={styles.liveValue}>
           {isOurs && hasData ? (
             <>
-              <span className={styles.liveIndicator} aria-label="En direct" />
-              <span className={styles.liveNum} style={{ color: sensor.color }}>
+              <span className={styles.liveIndicator} role="img" aria-label="En direct" />
+              <span
+                className={styles.liveNum}
+                style={{ color: sensor.color }}
+                role="status"
+                aria-live="polite"
+                aria-atomic="true"
+              >
                 {formatValue(latest.value, sensor.type, sensor.unit)}
               </span>
               <span className={styles.liveLabel}>En direct</span>

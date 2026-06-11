@@ -122,8 +122,8 @@ export function AdminCommandsPage() {
 
       {/* Filtres */}
       <div className={styles.toolbar}>
-        <span className={styles.toolbarLabel}>Statut</span>
-        <select className={styles.select} style={{ maxWidth: 180 }}
+        <label htmlFor="cmd-status-filter" className={styles.toolbarLabel}>Statut</label>
+        <select id="cmd-status-filter" aria-label="Filtrer par statut" className={styles.select} style={{ maxWidth: 180 }}
           value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
           <option value="">Tous</option>
           <option value="pending">En attente</option>
@@ -163,25 +163,26 @@ export function AdminCommandsPage() {
       <table className={styles.table}>
         <thead>
           <tr>
-            <th style={{ width: 36 }}>
+            <th scope="col" style={{ width: 36 }}>
               <input type="checkbox"
+                aria-label="Tout sélectionner"
                 checked={selected.size === commands.length && commands.length > 0}
                 onChange={toggleAll} />
             </th>
-            <th>ID</th><th>Appareil</th><th>Action</th><th>Payload</th>
-            <th>Statut</th><th>Date</th><th></th>
+            <th scope="col">ID</th><th scope="col">Appareil</th><th scope="col">Action</th><th scope="col">Payload</th>
+            <th scope="col">Statut</th><th scope="col">Date</th><th scope="col"><span className="sr-only">Actions</span></th>
           </tr>
         </thead>
         <tbody>
           {commands.map((c: CommandRow) => (
             <tr key={c.id} style={selected.has(c.id) ? { background: 'rgba(201,162,64,0.06)' } : undefined}>
-              <td><input type="checkbox" checked={selected.has(c.id)} onChange={() => toggleRow(c.id)} /></td>
+              <td><input type="checkbox" aria-label={`Sélectionner la commande ${c.id}`} checked={selected.has(c.id)} onChange={() => toggleRow(c.id)} /></td>
               <td className={styles.mono}>{c.id}</td>
               <td><code className={styles.code}>{c.device_id}</code></td>
               <td>{c.action}</td>
               <td className={styles.mono}>{c.payload ? JSON.stringify(c.payload) : '—'}</td>
               <td>
-                <span className={styles.statusDot} style={{ background: statusColor(c.status) }} />
+                <span className={styles.statusDot} style={{ background: statusColor(c.status) }} aria-hidden="true" />
                 <StatusBadge status={c.status} />
               </td>
               <td className={styles.mono}>{fmtDate(c.created_at)}</td>

@@ -212,6 +212,7 @@ export function AdminOverviewPage() {
                 className={`${styles.btn} ${styles.btnPrimary}`}
                 onClick={() => quickFan('on')}
                 disabled={sending}
+                aria-label="Allumer le ventilateur G1E"
               >
                 Marche
               </button>
@@ -219,12 +220,13 @@ export function AdminOverviewPage() {
                 className={`${styles.btn} ${styles.btnDanger}`}
                 onClick={() => quickFan('off')}
                 disabled={sending}
+                aria-label="Éteindre le ventilateur G1E"
               >
                 Arret
               </button>
             </div>
             {lastCommand && (
-              <p className={ov.cmdStatus}>
+              <p className={ov.cmdStatus} role="status" aria-live="polite">
                 Derniere commande :
                 <span style={{
                   color: lastCommand.status === 'done' ? 'var(--clr-vert)' :
@@ -269,7 +271,7 @@ export function AdminOverviewPage() {
           <Link to="/admin/measurements" className={styles.sectionLink}>Explorer →</Link>
         </div>
         <table className={styles.table}>
-          <thead><tr><th>Appareil</th><th>Type</th><th>Valeur</th><th>Unite</th><th>Date</th></tr></thead>
+          <thead><tr><th scope="col">Appareil</th><th scope="col">Type</th><th scope="col">Valeur</th><th scope="col">Unite</th><th scope="col">Date</th></tr></thead>
           <tbody>
             {measHook.rows.map(r => (
               <tr key={r.id}>

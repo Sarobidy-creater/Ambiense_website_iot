@@ -82,6 +82,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className={styles.shell}>
 
+      {/* ===== Lien de saut pour lecteurs d'ecran (WCAG 2.4.1) ===== */}
+      <a href="#main-content" className={styles.skipLink}>
+        Aller au contenu principal
+      </a>
+
       {/* ===== Barre de navigation ===== */}
       <header
         className={`${styles.navbar} ${transparent ? styles.navGlass : styles.navSolid}`}
@@ -102,6 +107,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 key={item.to}
                 className={styles.navGroup}
                 onMouseEnter={() => openMega(item.to)}
+                onFocus={() => openMega(item.to)}
+                onKeyDown={(e) => { if (e.key === 'Escape') setMegaKey(null); }}
               >
                 <NavLink
                   to={item.to}
@@ -109,6 +116,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
                     [styles.link, isActive && styles.linkActive, megaKey === item.to && styles.linkOpen]
                       .filter(Boolean).join(' ')
                   }
+                  aria-haspopup="true"
+                  aria-expanded={megaKey === item.to}
                 >
                   {item.label}
                 </NavLink>

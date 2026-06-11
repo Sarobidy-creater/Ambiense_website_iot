@@ -83,8 +83,13 @@ function ExternalActuatorPanel({ device }: { device: Device }) {
 
       {/* Statut de la dernière commande */}
       {lastCommand && (
-        <div className={styles.status} style={{ color: statusColors[lastCommand.status] ?? 'inherit' }}>
-          <span className={styles.statusDot} />
+        <div
+          className={styles.status}
+          style={{ color: statusColors[lastCommand.status] ?? 'inherit' }}
+          role="status"
+          aria-live="polite"
+        >
+          <span className={styles.statusDot} aria-hidden="true" />
           Commande {lastCommand.action} — {lastCommand.status}
         </div>
       )}

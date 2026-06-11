@@ -105,7 +105,7 @@ export function NetworkPage() {
                         ) : (
                           <span className={styles.sensorUnit}>{sensor.unit || sensor.kind}</span>
                         )}
-                        <span className={styles.sensorArrow}>›</span>
+                        <span className={styles.sensorArrow} aria-hidden="true">›</span>
                       </div>
                     </Link>
                   );

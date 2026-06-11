@@ -147,7 +147,7 @@ export function DevicesPage() {
         )}
         {!loading && !error && devices.length === 0 && (
           <div className={styles.empty}>
-            <EmptyBaobab />
+            <EmptyBaobab aria-hidden="true" />
             <p>Aucun appareil trouvé</p>
           </div>
         )}

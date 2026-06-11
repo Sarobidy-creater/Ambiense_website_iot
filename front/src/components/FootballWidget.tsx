@@ -62,16 +62,16 @@ export function FootballWidget() {
       <div className={styles.body}>
 
         {loading && (
-          <div className={styles.state}>
-            <span className={styles.loadingDot} />
-            <span className={styles.loadingDot} />
-            <span className={styles.loadingDot} />
+          <div className={styles.state} role="status" aria-label="Chargement des matchs en cours">
+            <span className={styles.loadingDot} aria-hidden="true" />
+            <span className={styles.loadingDot} aria-hidden="true" />
+            <span className={styles.loadingDot} aria-hidden="true" />
           </div>
         )}
 
         {error && !loading && (
-          <div className={styles.error}>
-            <span className={styles.errorLine} />
+          <div className={styles.error} role="alert">
+            <span className={styles.errorLine} aria-hidden="true" />
             <span className={styles.errorText}>{error}</span>
           </div>
         )}
@@ -85,7 +85,7 @@ export function FootballWidget() {
         )}
 
         {!loading && matches.length > 0 && (
-          <ul className={styles.list}>
+          <ul className={styles.list} aria-live="polite" aria-label="Matchs en cours">
             {matches.map(m => (
               <li key={m.id}>
                 <ScoreBoard m={m} />

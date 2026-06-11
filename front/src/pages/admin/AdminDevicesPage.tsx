@@ -129,7 +129,7 @@ export function AdminDevicesPage() {
               </button>
             )}
           </div>
-          {msg && <p className={msg.ok ? styles.successMsg : styles.errorMsg}>{msg.text}</p>}
+          {msg && <p className={msg.ok ? styles.successMsg : styles.errorMsg} role={msg.ok ? 'status' : 'alert'}>{msg.text}</p>}
         </form>
       </section>
 
@@ -144,13 +144,13 @@ export function AdminDevicesPage() {
             <table className={styles.table}>
               <thead>
                 <tr>
-                  <th>Identifiant</th>
-                  <th>Classe</th>
-                  <th>Type</th>
-                  <th>Unité</th>
-                  <th>Label</th>
-                  <th>Créé le</th>
-                  <th>Actions</th>
+                  <th scope="col">Identifiant</th>
+                  <th scope="col">Classe</th>
+                  <th scope="col">Type</th>
+                  <th scope="col">Unité</th>
+                  <th scope="col">Label</th>
+                  <th scope="col">Créé le</th>
+                  <th scope="col">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -171,6 +171,7 @@ export function AdminDevicesPage() {
                         <button
                           className={`${styles.btn} ${styles.btnSecondary} ${styles.btnSmall}`}
                           onClick={() => startEdit(d)}
+                          aria-label={`Modifier l'appareil ${d.id}`}
                         >
                           Modifier
                         </button>
@@ -180,12 +181,14 @@ export function AdminDevicesPage() {
                               className={`${styles.btn} ${styles.btnDanger} ${styles.btnSmall}`}
                               onClick={() => handleRemove(d.id)}
                               disabled={saving}
+                              aria-label={`Confirmer la suppression de ${d.id}`}
                             >
                               Confirmer
                             </button>
                             <button
                               className={`${styles.btn} ${styles.btnSecondary} ${styles.btnSmall}`}
                               onClick={() => setConfirm(null)}
+                              aria-label={`Annuler la suppression de ${d.id}`}
                             >
                               Annuler
                             </button>
@@ -194,6 +197,7 @@ export function AdminDevicesPage() {
                           <button
                             className={`${styles.btn} ${styles.btnDanger} ${styles.btnSmall}`}
                             onClick={() => setConfirm(d.id)}
+                            aria-label={`Supprimer l'appareil ${d.id}`}
                           >
                             Supprimer
                           </button>

@@ -32,8 +32,14 @@ function ResetModal({ user, onClose, onSend }: {
 
   return (
     <div className={styles.modalOverlay} onClick={onClose}>
-      <div className={styles.modal} onClick={e => e.stopPropagation()}>
-        <h2 className={styles.modalTitle}>Réinitialiser le mot de passe</h2>
+      <div
+        className={styles.modal}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="reset-modal-title"
+        onClick={e => e.stopPropagation()}
+      >
+        <h2 id="reset-modal-title" className={styles.modalTitle}>Réinitialiser le mot de passe</h2>
         <p className={styles.modalSub}>{user.email}</p>
         <p style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)',
           color: 'var(--clr-text-muted)', lineHeight: 1.6, margin: 0 }}>
@@ -128,7 +134,7 @@ export function AdminUsersPage() {
         {saving && <span className={styles.toolbarLabel}>Sauvegarde…</span>}
       </div>
 
-      {msg   && <p className={msg.ok ? styles.successMsg : styles.errorMsg}>{msg.text}</p>}
+      {msg   && <p className={msg.ok ? styles.successMsg : styles.errorMsg} role={msg.ok ? 'status' : 'alert'}>{msg.text}</p>}
       {error && <p className={styles.errorMsg}>{error}</p>}
 
       {loading ? (
@@ -137,12 +143,12 @@ export function AdminUsersPage() {
         <table className={styles.table}>
           <thead>
             <tr>
-              <th>Email</th>
-              <th>Rôle</th>
-              <th>Statut</th>
-              <th>Créé le</th>
-              <th>Dernière connexion</th>
-              <th>Actions</th>
+              <th scope="col">Email</th>
+              <th scope="col">Rôle</th>
+              <th scope="col">Statut</th>
+              <th scope="col">Créé le</th>
+              <th scope="col">Dernière connexion</th>
+              <th scope="col">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -181,6 +187,7 @@ export function AdminUsersPage() {
                         className={`${styles.btn} ${styles.btnSecondary} ${styles.btnSmall}`}
                         onClick={() => handleRole(u, isAdmin ? 'user' : 'admin')}
                         disabled={saving || isSelf}
+                        aria-label={`${isAdmin ? 'Retirer le rôle admin de' : 'Passer admin'} ${u.email}`}
                         title={isSelf ? 'Impossible de modifier votre propre rôle' : undefined}
                       >
                         {isAdmin ? 'Retirer admin' : 'Passer admin'}
@@ -191,6 +198,7 @@ export function AdminUsersPage() {
                         className={`${styles.btn} ${styles.btnSecondary} ${styles.btnSmall}`}
                         onClick={() => setResetTarget(u)}
                         disabled={saving}
+                        aria-label={`Réinitialiser le mot de passe de ${u.email}`}
                       >
                         Reset MDP
                       </button>
@@ -202,12 +210,14 @@ export function AdminUsersPage() {
                             className={`${styles.btn} ${styles.btnDanger} ${styles.btnSmall}`}
                             onClick={() => handleDelete(u.id)}
                             disabled={saving}
+                            aria-label={`Confirmer la suppression du compte ${u.email}`}
                           >
                             Confirmer
                           </button>
                           <button
                             className={`${styles.btn} ${styles.btnSecondary} ${styles.btnSmall}`}
                             onClick={() => setConfirmDel(null)}
+                            aria-label={`Annuler la suppression du compte ${u.email}`}
                           >
                             Annuler
                           </button>
@@ -217,6 +227,7 @@ export function AdminUsersPage() {
                           className={`${styles.btn} ${styles.btnDanger} ${styles.btnSmall}`}
                           onClick={() => setConfirmDel(u.id)}
                           disabled={saving || isSelf}
+                          aria-label={`Supprimer le compte ${u.email}`}
                           title={isSelf ? 'Impossible de supprimer votre propre compte' : undefined}
                         >
                           Supprimer

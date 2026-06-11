@@ -10,6 +10,7 @@ import {
 } from 'recharts';
 import { useMeasurements } from '../hooks/useMeasurements';
 import { OUR_DEVICES } from '../lib/supabase';
+import { useTheme } from '../theme/ThemeContext';
 import type { TimeWindow, MeasurementStats } from '../lib/types';
 import styles from './TemperatureChart.module.css';
 
@@ -52,6 +53,10 @@ function ChartTooltip({ active, payload, label }: {
 // ── Composant principal ──────────────────────────────────
 
 export function TemperatureChart({ alertThreshold }: Props) {
+  const { theme } = useTheme();
+  const tickFaint = theme === 'light' ? '#5A596E' : '#787790';
+  const tickGold  = theme === 'light' ? '#7A5E00' : '#C9A240';
+  const tickTeal  = theme === 'light' ? '#007070' : '#2BBFBF';
   const [window_, setWindow] = useState<TimeWindow>('1h');
 
   const { measurements: tempMeas, loading: tempLoading } = useMeasurements({
@@ -172,7 +177,11 @@ export function TemperatureChart({ alertThreshold }: Props) {
           Aucune donnee — le capteur n&rsquo;a pas encore envoy&eacute; de mesures.
         </div>
       ) : (
-        <div className={styles.chartWrap}>
+        <div
+          className={styles.chartWrap}
+          role="img"
+          aria-label={`Graphique Ambiance thermique — Température : min ${stats ? stats.min.toFixed(1) : '—'}°C, moy ${stats ? stats.avg.toFixed(1) : '—'}°C, max ${stats ? stats.max.toFixed(1) : '—'}°C`}
+        >
           <ResponsiveContainer width="100%" height={280}>
             <ComposedChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
               <defs>
@@ -193,7 +202,7 @@ export function TemperatureChart({ alertThreshold }: Props) {
               />
               <XAxis
                 dataKey="time"
-                tick={{ fill: '#57566A', fontSize: 10 }}
+                tick={{ fill: tickFaint, fontSize: 10 }}
                 tickLine={false}
                 axisLine={{ stroke: '#232235' }}
                 interval="preserveStartEnd"
@@ -201,7 +210,7 @@ export function TemperatureChart({ alertThreshold }: Props) {
               {/* Axe gauche : temperature */}
               <YAxis
                 yAxisId="temp"
-                tick={{ fill: '#C9A240', fontSize: 10 }}
+                tick={{ fill: tickGold, fontSize: 10 }}
                 tickLine={false}
                 axisLine={false}
                 unit="°"
@@ -211,7 +220,7 @@ export function TemperatureChart({ alertThreshold }: Props) {
               <YAxis
                 yAxisId="hum"
                 orientation="right"
-                tick={{ fill: '#2BBFBF', fontSize: 10 }}
+                tick={{ fill: tickTeal, fontSize: 10 }}
                 tickLine={false}
                 axisLine={false}
                 unit="%"

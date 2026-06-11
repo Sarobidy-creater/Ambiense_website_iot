@@ -12,6 +12,7 @@ import {
   useAdminMeasurements, useAdminAggregates, type MeasFilter,
 } from '../../hooks/useAdmin';
 import { useAdminDevices } from '../../hooks/useAdmin';
+import { useTheme } from '../../theme/ThemeContext';
 import { GROUPS } from '../../lib/groups';
 import styles from './AdminPage.module.css';
 
@@ -39,6 +40,8 @@ function exportCSV(rows: ReturnType<typeof useAdminMeasurements>['rows'], select
 }
 
 export function AdminMeasurementsPage() {
+  const { theme } = useTheme();
+  const tickFaint = theme === 'light' ? '#5A596E' : '#787790';
   const { devices } = useAdminDevices();
   const { rows, total, loading, error, fetch } = useAdminMeasurements();
 
@@ -139,17 +142,21 @@ export function AdminMeasurementsPage() {
       {/* Filtres */}
       <div className={styles.toolbar}>
         <span className={styles.toolbarLabel}>Filtres</span>
-        <select className={styles.select} style={{ maxWidth: 200 }}
+        <label htmlFor="filter-device" className="sr-only">Appareil</label>
+        <select id="filter-device" aria-label="Filtrer par appareil" className={styles.select} style={{ maxWidth: 200 }}
           value={deviceId} onChange={e => setDeviceId(e.target.value)}>
           <option value="">Tous les appareils</option>
           {devices.map(d => <option key={d.id} value={d.id}>{d.id}</option>)}
         </select>
-        <input className={styles.input} style={{ maxWidth: 130 }}
+        <label htmlFor="filter-type" className="sr-only">Type de mesure</label>
+        <input id="filter-type" aria-label="Filtrer par type de mesure" className={styles.input} style={{ maxWidth: 130 }}
           placeholder="Type" value={type} onChange={e => setType(e.target.value)} />
-        <input className={styles.input} style={{ maxWidth: 150 }}
-          type="date" value={from} onChange={e => setFrom(e.target.value)} title="Depuis" />
-        <input className={styles.input} style={{ maxWidth: 150 }}
-          type="date" value={to} onChange={e => setTo(e.target.value)} title="Jusqu'au" />
+        <label htmlFor="filter-from" className="sr-only">Depuis</label>
+        <input id="filter-from" aria-label="Depuis le" className={styles.input} style={{ maxWidth: 150 }}
+          type="date" value={from} onChange={e => setFrom(e.target.value)} />
+        <label htmlFor="filter-to" className="sr-only">Jusqu'au</label>
+        <input id="filter-to" aria-label="Jusqu'au" className={styles.input} style={{ maxWidth: 150 }}
+          type="date" value={to} onChange={e => setTo(e.target.value)} />
         <button className={`${styles.btn} ${styles.btnPrimary}`} onClick={applyFilters}>
           Appliquer
         </button>
@@ -161,9 +168,11 @@ export function AdminMeasurementsPage() {
       </div>
 
       {/* Onglets */}
-      <div style={{ display: 'flex', gap: 1, background: 'var(--clr-nuit-bord)' }}>
+      <div role="tablist" aria-label="Vue des mesures" style={{ display: 'flex', gap: 1, background: 'var(--clr-nuit-bord)' }}>
         {(['graph', 'table'] as Tab[]).map(t => (
           <button key={t}
+            role="tab"
+            aria-selected={tab === t}
             className={[styles.btn, tab === t ? styles.btnPrimary : styles.btnSecondary].join(' ')}
             style={{ flex: 1, borderRadius: 0, padding: 'var(--sp-3)' }}
             onClick={() => setTab(t)}
@@ -179,7 +188,7 @@ export function AdminMeasurementsPage() {
 
       {/* Vue graphique */}
       {tab === 'graph' && !loading && (
-        <div style={{ background: 'var(--clr-surface)', border: '1px solid var(--clr-nuit-bord)', padding: 'var(--sp-5)' }}>
+        <div role="img" aria-label="Graphique des mesures sélectionnées" style={{ background: 'var(--clr-surface)', border: '1px solid var(--clr-nuit-bord)', padding: 'var(--sp-5)' }}>
           <ResponsiveContainer width="100%" height={320}>
             <ComposedChart data={chartData} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
               <defs>
@@ -189,10 +198,10 @@ export function AdminMeasurementsPage() {
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="0" stroke="rgba(35,34,53,0.6)" horizontal vertical={false} />
-              <XAxis dataKey="time" tick={{ fill: '#57566A', fontSize: 10 }} tickLine={false} interval="preserveStartEnd" />
-              <YAxis tick={{ fill: '#57566A', fontSize: 10 }} tickLine={false} axisLine={false} domain={['auto', 'auto']} />
+              <XAxis dataKey="time" tick={{ fill: tickFaint, fontSize: 10 }} tickLine={false} interval="preserveStartEnd" />
+              <YAxis tick={{ fill: tickFaint, fontSize: 10 }} tickLine={false} axisLine={false} domain={['auto', 'auto']} />
               <Tooltip contentStyle={{ background: '#0E0D14', border: '1px solid #232235', color: '#EDE9E0' }}
-                labelStyle={{ color: '#57566A', fontSize: 11 }} />
+                labelStyle={{ color: tickFaint, fontSize: 11 }} />
               <Legend wrapperStyle={{ fontSize: 11, color: '#8A8898' }} />
               <Area type="monotone" dataKey="value" name={deviceId || 'Valeur'}
                 stroke="#C9A240" strokeWidth={2} fill="url(#mg1)" dot={false} connectNulls />
@@ -219,18 +228,20 @@ export function AdminMeasurementsPage() {
           <table className={styles.table}>
             <thead>
               <tr>
-                <th style={{ width: 36 }}>
-                  <input type="checkbox" checked={selected.size === rows.length && rows.length > 0}
-                    onChange={toggleAll} title="Tout sélectionner" />
+                <th scope="col" style={{ width: 36 }}>
+                  <input type="checkbox"
+                    aria-label="Tout sélectionner"
+                    checked={selected.size === rows.length && rows.length > 0}
+                    onChange={toggleAll} />
                 </th>
-                <th>ID</th><th>Appareil</th><th>Type</th><th>Valeur</th><th>Unite</th><th>Horodatage</th>
+                <th scope="col">ID</th><th scope="col">Appareil</th><th scope="col">Type</th><th scope="col">Valeur</th><th scope="col">Unite</th><th scope="col">Horodatage</th>
               </tr>
             </thead>
             <tbody>
               {rows.map(r => (
                 <tr key={r.id} style={selected.has(r.id) ? { background: 'rgba(201,162,64,0.07)' } : undefined}>
                   <td>
-                    <input type="checkbox" checked={selected.has(r.id)} onChange={() => toggleRow(r.id)} />
+                    <input type="checkbox" aria-label={`Sélectionner mesure ${r.id}`} checked={selected.has(r.id)} onChange={() => toggleRow(r.id)} />
                   </td>
                   <td className={styles.mono}>{r.id}</td>
                   <td><code className={styles.code}>{r.device_id}</code></td>

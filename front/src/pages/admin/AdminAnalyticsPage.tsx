@@ -8,6 +8,7 @@ import {
   Tooltip, Legend, ReferenceLine,
 } from 'recharts';
 import { useAdminAggregates, useAdminHourly } from '../../hooks/useAdmin';
+import { useTheme } from '../../theme/ThemeContext';
 import { GROUPS, type SensorWithGroup } from '../../lib/groups';
 import styles from './AdminPage.module.css';
 
@@ -17,6 +18,9 @@ const SENSORS: SensorWithGroup[] = GROUPS
   .filter(s => s.kind === 'sensor' && s.ours);
 
 export function AdminAnalyticsPage() {
+  const { theme } = useTheme();
+  const tickFaint = theme === 'light' ? '#5A596E' : '#787790';
+  const tickGold  = theme === 'light' ? '#7A5E00' : '#C9A240';
   const [selectedDevice, setSelectedDevice] = useState(SENSORS[0]?.deviceId ?? '');
   const sensor = SENSORS.find(s => s.deviceId === selectedDevice) ?? SENSORS[0];
 
@@ -59,6 +63,7 @@ export function AdminAnalyticsPage() {
             className={[styles.btn, selectedDevice === s.deviceId ? styles.btnPrimary : styles.btnSecondary].join(' ')}
             style={selectedDevice === s.deviceId ? { background: s.color, borderColor: s.color } : undefined}
             onClick={() => setSelectedDevice(s.deviceId)}
+            aria-pressed={selectedDevice === s.deviceId}
           >
             {s.label}
           </button>
@@ -103,7 +108,7 @@ export function AdminAnalyticsPage() {
               </span>
             )}
           </h2>
-          <div style={{ background: 'var(--clr-surface)', border: '1px solid var(--clr-nuit-bord)', padding: 'var(--sp-5)' }}>
+          <div role="img" aria-label={`Courbe ${sensor.label} — ${chartData.length} points`} style={{ background: 'var(--clr-surface)', border: '1px solid var(--clr-nuit-bord)', padding: 'var(--sp-5)' }}>
             <ResponsiveContainer width="100%" height={300}>
               <ComposedChart data={chartData} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
                 <defs>
@@ -113,17 +118,17 @@ export function AdminAnalyticsPage() {
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="0" stroke="rgba(35,34,53,0.6)" horizontal vertical={false} />
-                <XAxis dataKey="time" tick={{ fill: '#57566A', fontSize: 10 }} tickLine={false} interval="preserveStartEnd" />
-                <YAxis tick={{ fill: '#57566A', fontSize: 10 }} tickLine={false} axisLine={false}
+                <XAxis dataKey="time" tick={{ fill: tickFaint, fontSize: 10 }} tickLine={false} interval="preserveStartEnd" />
+                <YAxis tick={{ fill: tickFaint, fontSize: 10 }} tickLine={false} axisLine={false}
                   domain={['auto', 'auto']} unit={" " + sensor.unit} />
                 <Tooltip contentStyle={{ background: '#0E0D14', border: '1px solid #232235', color: '#EDE9E0', fontSize: 12 }}
-                  labelStyle={{ color: '#57566A' }} />
+                  labelStyle={{ color: tickFaint }} />
                 <Legend wrapperStyle={{ fontSize: 11, color: '#8A8898' }} />
                 {currentStat && (
                   <>
                     <ReferenceLine y={currentStat.avg} stroke="rgba(201,162,64,0.4)"
                       strokeDasharray="4 2"
-                      label={{ value: 'moy', fill: 'rgba(201,162,64,0.6)', fontSize: 10, position: 'insideTopRight' }} />
+                      label={{ value: 'moy', fill: tickGold, fontSize: 10, position: 'insideTopRight' }} />
                     <ReferenceLine y={currentStat.avg + 2 * currentStat.std} stroke="rgba(192,57,43,0.3)"
                       strokeDasharray="2 3" />
                     <ReferenceLine y={currentStat.avg - 2 * currentStat.std} stroke="rgba(192,57,43,0.3)"
@@ -152,12 +157,12 @@ export function AdminAnalyticsPage() {
         ) : buckets.length === 0 ? (
           <p className={styles.stateMsg}>Pas de donnees sur 24h.</p>
         ) : (
-          <div style={{ background: 'var(--clr-surface)', border: '1px solid var(--clr-nuit-bord)', padding: 'var(--sp-5)' }}>
+          <div role="img" aria-label={`Répartition horaire ${sensor.label} sur 24h`} style={{ background: 'var(--clr-surface)', border: '1px solid var(--clr-nuit-bord)', padding: 'var(--sp-5)' }}>
             <ResponsiveContainer width="100%" height={260}>
               <ComposedChart data={buckets} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="0" stroke="rgba(35,34,53,0.6)" horizontal vertical={false} />
-                <XAxis dataKey="hour" tick={{ fill: '#57566A', fontSize: 10 }} tickLine={false} />
-                <YAxis yAxisId="count" orientation="left"  tick={{ fill: '#57566A', fontSize: 10 }} tickLine={false} axisLine={false} />
+                <XAxis dataKey="hour" tick={{ fill: tickFaint, fontSize: 10 }} tickLine={false} />
+                <YAxis yAxisId="count" orientation="left"  tick={{ fill: tickFaint, fontSize: 10 }} tickLine={false} axisLine={false} />
                 <YAxis yAxisId="val"   orientation="right" tick={{ fill: sensor.color, fontSize: 10 }} tickLine={false} axisLine={false}
                   domain={['auto', 'auto']} unit={" " + sensor.unit} />
                 <Tooltip contentStyle={{ background: '#0E0D14', border: '1px solid #232235', color: '#EDE9E0', fontSize: 12 }}

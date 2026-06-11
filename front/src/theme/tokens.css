@@ -35,14 +35,14 @@
   --clr-border:       var(--clr-nuit-bord);
   --clr-text:         var(--clr-ivoire);
   --clr-text-muted:   #8A8898;
-  --clr-text-faint:   #57566A;
+  --clr-text-faint:   #787790;   /* éclairci : 4.6:1 sur fond sombre (était #57566A 3.1:1) */
   --clr-accent:       var(--clr-or);
   --clr-accent-hover: var(--clr-or-dark);
   --clr-highlight:    var(--clr-or-clair);
   --clr-success:      var(--clr-vert);
   --clr-info:         var(--clr-teal);
   --clr-warning:      #D4870A;
-  --clr-danger:       #C0392B;
+  --clr-danger:       #D9534F;   /* éclairci : 5.1:1 sur fond sombre (était #C0392B 3.97:1) */
 
   /* --- Typographie --- */
   --font-display:  'Cormorant Garamond', Georgia, serif;
@@ -130,4 +130,19 @@
   --shadow-sm:  0 1px 3px rgba(0,0,0,0.10);
   --shadow-md:  0 4px 12px rgba(0,0,0,0.12);
   --shadow-lg:  0 8px 24px rgba(0,0,0,0.14);
+
+  /* ── Couleurs accent assombries pour contraste sur fond clair ── */
+  /* Toutes ≥ 4.5:1 sur #F7F6F2 (WCAG AA) */
+  --clr-or:           #7A5E00;   /* 5.7:1 (était #C9A240 2.1:1) */
+  --clr-or-dark:      #5A4500;
+  --clr-or-clair:     #896A10;   /* 4.6:1 */
+  --clr-ambre:        #7A5500;   /* 6.2:1 (était #E8A33D 1.9:1) */
+  --clr-ambre-clair:  #896010;   /* 4.5:1 */
+  --clr-teal:         #007070;   /* 5.5:1 (était #2BBFBF 2.1:1) */
+  --clr-teal-clair:   #007878;   /* 4.9:1 */
+  --clr-vert:         #1A6B4A;   /* 6.0:1 (était #2E9E74 3.1:1) */
+  --clr-vert-clair:   #1A7855;   /* 5.2:1 */
+  --clr-warning:      #8A5000;   /* 6.0:1 (était #D4870A 2.6:1) */
+  --clr-danger:       #C0392B;   /* 4.75:1 — valeur d'origine, OK sur fond clair */
+  --clr-text-faint:   #5A596E;   /* 6.3:1 (était #78778A 3.6:1) */
 }

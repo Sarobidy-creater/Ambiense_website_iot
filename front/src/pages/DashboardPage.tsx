@@ -64,7 +64,7 @@ function StatTile({ label, value, sub, accent, live }: StatTileProps) {
     <div className={[styles.statTile, accent ? styles.statTileAccent : ''].filter(Boolean).join(' ')}>
       <div className={styles.statLabel}>
         {label}
-        {live && <span className={styles.liveIndicator} aria-label="Temps reel" />}
+        {live && <span className={styles.liveIndicator} role="img" aria-label="Données en temps réel" />}
       </div>
       <div className={styles.statValue}>{value}</div>
       {sub && <div className={styles.statSub}>{sub}</div>}
@@ -192,6 +192,7 @@ export function DashboardPage() {
               value={alertThreshold}
               onChange={e => setAlertThreshold(Number(e.target.value))}
               className={styles.thresholdSlider}
+              aria-label={`Seuil d'alerte thermique : ${alertThreshold} °C`}
               aria-valuemin={20} aria-valuemax={40} aria-valuenow={alertThreshold}
               disabled={!alertEnabled}
             />
