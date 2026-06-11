@@ -82,17 +82,17 @@ export function HomePage() {
           </p>
           <h1 id="hero-title" className={styles.heroTitle}>
             L&rsquo;ambiance,<br />
-            <em>sous controle.</em>
+            <em>sous contrôle</em>
           </h1>
           <p className={styles.heroSub}>
-            Intelligence environnementale en temps reel.<br />
-            Cinq capteurs, deux actionneurs &mdash; tout ce qu&rsquo;il faut<br />
-            pour une soiree parfaite.
+            Intelligence environnementale en temps réel.<br />
+            Cinq capteurs, deux actionneurs tout ce qu&rsquo;il faut<br />
+            pour une soirée parfaite.
           </p>
           <div className={styles.heroCta}>
             {user ? (
               <Link to="/dashboard" className={styles.ctaPrimary}>
-                Accéder a la plateforme &rarr;
+                Accéder à la plateforme &rarr;
               </Link>
             ) : (
               <>
@@ -161,9 +161,9 @@ export function HomePage() {
       ============================================================ */}
       <section id="fonctionnalites" className={styles.features} aria-labelledby="feat-title">
         <div className={styles.featHead}>
-          <span className={styles.sectionEye}>Fonctionnalites</span>
+          <span className={styles.sectionEye}>Fonctionnalités</span>
           <h2 id="feat-title" className={styles.sectionTitle}>
-            Une plateforme,<br />trois dimensions.
+            Une plateforme,<br />trois dimensions
           </h2>
         </div>
         <div className={styles.featGrid}>
@@ -185,7 +185,7 @@ export function HomePage() {
           <div className={styles.archText}>
             <span className={styles.sectionEye}>Architecture</span>
             <h2 id="arch-title" className={styles.sectionTitle}>
-              Du capteur<br />a l&rsquo;ecran.
+              Du capteur<br />à l&rsquo;écran.
             </h2>
             <p className={styles.archDesc}>
               Chaque capteur communique via une carte Tiva TM4C123.
@@ -215,11 +215,11 @@ export function HomePage() {
           <div className={styles.sensorsHead}>
             <span className={styles.sectionEye}>Réseau IoT</span>
             <h2 id="sensors-title" className={styles.sectionTitle}>
-              Six capteurs,<br />un seul ecran.
+              Six capteurs,<br />un seul écran.
             </h2>
             <p className={styles.sensorsDesc}>
-              Cinq groupes connectes, deux types d&rsquo;appareils :
-              capteurs passifs et actionneurs pilotables a distance.
+              Cinq groupes connectés, deux types d&rsquo;appareils :
+              capteurs passifs et actionneurs pilotables à distance.
             </p>
           </div>
           <div className={styles.sensorsGrid}>
@@ -253,10 +253,10 @@ export function HomePage() {
         <div className={styles.ctaOverlay} aria-hidden="true" />
         <div className={styles.ctaContent}>
           <h2 id="cta-title" className={styles.ctaTitle}>
-            Pret a surveiller<br /><em>votre soiree ?</em>
+            Prêt à surveiller<br /><em>votre soirée ?</em>
           </h2>
           <p className={styles.ctaSub}>
-            Connectez-vous pour accéder au tableau de bord en temps reel.
+            Connectez-vous pour accéder au tableau de bord en temps réel.
           </p>
           <div className={styles.heroCta}>
             {user ? (
