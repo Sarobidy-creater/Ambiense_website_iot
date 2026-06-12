@@ -14,6 +14,21 @@ create table if not exists "user_roles" (
 
 alter table "user_roles" enable row level security;
 
+-- Fonction SECURITY DEFINER : vérifie le rôle sans déclencher les policies
+-- (évite la récursion infinie dans les policies qui se référencent elles-mêmes)
+create or replace function is_admin()
+returns boolean
+language sql
+security definer
+stable
+set search_path = public
+as $$
+  select exists (
+    select 1 from "user_roles"
+    where user_id = auth.uid() and role = 'admin'
+  );
+$$;
+
 drop policy if exists "user_roles_select_own"    on "user_roles";
 drop policy if exists "user_roles_select_all"    on "user_roles";
 drop policy if exists "user_roles_admin_select"  on "user_roles";
@@ -25,35 +40,20 @@ create policy "user_roles_select_own" on "user_roles"
   for select to authenticated
   using (user_id = auth.uid());
 
--- Un admin peut lire TOUS les rôles
+-- Un admin peut lire TOUS les rôles (via is_admin() — pas de récursion)
 create policy "user_roles_admin_select" on "user_roles"
   for select to authenticated
-  using (
-    exists (
-      select 1 from "user_roles" r
-      where r.user_id = auth.uid() and r.role = 'admin'
-    )
-  );
+  using (is_admin());
 
--- Un admin peut INSÉRER un nouveau rôle (upsert — cas où l'utilisateur n'a pas encore de ligne)
+-- Un admin peut INSÉRER un nouveau rôle
 create policy "user_roles_admin_insert" on "user_roles"
   for insert to authenticated
-  with check (
-    exists (
-      select 1 from "user_roles" r
-      where r.user_id = auth.uid() and r.role = 'admin'
-    )
-  );
+  with check (is_admin());
 
 -- Un admin peut MODIFIER un rôle existant
 create policy "user_roles_admin_update" on "user_roles"
   for update to authenticated
-  using (
-    exists (
-      select 1 from "user_roles" r
-      where r.user_id = auth.uid() and r.role = 'admin'
-    )
-  )
+  using (is_admin())
   with check (true);
 
 
