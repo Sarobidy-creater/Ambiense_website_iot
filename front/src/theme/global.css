@@ -19,29 +19,29 @@ body {
   font-family: var(--font-body);
   background-color: var(--clr-bg);
   color: var(--clr-text);
-  line-height: 1.6;
+  line-height: 1.65;
   min-height: 100vh;
-  /* Transition fluide lors du changement de theme */
+  /* Transition fluide lors du changement de thème */
   transition: background-color 300ms ease, color 300ms ease;
   /* Texture subtile en fond - ton neutre */
   background-image:
     repeating-linear-gradient(
-      45deg,
+      53deg,
       transparent,
-      transparent 2px,
-      rgba(35,34,53,0.08) 2px,
-      rgba(74,56,40,0.06) 4px
+      transparent 3px,
+      rgba(35,34,53,0.06) 3px,
+      rgba(74,56,40,0.04) 6px
     );
 }
 
 [data-theme="light"] body {
   background-image:
     repeating-linear-gradient(
-      45deg,
+      53deg,
       transparent,
-      transparent 2px,
-      rgba(200,195,180,0.12) 2px,
-      rgba(200,195,180,0.08) 4px
+      transparent 3px,
+      rgba(200,195,180,0.10) 3px,
+      rgba(200,195,180,0.06) 6px
     );
 }
 

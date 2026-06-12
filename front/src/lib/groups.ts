@@ -23,8 +23,8 @@ export const GROUPS: GroupDef[] = [
   {
     code: 'G1E', name: 'Bar G1E', ours: true, color: '#C9A240',
     sensors: [
-      { deviceId: 'G1E_temperature', type: 'temperature', label: 'Temperature', unit: 'degC', kind: 'sensor'   },
-      { deviceId: 'G1E_humidity',    type: 'humidity',    label: 'Humidite',    unit: '%',    kind: 'sensor'   },
+      { deviceId: 'G1E_temperature', type: 'temperature', label: 'Température', unit: 'degC', kind: 'sensor'   },
+      { deviceId: 'G1E_humidity',    type: 'humidity',    label: 'Humidité',    unit: '%',    kind: 'sensor'   },
       { deviceId: 'G1E_ventilateur', type: 'motor',       label: 'Ventilateur', unit: '',     kind: 'actuator' },
     ],
   },
@@ -37,13 +37,13 @@ export const GROUPS: GroupDef[] = [
   {
     code: 'G1B', name: 'Groupe G1B', ours: false, color: '#3AC98A',
     sensors: [
-      { deviceId: 'G1B_presence', type: 'presence', label: 'Presence', unit: 'pers.', kind: 'sensor' },
+      { deviceId: 'G1B_presence', type: 'presence', label: 'Présence', unit: 'pers.', kind: 'sensor' },
     ],
   },
   {
     code: 'G1C', name: 'Groupe G1C', ours: false, color: '#E8A33D',
     sensors: [
-      { deviceId: 'G1C_smoke', type: 'smoke', label: 'Fumee', unit: 'ppm', kind: 'sensor' },
+      { deviceId: 'G1C_smoke', type: 'smoke', label: 'Fumée', unit: 'ppm', kind: 'sensor' },
     ],
   },
   {
@@ -89,7 +89,7 @@ export function findGroup(code: string): GroupDef | undefined {
 
 /** Formatte une valeur selon le type de capteur */
 export function formatValue(value: number, type: string, unit: string): string {
-  if (type === 'presence') return value === 1 ? 'Occupe' : 'Libre';
+  if (type === 'presence') return value === 1 ? 'Occupé' : 'Libre';
   const decimals = ['temperature', 'humidity'].includes(type) ? 1 : 0;
   return `${value.toFixed(decimals)} ${unit}`.trim();
 }

@@ -122,8 +122,8 @@ export function NetworkPage() {
         <p className={styles.noteTitle}>Integration des autres groupes</p>
         <p className={styles.noteText}>
           Chaque groupe suit la nomenclature <code>GXX_devices</code> / <code>GXX_measurements</code>.
-          Des qu&rsquo;un groupe connecte ses tables, leurs donnees apparaissent ici en temps reel.
-          Cliquez sur un capteur pour accceder a sa page de surveillance detaillee.
+          Des qu&rsquo;un groupe connecte ses tables, leurs données apparaissent ici en temps réel.
+          Cliquez sur un capteur pour accéder à sa page de surveillance détaillée.
         </p>
       </aside>
 

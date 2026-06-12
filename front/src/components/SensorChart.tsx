@@ -86,8 +86,8 @@ export function SensorChart({ deviceId, unit, label, color = '#C9A240', ours = t
     return (
       <div className={styles.pending}>
         <span className={styles.pendingDot} />
-        <p className={styles.pendingText}>Groupe non encore connecte</p>
-        <p className={styles.pendingNote}>Les donnees apparaitront ici des la connexion du groupe.</p>
+        <p className={styles.pendingText}>Groupe non encore connecté</p>
+        <p className={styles.pendingNote}>Les données apparaîtront ici dès la connexion du groupe.</p>
       </div>
     );
   }

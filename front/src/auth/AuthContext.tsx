@@ -49,7 +49,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signUp = useCallback(async (email: string, password: string) => {
-    const { error } = await supabase.auth.signUp({ email, password });
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        // Lien de confirmation fonctionnel sur n'importe quel appareil
+        emailRedirectTo: `${window.location.origin}/login`,
+      },
+    });
+    // Supabase ne renvoie pas d'erreur si l'email existe deja :
+    // il retourne un user avec identities vides — on le traduit en erreur explicite.
+    if (!error && data.user?.identities?.length === 0) {
+      return { message: 'USER_ALREADY_EXISTS', name: 'AuthApiError', status: 422 } as AuthError;
+    }
     return error;
   }, []);
 

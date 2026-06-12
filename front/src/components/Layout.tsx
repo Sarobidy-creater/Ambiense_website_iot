@@ -12,25 +12,25 @@ const NAV_ITEMS: NavItem[] = [
   {
     to: '/dashboard', label: 'Surveillance',
     mega: [
-      { to: '/dashboard', label: 'Station G1E',   desc: 'Temperature, humidite, ventilateur' },
-      { to: '/network',   label: 'Réseau global', desc: 'Tous les groupes connectes' },
+      { to: '/dashboard', label: 'Station G1E',   desc: 'Température, humidité, ventilateur' },
+      { to: '/network',   label: 'Réseau global', desc: 'Tous les groupes connectés' },
     ],
   },
   {
     to: '/network', label: 'Capteurs', wide: true,
     mega: [
       { to: '/sensor/G1E_temperature', label: 'Temperature',  desc: 'DHT15 · °C',    badge: 'G1E', badgeColor: '#C9A240' },
-      { to: '/sensor/G1E_humidity',    label: 'Humidite',     desc: 'DHT15 · %',     badge: 'G1E', badgeColor: '#C9A240' },
+      { to: '/sensor/G1E_humidity',    label: 'Humidité',     desc: 'DHT15 · %',     badge: 'G1E', badgeColor: '#C9A240' },
       { to: '/sensor/G1A_sound',       label: 'Son ambiant',  desc: 'G1A · dB',      badge: 'G1A', badgeColor: '#2BBFBF' },
-      { to: '/sensor/G1B_presence',    label: 'Presence',     desc: 'G1B · pers.',   badge: 'G1B', badgeColor: '#3AC98A' },
-      { to: '/sensor/G1C_smoke',       label: 'Fumee',        desc: 'G1C · ppm',     badge: 'G1C', badgeColor: '#E8A33D' },
+      { to: '/sensor/G1B_presence',    label: 'Présence',     desc: 'G1B · pers.',   badge: 'G1B', badgeColor: '#3AC98A' },
+      { to: '/sensor/G1C_smoke',       label: 'Fumée',        desc: 'G1C · ppm',     badge: 'G1C', badgeColor: '#E8A33D' },
       { to: '/sensor/G1D_alcohol',     label: 'Alcool',       desc: 'G1D · ppm',     badge: 'G1D', badgeColor: '#8B7CF8' },
     ],
   },
   {
-    to: '/advanced', label: 'Controle',
+    to: '/advanced', label: 'Contrôle',
     mega: [
-      { to: '/advanced', label: 'Ventilation G1E', desc: 'Servo S148 Futaba — pilotage a distance' },
+      { to: '/advanced', label: 'Ventilation G1E', desc: 'Servo S148 Futaba — pilotage à distance' },
     ],
   },
 ];
@@ -163,9 +163,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <button
                   className={styles.btnSignOut}
                   onClick={handleSignOut}
-                  aria-label="Se deconnecter"
+                  aria-label="Se déconnecter"
                 >
-                  Deconnexion
+                  Déconnexion
                 </button>
               </div>
             ) : (

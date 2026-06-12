@@ -66,8 +66,8 @@ create policy "G1E_commands_update"     on "G1E_commands"
 
 -- Appareils G1E (DHT15 + Servo S148)
 insert into "G1E_devices" (id, kind, type, unit, label) values
-  ('G1E_temperature', 'sensor',   'temperature', '°C', 'Capteur DHT15 — temperature'),
-  ('G1E_humidity',    'sensor',   'humidity',    '%',  'Capteur DHT15 — humidite'),
+  ('G1E_temperature', 'sensor',   'temperature', '°C', 'Capteur DHT15 — température'),
+  ('G1E_humidity',    'sensor',   'humidity',    '%',  'Capteur DHT15 — humidité'),
   ('G1E_ventilateur', 'actuator', 'motor',       null, 'Servo S148 Futaba — ventilateur')
 on conflict (id) do nothing;`;
 

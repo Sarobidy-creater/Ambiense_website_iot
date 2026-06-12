@@ -18,8 +18,8 @@ function AccountSection({ email }: { email: string }) {
         <span className={styles.infoValue}>{email}</span>
       </div>
       <p className={styles.infoNote}>
-        L'adresse e-mail ne peut pas être modifiee.
-        Contactez un administrateur si necessaire.
+        L'adresse e-mail ne peut pas être modifiée.
+        Contactez un administrateur si nécessaire.
       </p>
     </div>
   );
@@ -46,7 +46,7 @@ function PasswordSection() {
       return;
     }
     if (next.length < 8) {
-      setError('Le mot de passe doit contenir au moins 8 caracteres.');
+      setError('Le mot de passe doit contenir au moins 8 caractères.');
       return;
     }
 
@@ -55,7 +55,7 @@ function PasswordSection() {
     setLoading(false);
 
     if (err) {
-      setError('Mot de passe actuel incorrect ou erreur reseau.');
+      setError('Mot de passe actuel incorrect ou erreur réseau.');
     } else {
       setSuccess(true);
       setCurrent(''); setNext(''); setConfirm('');
@@ -98,7 +98,7 @@ function PasswordSection() {
             onChange={e => setNext(e.target.value)}
             required
             autoComplete="new-password"
-            placeholder="8 caracteres minimum"
+            placeholder="8 caractères minimum"
           />
         </div>
 
@@ -114,7 +114,7 @@ function PasswordSection() {
             onChange={e => setConfirm(e.target.value)}
             required
             autoComplete="new-password"
-            placeholder="Repetez le nouveau mot de passe"
+            placeholder="Répétez le nouveau mot de passe"
           />
         </div>
 
@@ -124,7 +124,7 @@ function PasswordSection() {
         {success && (
           <div className={styles.successMsg} role="status">
             <span className={styles.successDot} />
-            Mot de passe mis a jour avec succes.
+            Mot de passe mis à jour avec succès.
           </div>
         )}
 
@@ -133,7 +133,7 @@ function PasswordSection() {
           className={styles.submitBtn}
           disabled={loading || !current || !next || !confirm}
         >
-          {loading ? 'Mise a jour…' : 'Mettre a jour le mot de passe'}
+          {loading ? 'Mise à jour…' : 'Mettre à jour le mot de passe'}
         </button>
       </form>
     </div>
@@ -148,7 +148,7 @@ function SessionSection({ email }: { email: string }) {
     <div className={styles.section}>
       <h2 className={styles.sectionTitle}>Session</h2>
       <div className={styles.infoRow}>
-        <span className={styles.infoLabel}>Connecte en tant que</span>
+        <span className={styles.infoLabel}>Connecté en tant que</span>
         <span className={styles.infoValue}>{email}</span>
       </div>
       <div className={styles.infoRow}>
@@ -158,9 +158,9 @@ function SessionSection({ email }: { email: string }) {
       <button
         className={styles.dangerBtn}
         onClick={() => signOut()}
-        aria-label="Se deconnecter de la session"
+        aria-label="Se déconnecter de la session"
       >
-        Se deconnecter
+        Se déconnecter
       </button>
     </div>
   );

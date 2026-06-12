@@ -26,7 +26,7 @@ export function AdminDevicesPage() {
       : await create(form);
     if (err) flash(err, false);
     else {
-      flash(editId ? 'Appareil mis a jour.' : 'Appareil cree.', true);
+      flash(editId ? 'Appareil mis à jour.' : 'Appareil créé.', true);
       setForm(EMPTY);
       setEditId(null);
     }
@@ -40,7 +40,7 @@ export function AdminDevicesPage() {
   const handleRemove = async (id: string) => {
     const err = await remove(id);
     if (err) flash(err, false);
-    else { flash('Appareil supprime.', true); setConfirm(null); }
+    else { flash('Appareil supprimé.', true); setConfirm(null); }
   };
 
   return (
@@ -117,7 +117,7 @@ export function AdminDevicesPage() {
           </div>
           <div className={styles.formActions}>
             <button type="submit" className={`${styles.btn} ${styles.btnPrimary}`} disabled={saving}>
-              {saving ? 'Sauvegarde…' : editId ? 'Mettre a jour' : 'Créer'}
+              {saving ? 'Sauvegarde…' : editId ? 'Mettre à jour' : 'Créer'}
             </button>
             {editId && (
               <button
@@ -135,7 +135,7 @@ export function AdminDevicesPage() {
 
       {/* Liste appareils */}
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>Appareils enregistrésés ({devices.length})</h2>
+        <h2 className={styles.sectionTitle}>Appareils enregistrés ({devices.length})</h2>
         {loading ? (
           <p className={styles.stateMsg}>Chargement…</p>
         ) : (

@@ -127,16 +127,16 @@ export function DashboardPage() {
       {/* Tuiles stats */}
       <div className={styles.statsRow}>
         <StatTile
-          label="Temperature actuelle"
+          label="Température actuelle"
           value={latest ? `${latest.value.toFixed(1)} °C` : '—'}
-          sub={latest ? 'DHT15 · mis a jour < 1 s' : 'En attente de donnees'}
+          sub={latest ? 'DHT15 · mis à jour < 1 s' : 'En attente de données'}
           accent={!!latest}
           live
         />
         <StatTile
-          label="Humidite"
+          label="Humidité"
           value={latestHum ? `${latestHum.value.toFixed(0)} %` : '—'}
-          sub={latestHum ? 'DHT15 · humidite relative' : 'En attente de donnees'}
+          sub={latestHum ? 'DHT15 · humidité relative' : 'En attente de données'}
           live={!!latestHum}
         />
         <StatTile

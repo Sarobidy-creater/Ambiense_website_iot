@@ -41,7 +41,7 @@ function Sparkline({ data, color }: {
   data: { time: string; value: number }[];
   color: string;
 }) {
-  if (!data.length) return <div className={ov.sparkEmpty}>Pas de donnees</div>;
+  if (!data.length) return <div className={ov.sparkEmpty}>Pas de données</div>;
   return (
     <ResponsiveContainer width="100%" height={60}>
       <AreaChart data={data} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
@@ -77,7 +77,7 @@ function StatusBar({ done, pending, error_ }: { done: number; pending: number; e
         <div className={ov.statusError}   style={{ width: `${((error_  / total) * 100).toFixed(1)}%` }} />
       </div>
       <div className={ov.statusLegend}>
-        <span className={ov.legendGreen}>{done} termine</span>
+        <span className={ov.legendGreen}>{done} terminé</span>
         <span className={ov.legendAmbre}>{pending} en attente</span>
         <span className={ov.legendRed}>{error_} erreur</span>
       </div>
@@ -130,16 +130,16 @@ export function AdminOverviewPage() {
       {/* KPIs */}
       <section className={styles.kpiGrid}>
         <KpiCard
-          label="Temperature actuelle"
+          label="Température actuelle"
           value={tempStat?.count ? `${tempStat.last.toFixed(1)} °C` : '—'}
-          sub={tempStat ? `moy ${tempStat.avg.toFixed(1)} · std ${tempStat.std.toFixed(2)}` : 'Pas de donnees'}
+          sub={tempStat ? `moy ${tempStat.avg.toFixed(1)} · std ${tempStat.std.toFixed(2)}` : 'Pas de données'}
           accent
           trend={tempStat ? trendDir(tempStat.trend) : undefined}
         />
         <KpiCard
-          label="Humidite actuelle"
+          label="Humidité actuelle"
           value={humStat?.count ? `${humStat.last.toFixed(0)} %` : '—'}
-          sub={humStat ? `moy ${humStat.avg.toFixed(1)} · min ${humStat.min.toFixed(0)} / max ${humStat.max.toFixed(0)}` : 'Pas de donnees'}
+          sub={humStat ? `moy ${humStat.avg.toFixed(1)} · min ${humStat.min.toFixed(0)} / max ${humStat.max.toFixed(0)}` : 'Pas de données'}
           trend={humStat ? trendDir(humStat.trend) : undefined}
         />
         <KpiCard
@@ -160,7 +160,7 @@ export function AdminOverviewPage() {
         {/* Col gauche : sparklines */}
         <div className={ov.panel}>
           <div className={ov.panelHead}>
-            <h2 className={ov.panelTitle}>Temperature — derniers 120 points</h2>
+            <h2 className={ov.panelTitle}>Température — derniers 120 points</h2>
             <span className={ov.panelSub}>G1E_temperature</span>
           </div>
           <Sparkline data={tempStat?.points ?? []} color="#C9A240" />
@@ -176,7 +176,7 @@ export function AdminOverviewPage() {
           <div className={ov.panelDivider} />
 
           <div className={ov.panelHead}>
-            <h2 className={ov.panelTitle}>Humidite — derniers 120 points</h2>
+            <h2 className={ov.panelTitle}>Humidité — derniers 120 points</h2>
             <span className={ov.panelSub}>G1E_humidity</span>
           </div>
           <Sparkline data={humStat?.points ?? []} color="#2BBFBF" />
@@ -205,7 +205,7 @@ export function AdminOverviewPage() {
           <div className={ov.panel}>
             <div className={ov.panelHead}>
               <h2 className={ov.panelTitle}>Ventilateur G1E</h2>
-              <span className={ov.panelSub}>Controle direct</span>
+              <span className={ov.panelSub}>Contrôle direct</span>
             </div>
             <div className={ov.fanActions}>
               <button
@@ -222,12 +222,12 @@ export function AdminOverviewPage() {
                 disabled={sending}
                 aria-label="Éteindre le ventilateur G1E"
               >
-                Arret
+                Arrêt
               </button>
             </div>
             {lastCommand && (
               <p className={ov.cmdStatus} role="status" aria-live="polite">
-                Derniere commande :
+                Dernière commande :
                 <span style={{
                   color: lastCommand.status === 'done' ? 'var(--clr-vert)' :
                          lastCommand.status === 'error' ? 'var(--clr-danger)' : 'var(--clr-ambre)',
@@ -242,7 +242,7 @@ export function AdminOverviewPage() {
           {/* Etat systeme */}
           <div className={ov.panel}>
             <div className={ov.panelHead}>
-              <h2 className={ov.panelTitle}>Etat systeme</h2>
+              <h2 className={ov.panelTitle}>État système</h2>
             </div>
             <div className={ov.sysGrid}>
               {GROUPS.find(g => g.ours)?.sensors.map(s => {

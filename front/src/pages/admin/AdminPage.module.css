@@ -142,7 +142,7 @@
 
 .table tr:last-child td { border-bottom: none; }
 .table tbody tr { background: var(--clr-nuit); transition: background 120ms; }
-.table tbody tr:hover { background: rgba(201,162,64,0.03); }
+.table tbody tr:hover { background: rgba(201,162,64,0.05); }
 
 .mono {
   font-family: monospace;

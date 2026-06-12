@@ -45,7 +45,7 @@ export function SensorDetailPage() {
 
       {/* ── Breadcrumb ── */}
       <nav className={styles.breadcrumb} aria-label="Fil d'Ariane">
-        <Link to="/network" className={styles.breadLink}>Reseau</Link>
+        <Link to="/network" className={styles.breadLink}>Réseau</Link>
         <span className={styles.breadSep}>/</span>
         <span className={styles.breadCurrent}>{sensor.label}</span>
       </nav>
@@ -67,7 +67,7 @@ export function SensorDetailPage() {
             <p className={styles.pageSubtitle}>
               {sensor.kind === 'sensor' ? 'Capteur' : 'Actionneur'}
               {sensor.unit ? ` · ${sensor.unit}` : ''}
-              {!isOurs && ' · Integration prevue'}
+              {!isOurs && ' · Intégration prévue'}
             </p>
           </div>
         </div>
@@ -89,9 +89,9 @@ export function SensorDetailPage() {
               <span className={styles.liveLabel}>En direct</span>
             </>
           ) : isOurs ? (
-            <span className={styles.liveWaiting}>En attente de donnees</span>
+              <span className={styles.liveWaiting}>En attente de données</span>
           ) : (
-            <span className={styles.liveWaiting}>Groupe non connecte</span>
+            <span className={styles.liveWaiting}>Groupe non connecté</span>
           )}
         </div>
       </header>
@@ -122,7 +122,7 @@ export function SensorDetailPage() {
             <span className={styles.infoVal}>{sensor.kind === 'sensor' ? 'Capteur passif' : 'Actionneur'}</span>
           </div>
           <div className={styles.infoRow}>
-            <span className={styles.infoKey}>Unite</span>
+            <span className={styles.infoKey}>Unité</span>
             <span className={styles.infoVal}>{sensor.unit || '—'}</span>
           </div>
           <div className={styles.infoRow}>
@@ -132,7 +132,7 @@ export function SensorDetailPage() {
           <div className={styles.infoRow}>
             <span className={styles.infoKey}>Statut</span>
             <span className={styles.infoVal}>
-              {isOurs ? (hasData ? 'Connecte' : 'En attente de mesures') : 'Groupe non connecte'}
+              {isOurs ? (hasData ? 'Connecté' : 'En attente de mesures') : 'Groupe non connecté'}
             </span>
           </div>
         </div>

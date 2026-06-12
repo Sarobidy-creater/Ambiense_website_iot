@@ -155,7 +155,7 @@ export function AdminAnalyticsPage() {
         {hourLoading ? (
           <p className={styles.stateMsg}>Chargement…</p>
         ) : buckets.length === 0 ? (
-          <p className={styles.stateMsg}>Pas de donnees sur 24h.</p>
+          <p className={styles.stateMsg}>Pas de données sur 24 h.</p>
         ) : (
           <div role="img" aria-label={`Répartition horaire ${sensor.label} sur 24h`} style={{ background: 'var(--clr-surface)', border: '1px solid var(--clr-nuit-bord)', padding: 'var(--sp-5)' }}>
             <ResponsiveContainer width="100%" height={260}>

@@ -26,7 +26,7 @@ export function LoginPage() {
     const err = await signIn(email, password);
     setLoading(false);
     if (err) {
-      setError('Identifiants incorrects. Verifiez votre email et mot de passe.');
+      setError('Identifiants incorrects. Vérifiez votre e-mail et mot de passe.');
     } else {
       navigate(from, { replace: true });
     }
@@ -50,9 +50,9 @@ export function LoginPage() {
               &ldquo;Intelligence environnementale<br />pour les soirees parfaites.&rdquo;
             </blockquote>
             <ul className={styles.panelFeatures}>
-              <li className={styles.panelFeat}>Surveillance temps reel</li>
+              <li className={styles.panelFeat}>Surveillance temps réel</li>
               <li className={styles.panelFeat}>Alertes thermiques</li>
-              <li className={styles.panelFeat}>Controle a distance</li>
+              <li className={styles.panelFeat}>Contrôle à distance</li>
             </ul>
           </div>
         </div>
@@ -66,7 +66,7 @@ export function LoginPage() {
 
           <div className={styles.header}>
             <h1 id="login-title" className={styles.title}>Connexion</h1>
-            <p className={styles.subtitle}>Accès a votre tableau de bord</p>
+            <p className={styles.subtitle}>Accès à votre tableau de bord</p>
           </div>
 
           <form onSubmit={handleSubmit} className={styles.form} noValidate>
@@ -109,7 +109,7 @@ export function LoginPage() {
               className={styles.submitBtn}
               disabled={loading || !email || !password}
             >
-              {loading ? 'Connexion...' : 'Se connecter'}
+              {loading ? 'Connexion…' : 'Se connecter'}
             </button>
           </form>
 

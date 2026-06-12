@@ -117,7 +117,7 @@ export function TemperatureChart({ alertThreshold }: Props) {
             Ambiance thermique
           </h3>
           {isLive && hasData && (
-            <span className={styles.liveDot} aria-label="Mise a jour en direct" />
+            <span className={styles.liveDot} aria-label="Mise à jour en direct" />
           )}
         </div>
 

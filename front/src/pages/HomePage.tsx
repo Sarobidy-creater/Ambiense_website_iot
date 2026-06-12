@@ -9,8 +9,8 @@ import styles from './HomePage.module.css';
 
 const STATS = [
   { value: '5',    label: 'Groupes actifs'       },
-  { value: '1 s',  label: 'Rafraichissement'      },
-  { value: 'RT',   label: 'Temps reel'            },
+  { value: '1 s',  label: 'Rafraîchissement'      },
+  { value: 'RT',   label: 'Temps réel'            },
   { value: '24/7', label: 'Surveillance continue' },
 ];
 
@@ -18,26 +18,26 @@ const FEATURES = [
   {
     num: '01',
     title: 'Surveillance en direct',
-    body: "Temperature, decibels, presence, qualite d'air. Chaque capteur remonte ses donnees en moins d'une seconde.",
+    body: "Température, décibels, présence, qualité d'air. Chaque capteur remonte ses données en moins d'une seconde.",
   },
   {
     num: '02',
-    title: 'Controle a distance',
-    body: "Ventilation, ambiance sonore. Envoyez une commande depuis n'importe quel ecran — retour d'etat immediat.",
+    title: 'Contrôle à distance',
+    body: "Ventilation, ambiance sonore. Envoyez une commande depuis n'importe quel écran — retour d'état immédiat.",
   },
   {
     num: '03',
     title: 'Alertes intelligentes',
-    body: "Seuils configurables par capteur. Des qu'une limite est franchie, l'alerte s'affiche instantanement.",
+    body: "Seuils configurables par capteur. Dès qu'une limite est franchie, l'alerte s'affiche instantanément.",
   },
 ];
 
 const SENSORS = [
-  { code: 'TEMP',  label: 'Temperature',  unit: 'degC',  group: 'G1E', kind: 'sensor'   },
+  { code: 'TEMP',  label: 'Température',  unit: 'degC',  group: 'G1E', kind: 'sensor'   },
   { code: 'FAN',   label: 'Ventilateur',  unit: '%',     group: 'G1E', kind: 'actuator' },
   { code: 'dB',    label: 'Son ambiant',  unit: 'dB',    group: 'G1A', kind: 'sensor'   },
-  { code: 'PRES',  label: 'Presence',     unit: 'pers.', group: 'G1B', kind: 'sensor'   },
-  { code: 'SMOKE', label: 'Fumee',        unit: 'ppm',   group: 'G1C', kind: 'sensor'   },
+  { code: 'PRES',  label: 'Présence',     unit: 'pers.', group: 'G1B', kind: 'sensor'   },
+  { code: 'SMOKE', label: 'Fumée',        unit: 'ppm',   group: 'G1C', kind: 'sensor'   },
   { code: 'ALC',   label: 'Alcool',       unit: 'ppm',   group: 'G1D', kind: 'sensor'   },
 ];
 
@@ -47,13 +47,13 @@ const ARCH = ['Capteur', 'Tiva TM4C123', 'Passerelle', 'Supabase', 'AMBIENSE'];
 const GALLERY = [
   {
     url: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=900&q=80',
-    alt: 'Bar illumine aux neons, cocktails sur le comptoir',
-    caption: 'Neon bar',
+    alt: 'Bar illuminé aux néons, cocktails sur le comptoir',
+    caption: 'Néon bar',
   },
   {
     url: 'https://images.unsplash.com/photo-1470337458703-46ad1756a187?auto=format&fit=crop&w=900&q=80',
-    alt: 'Ambiance chaude bar soiree',
-    caption: 'Soiree live',
+    alt: 'Ambiance chaude bar soirée',
+    caption: 'Soirée live',
   },
 ];
 
@@ -82,17 +82,17 @@ export function HomePage() {
           </p>
           <h1 id="hero-title" className={styles.heroTitle}>
             L&rsquo;ambiance,<br />
-            <em>sous controle.</em>
+            <em>sous contrôle.</em>
           </h1>
           <p className={styles.heroSub}>
-            Intelligence environnementale en temps reel.<br />
+            Intelligence environnementale en temps réel.<br />
             Cinq capteurs, deux actionneurs &mdash; tout ce qu&rsquo;il faut<br />
-            pour une soiree parfaite.
+            pour une soirée parfaite.
           </p>
           <div className={styles.heroCta}>
             {user ? (
               <Link to="/dashboard" className={styles.ctaPrimary}>
-                Accéder a la plateforme &rarr;
+                Accéder à la plateforme &rarr;
               </Link>
             ) : (
               <>
@@ -112,7 +112,7 @@ export function HomePage() {
       {/* ============================================================
           Stats
       ============================================================ */}
-      <section className={styles.statsBar} aria-label="Chiffres cles">
+      <section className={styles.statsBar} aria-label="Chiffres clés">
         {STATS.map(s => (
           <div key={s.label} className={styles.stat}>
             <span className={styles.statVal}>{s.value}</span>
@@ -161,7 +161,7 @@ export function HomePage() {
       ============================================================ */}
       <section id="fonctionnalites" className={styles.features} aria-labelledby="feat-title">
         <div className={styles.featHead}>
-          <span className={styles.sectionEye}>Fonctionnalites</span>
+          <span className={styles.sectionEye}>Fonctionnalités</span>
           <h2 id="feat-title" className={styles.sectionTitle}>
             Une plateforme,<br />trois dimensions.
           </h2>
@@ -185,12 +185,12 @@ export function HomePage() {
           <div className={styles.archText}>
             <span className={styles.sectionEye}>Architecture</span>
             <h2 id="arch-title" className={styles.sectionTitle}>
-              Du capteur<br />a l&rsquo;ecran.
+              Du capteur<br />à l&rsquo;écran.
             </h2>
             <p className={styles.archDesc}>
               Chaque capteur communique via une carte Tiva TM4C123.
-              La passerelle serie remonte les mesures vers Supabase.
-              Le tableau de bord se met a jour en moins d&rsquo;une seconde.
+              La passerelle série remonte les mesures vers Supabase.
+              Le tableau de bord se met à jour en moins d&rsquo;une seconde.
             </p>
           </div>
           <div className={styles.archFlow} aria-hidden="true">
@@ -215,11 +215,11 @@ export function HomePage() {
           <div className={styles.sensorsHead}>
             <span className={styles.sectionEye}>Réseau IoT</span>
             <h2 id="sensors-title" className={styles.sectionTitle}>
-              Six capteurs,<br />un seul ecran.
+              Six capteurs,<br />un seul écran.
             </h2>
             <p className={styles.sensorsDesc}>
-              Cinq groupes connectes, deux types d&rsquo;appareils :
-              capteurs passifs et actionneurs pilotables a distance.
+              Cinq groupes connectés, deux types d&rsquo;appareils :
+              capteurs passifs et actionneurs pilotables à distance.
             </p>
           </div>
           <div className={styles.sensorsGrid}>
@@ -253,10 +253,10 @@ export function HomePage() {
         <div className={styles.ctaOverlay} aria-hidden="true" />
         <div className={styles.ctaContent}>
           <h2 id="cta-title" className={styles.ctaTitle}>
-            Pret a surveiller<br /><em>votre soiree ?</em>
+            Prêt à surveiller<br /><em>votre soirée ?</em>
           </h2>
           <p className={styles.ctaSub}>
-            Connectez-vous pour accéder au tableau de bord en temps reel.
+            Connectez-vous pour accéder au tableau de bord en temps réel.
           </p>
           <div className={styles.heroCta}>
             {user ? (
