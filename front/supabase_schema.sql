@@ -14,17 +14,18 @@ create table if not exists "user_roles" (
 
 alter table "user_roles" enable row level security;
 
-drop policy if exists "user_roles_select_own"   on "user_roles";
-drop policy if exists "user_roles_select_all"   on "user_roles";
-drop policy if exists "user_roles_admin_select" on "user_roles";
-drop policy if exists "user_roles_admin_update" on "user_roles";
+drop policy if exists "user_roles_select_own"    on "user_roles";
+drop policy if exists "user_roles_select_all"    on "user_roles";
+drop policy if exists "user_roles_admin_select"  on "user_roles";
+drop policy if exists "user_roles_admin_update"  on "user_roles";
+drop policy if exists "user_roles_admin_insert"  on "user_roles";
 
--- Chaque utilisateur lit son propre role
+-- Chaque utilisateur lit son propre rôle
 create policy "user_roles_select_own" on "user_roles"
   for select to authenticated
   using (user_id = auth.uid());
 
--- Un admin peut lire TOUS les roles
+-- Un admin peut lire TOUS les rôles
 create policy "user_roles_admin_select" on "user_roles"
   for select to authenticated
   using (
@@ -34,9 +35,19 @@ create policy "user_roles_admin_select" on "user_roles"
     )
   );
 
--- Un admin peut modifier les roles
+-- Un admin peut INSÉRER un nouveau rôle (upsert — cas où l'utilisateur n'a pas encore de ligne)
+create policy "user_roles_admin_insert" on "user_roles"
+  for insert to authenticated
+  with check (
+    exists (
+      select 1 from "user_roles" r
+      where r.user_id = auth.uid() and r.role = 'admin'
+    )
+  );
+
+-- Un admin peut MODIFIER un rôle existant
 create policy "user_roles_admin_update" on "user_roles"
-  for all to authenticated
+  for update to authenticated
   using (
     exists (
       select 1 from "user_roles" r

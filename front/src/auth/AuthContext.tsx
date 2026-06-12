@@ -49,12 +49,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signUp = useCallback(async (email: string, password: string) => {
+    const siteUrl = import.meta.env.VITE_SITE_URL ?? window.location.origin;
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         // Lien de confirmation fonctionnel sur n'importe quel appareil
-        emailRedirectTo: `${window.location.origin}/login`,
+        emailRedirectTo: `${siteUrl}/login`,
       },
     });
     // Supabase ne renvoie pas d'erreur si l'email existe deja :
