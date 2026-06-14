@@ -14,6 +14,7 @@ const HomePage         = lazy(() => import('./pages/HomePage').then(m => ({ defa
 const LoginPage        = lazy(() => import('./pages/LoginPage').then(m => ({ default: m.LoginPage })));
 const SignupPage       = lazy(() => import('./pages/SignupPage').then(m => ({ default: m.SignupPage })));
 const ForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage').then(m => ({ default: m.ForgotPasswordPage })));
+const ResetPasswordPage  = lazy(() => import('./pages/ResetPasswordPage').then(m => ({ default: m.ResetPasswordPage })));
 const DashboardPage    = lazy(() => import('./pages/DashboardPage').then(m => ({ default: m.DashboardPage })));
 const NetworkPage      = lazy(() => import('./pages/NetworkPage').then(m => ({ default: m.NetworkPage })));
 const AdvancedPage     = lazy(() => import('./pages/AdvancedPage').then(m => ({ default: m.AdvancedPage })));
@@ -56,6 +57,7 @@ function App() {
             <Route path="/login"          element={<LoginPage />} />
             <Route path="/signup"         element={<SignupPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/reset-password"  element={<ResetPasswordPage />} />
 
             {/* Page d'accueil avec Layout */}
             <Route path="/" element={<Layout><HomePage /></Layout>} />
