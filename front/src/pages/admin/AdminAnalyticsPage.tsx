@@ -299,11 +299,6 @@ export function AdminAnalyticsPage() {
   );
 }
 
-// Capteurs scalaires uniquement
-const SENSORS: SensorWithGroup[] = GROUPS
-  .flatMap(g => g.sensors.map(s => ({ ...s, group: g.code, groupName: g.name, ours: g.ours, color: g.color })))
-  .filter(s => s.kind === 'sensor' && s.ours);
-
 export function AdminAnalyticsPage() {
   const { theme } = useTheme();
   const tickFaint = theme === 'light' ? '#5A596E' : '#787790';
