@@ -82,8 +82,9 @@ export function useAdminUsers(): Result {
   // Fonctionne avec la cle publishable (pas besoin de service_role)
   const resetPwd = useCallback(async (userEmail: string): Promise<string | null> => {
     setSaving(true);
+    const siteUrl = import.meta.env.VITE_SITE_URL ?? window.location.origin;
     const { error: err } = await supabase.auth.resetPasswordForEmail(userEmail, {
-      redirectTo: `${window.location.origin}/reset-password`,
+      redirectTo: `${siteUrl}/reset-password`,
     });
     setSaving(false);
     return err?.message ?? null;

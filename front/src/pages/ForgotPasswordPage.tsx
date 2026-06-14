@@ -18,8 +18,9 @@ export function ForgotPasswordPage() {
     e.preventDefault();
     setError(null);
     setLoading(true);
+    const siteUrl = import.meta.env.VITE_SITE_URL ?? window.location.origin;
     const { error: err } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
+      redirectTo: `${siteUrl}/reset-password`,
     });
     setLoading(false);
     if (err) {
