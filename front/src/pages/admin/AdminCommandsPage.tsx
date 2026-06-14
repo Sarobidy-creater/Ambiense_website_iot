@@ -1,7 +1,7 @@
 ﻿// =========================================================
 //  AdminCommandsPage — multi-select + bulk cancel + distribution
 // =========================================================
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAdminCommands, type CommandRow } from '../../hooks/useAdmin';
 import styles from './AdminPage.module.css';
 
@@ -21,7 +21,7 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 export function AdminCommandsPage() {
-  const { commands, total, loading, error, fetch, cancel } = useAdminCommands();
+  const { commands, total, counts, loading, error, fetch, cancel } = useAdminCommands();
 
   const [statusFilter, setStatusFilter] = useState('');
   const [offset,   setOffset]   = useState(0);
@@ -29,28 +29,17 @@ export function AdminCommandsPage() {
   const [msg,      setMsg]      = useState<{ text: string; ok: boolean } | null>(null);
   const [bulkBusy, setBulkBusy] = useState(false);
 
+  const flash = (text: string, ok: boolean) => {
+    setMsg({ text, ok });
+    setTimeout(() => setMsg(null), 4000);
+  };
+
   const load = (off = offset, st = statusFilter) => {
     fetch(PAGE_SIZE, off, st || undefined);
     setSelected(new Set());
   };
 
   useEffect(() => { load(); }, []); // eslint-disable-line
-
-  const flash = (text: string, ok: boolean) => {
-    setMsg({ text, ok });
-    setTimeout(() => setMsg(null), 4000);
-  };
-
-  // Stats locales
-  const distrib = useMemo(() => {
-    const d = { done: 0, pending: 0, error: 0 };
-    commands.forEach(c => {
-      if (c.status === 'done')    d.done++;
-      else if (c.status === 'pending') d.pending++;
-      else d.error++;
-    });
-    return d;
-  }, [commands]);
 
   // Annuler 1
   const handleCancel = async (id: number) => {
@@ -100,18 +89,20 @@ export function AdminCommandsPage() {
         <p className={styles.pageSub}>{total.toLocaleString('fr-FR')} entrées dans G1E_commands</p>
       </header>
 
-      {/* Distribution statuts */}
+      {/* Distribution statuts — comptages globaux (toutes pages) */}
       <div className={styles.kpiGrid}>
         {[
-          { label: 'Terminée',    value: distrib.done,    color: 'var(--clr-vert)' },
-          { label: 'En attente',  value: distrib.pending, color: 'var(--clr-ambre)' },
-          { label: 'Erreur',      value: distrib.error,   color: 'var(--clr-danger)' },
+          { label: 'Terminée',    value: counts.done,    color: 'var(--clr-vert)' },
+          { label: 'En attente',  value: counts.pending, color: 'var(--clr-ambre)' },
+          { label: 'Erreur',      value: counts.error,   color: 'var(--clr-danger)' },
         ].map(k => (
           <div key={k.label} className={styles.kpi}>
             <span className={styles.kpiLabel}>{k.label}</span>
             <span className={styles.kpiValue} style={{ color: k.color }}>{k.value}</span>
             <div style={{ height: 3, background: k.color, marginTop: 4, opacity: 0.6,
-              width: total ? `${((k.value / total) * 100).toFixed(1)}%` : '0%', transition: 'width 400ms' }} />
+                width: (counts.done + counts.pending + counts.error) > 0
+                  ? `${((k.value / (counts.done + counts.pending + counts.error)) * 100).toFixed(1)}%`
+                  : '0%', transition: 'width 400ms' }} />
           </div>
         ))}
         <div className={styles.kpi}>

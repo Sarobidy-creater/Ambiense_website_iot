@@ -155,9 +155,12 @@ export interface CommandRow {
   created_at: string;
 }
 
+export interface CommandCounts { pending: number; done: number; error: number }
+
 interface CmdResult {
   commands: CommandRow[];
   total:    number;
+  counts:   CommandCounts;
   loading:  boolean;
   error:    string | null;
   fetch:    (limit?: number, offset?: number, status?: string) => void;
@@ -167,8 +170,19 @@ interface CmdResult {
 export function useAdminCommands(): CmdResult {
   const [commands, setCommands] = useState<CommandRow[]>([]);
   const [total,    setTotal]    = useState(0);
+  const [counts,   setCounts]   = useState<CommandCounts>({ pending: 0, done: 0, error: 0 });
   const [loading,  setLoading]  = useState(false);
   const [error,    setError]    = useState<string | null>(null);
+
+  // Comptages globaux (indépendants de la pagination)
+  const fetchCounts = useCallback(async () => {
+    const [rP, rD, rE] = await Promise.all([
+      supabase.from('G1E_commands').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+      supabase.from('G1E_commands').select('*', { count: 'exact', head: true }).eq('status', 'done'),
+      supabase.from('G1E_commands').select('*', { count: 'exact', head: true }).eq('status', 'error'),
+    ]);
+    setCounts({ pending: rP.count ?? 0, done: rD.count ?? 0, error: rE.count ?? 0 });
+  }, []);
 
   const fetch_ = useCallback(async (limit = 50, offset = 0, status?: string) => {
     setLoading(true);
@@ -188,20 +202,23 @@ export function useAdminCommands(): CmdResult {
     } finally {
       setLoading(false);
     }
-  }, []);
+    fetchCounts();
+  }, [fetchCounts]);
 
   const cancel = useCallback(async (id: number): Promise<string | null> => {
-    const { error: err } = await supabase
+    const { data, error: err } = await supabase
       .from('G1E_commands')
       .update({ status: 'error' })
       .eq('id', id)
-      .eq('status', 'pending');
+      .eq('status', 'pending')
+      .select('id');
     if (err) return err.message;
-    await fetch_();
+    if (!data || data.length === 0)
+      return 'Annulation refusée : la commande est déjà traitée ou les permissions sont insuffisantes (vérifiez les policies RLS dans Supabase).';
     return null;
-  }, [fetch_]);
+  }, []);
 
-  return { commands, total, loading, error, fetch: fetch_, cancel };
+  return { commands, total, counts, loading, error, fetch: fetch_, cancel };
 }
 
 // =========================================================

@@ -144,6 +144,31 @@ create policy "G1E_commands_insert"     on "G1E_commands"
 create policy "G1E_commands_update"     on "G1E_commands"
   for update to service_role using (true) with check (true);
 
+-- ─── POLICIES ADMIN (manquantes — fixes bugs) ─────────────
+
+-- Admin voit TOUTES les commandes (pas seulement les siennes)
+drop policy if exists "G1E_commands_select_admin" on "G1E_commands";
+create policy "G1E_commands_select_admin" on "G1E_commands"
+  for select to authenticated using (is_admin());
+
+-- Admin peut annuler / modifier le statut d'une commande
+drop policy if exists "G1E_commands_update_admin" on "G1E_commands";
+create policy "G1E_commands_update_admin" on "G1E_commands"
+  for update to authenticated using (is_admin()) with check (true);
+
+-- Admin peut créer / modifier / supprimer des appareils
+drop policy if exists "G1E_devices_insert_admin" on "G1E_devices";
+create policy "G1E_devices_insert_admin" on "G1E_devices"
+  for insert to authenticated with check (is_admin());
+
+drop policy if exists "G1E_devices_update_admin" on "G1E_devices";
+create policy "G1E_devices_update_admin" on "G1E_devices"
+  for update to authenticated using (is_admin()) with check (true);
+
+drop policy if exists "G1E_devices_delete_admin" on "G1E_devices";
+create policy "G1E_devices_delete_admin" on "G1E_devices"
+  for delete to authenticated using (is_admin());
+
 -- ─── APPAREILS G1E ────────────────────────────────────────
 
 insert into "G1E_devices" (id, kind, type, unit, label) values
