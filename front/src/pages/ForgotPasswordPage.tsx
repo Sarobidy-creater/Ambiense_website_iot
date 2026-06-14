@@ -24,7 +24,11 @@ export function ForgotPasswordPage() {
     });
     setLoading(false);
     if (err) {
-      setError('Impossible d\'envoyer l\'email. Vérifiez l\'adresse saisie.');
+      console.error('[ForgotPassword] Supabase error:', err);
+      const msg = err.message?.toLowerCase().includes('rate limit')
+        ? 'Trop de tentatives. Attendez quelques minutes avant de réessayer.'
+        : 'Impossible d\'envoyer l\'email. Vérifiez l\'adresse saisie.';
+      setError(msg);
     } else {
       setSent(true);
     }
