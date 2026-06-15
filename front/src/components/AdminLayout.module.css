@@ -156,8 +156,8 @@
 .main {
   flex: 1;
   min-width: 0;
-  padding: var(--sp-10) var(--sp-10);
-  max-width: 1200px;
+  padding: var(--sp-8) var(--sp-8);
+  overflow-x: hidden;
 }
 
 /* ── Responsive ──────────────────────────────────────────── */

@@ -39,7 +39,7 @@
 /* KPIs */
 .kpiGrid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 1px;
   background: var(--clr-nuit-bord);
   border: 1px solid var(--clr-nuit-bord);
@@ -192,8 +192,9 @@
 /* Formulaire */
 .formGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: var(--sp-4);
+  align-items: end;
 }
 
 .field {
