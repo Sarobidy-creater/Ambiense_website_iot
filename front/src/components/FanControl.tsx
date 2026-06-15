@@ -10,17 +10,15 @@ import styles from './FanControl.module.css';
 
 export function FanControl() {
   const { lastCommand, sending, error, sendCommand } = useCommand();
-  const [speed, setSpeed] = useState(50);
   // Etat local optimiste : on met a jour localement en attendant
   const [isRunning, setIsRunning] = useState(false);
 
-  const send = (action: 'on' | 'off' | 'set_speed') => {
+  const send = (action: 'on' | 'off') => {
     if (action === 'on')  setIsRunning(true);
     if (action === 'off') setIsRunning(false);
     sendCommand({
       deviceId: OUR_DEVICES.ventilateur,
       action,
-      payload: action === 'set_speed' ? { speed } : undefined,
     });
   };
 
@@ -36,14 +34,11 @@ export function FanControl() {
 
       {/* Visualisation SVG */}
       <div className={styles.fanVisual}>
-        <FanSvg speed={speed} running={isRunning} size={100} />
+        <FanSvg speed={100} running={isRunning} size={100} />
         <div className={styles.fanState}>
           <span className={isRunning ? styles.fanOn : styles.fanOff}>
             {isRunning ? 'En marche' : 'Arrete'}
           </span>
-          {isRunning && (
-            <span className={styles.fanSpeed}>{speed} %</span>
-          )}
         </div>
       </div>
 
@@ -69,36 +64,6 @@ export function FanControl() {
           aria-label="Eteindre le ventilateur"
         >
           Arret
-        </button>
-      </div>
-
-      {/* Controle vitesse */}
-      <div className={styles.sliderGroup}>
-        <div className={styles.sliderHeader}>
-          <span className={styles.sliderLabel}>Vitesse</span>
-          <span className={styles.sliderValue}>{speed} %</span>
-        </div>
-        <input
-          id="fan-speed"
-          type="range"
-          min={0}
-          max={100}
-          step={5}
-          value={speed}
-          onChange={(e) => setSpeed(Number(e.target.value))}
-          className={styles.slider}
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuenow={speed}
-          aria-label="Vitesse du ventilateur"
-        />
-        <button
-          className={`${styles.btn} ${styles.btnApply}`}
-          onClick={() => send('set_speed')}
-          disabled={sending}
-          aria-label={`Appliquer la vitesse ${speed}%`}
-        >
-          {sending ? 'Envoi…' : 'Appliquer'}
         </button>
       </div>
 

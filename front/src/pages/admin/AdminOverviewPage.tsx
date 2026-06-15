@@ -8,7 +8,9 @@ import {
   XAxis, YAxis, Tooltip,
 } from 'recharts';
 import { useAdminDevices, useAdminMeasurements, useAdminCommands, useAdminAggregates } from '../../hooks/useAdmin';
-import { useCommand }  from '../../hooks/useCommand';
+import { useCommand }       from '../../hooks/useCommand';
+import { useGroupSensors }  from '../../hooks/useGroupSensors';
+import type { GroupSensorReading } from '../../hooks/useGroupSensors';
 import { GROUPS }      from '../../lib/groups';
 import type { Device } from '../../lib/types';
 import styles from './AdminPage.module.css';
@@ -85,6 +87,39 @@ function StatusBar({ done, pending, error_ }: { done: number; pending: number; e
   );
 }
 
+// ── External sensor card ────────────────────────────────
+
+function ExtSensorCard({ reading }: { reading: GroupSensorReading }) {
+  const online  = reading.online;
+  const hasVal  = reading.value !== null;
+  const group   = GROUPS.find(g => g.code === reading.group);
+  const color   = group?.color ?? '#787790';
+
+  function fmt(r: GroupSensorReading): string {
+    if (!hasVal) return '—';
+    if (r.type === 'presence') return `${r.value} ${r.unit}`;
+    if (r.type === 'alcohol')  return `${(r.value as number).toFixed(2)} ${r.unit}`;
+    if (r.type === 'sound')    return `${Math.round(r.value as number)} ${r.unit}`;
+    return `${r.value} ${r.unit}`;
+  }
+
+  return (
+    <div className={ov.extCard}>
+      <div className={ov.extCardHead}>
+        <span className={ov.extCode} style={{ color }}>{reading.group}</span>
+        <span className={ov.extDot} style={{ background: online ? 'var(--clr-vert)' : hasVal ? color : 'var(--clr-nuit-bord)' }} />
+      </div>
+      <p className={ov.extLabel}>{reading.label}</p>
+      <p className={ov.extValue} style={{ color: hasVal ? color : undefined }}>
+        {fmt(reading)}
+      </p>
+      <p className={ov.extStatus}>
+        {online ? 'En direct' : hasVal ? `Données disponibles` : reading.error ?? 'Aucune donnée'}
+      </p>
+    </div>
+  );
+}
+
 // ── Page principale ──────────────────────────────────────
 
 export function AdminOverviewPage() {
@@ -92,6 +127,15 @@ export function AdminOverviewPage() {
   const measHook = useAdminMeasurements();
   const cmdHook  = useAdminCommands();
   const { lastCommand, sending, sendCommand } = useCommand();
+  const { sensors: extSensors, loading: extLoading, refresh: extRefresh } = useGroupSensors();
+
+  // Commande d'urgence : envoie 'off' à tous les actionneurs connus
+  const emergencyStop = () => {
+    const actuators = GROUPS.flatMap(g => g.sensors.filter(s => s.kind === 'actuator'));
+    for (const a of actuators) {
+      sendCommand({ deviceId: a.deviceId, action: 'off' });
+    }
+  };
 
   const ownDeviceIds = useMemo(
     () => GROUPS.find(g => g.ours)?.sensors.map(s => s.deviceId) ?? [],
@@ -118,6 +162,9 @@ export function AdminOverviewPage() {
   const quickFan = (action: 'on' | 'off') => {
     sendCommand({ deviceId: 'G1E_ventilateur', action });
   };
+
+  // Nombre de capteurs externes en ligne
+  const extOnline = extSensors.filter(s => s.online).length;
 
   return (
     <div className={styles.page}>
@@ -146,6 +193,11 @@ export function AdminOverviewPage() {
           label="Appareils"
           value={dLoading ? '—' : devices.length}
           sub={`${sensors.length} capteurs · ${actuators.length} actionneurs`}
+        />
+        <KpiCard
+          label="Groupes partenaires"
+          value={extLoading ? '—' : `${extOnline} / ${extSensors.length}`}
+          sub="groupes avec données en direct"
         />
         <KpiCard
           label="Commandes"
@@ -242,7 +294,7 @@ export function AdminOverviewPage() {
           {/* Etat systeme */}
           <div className={ov.panel}>
             <div className={ov.panelHead}>
-              <h2 className={ov.panelTitle}>État système</h2>
+              <h2 className={ov.panelTitle}>État système G1E</h2>
             </div>
             <div className={ov.sysGrid}>
               {GROUPS.find(g => g.ours)?.sensors.map(s => {
@@ -262,9 +314,61 @@ export function AdminOverviewPage() {
           </div>
 
         </div>
-      </div>
+      </div>{/* end twoCol */}
 
-      {/* Dernieres mesures */}
+      {/* Capteurs groupes partenaires */}
+      <section className={styles.section}>
+        <div className={styles.sectionHead}>
+          <h2 className={styles.sectionTitle}>Groupes partenaires — dernières mesures</h2>
+          <button onClick={extRefresh} disabled={extLoading} className={styles.sectionLink} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+            {extLoading ? 'Actualisation…' : 'Actualiser →'}
+          </button>
+        </div>
+        <div className={ov.extGrid}>
+          {extSensors.map(r => <ExtSensorCard key={r.group} reading={r} />)}
+        </div>
+      </section>
+
+      {/* Arrêt d'urgence */}
+      <section className={ov.emergencySection}>
+        <div className={ov.emergencyLeft}>
+          <p className={ov.emergencyTitle}>⚡ ARRÊT D'URGENCE</p>
+          <p className={ov.emergencySub}>
+            Coupe immédiatement tous les actionneurs du réseau G1E.
+            À utiliser uniquement en cas d'urgence.
+          </p>
+          {lastCommand && (
+            <p className={ov.cmdStatus} role="status" aria-live="polite" style={{ marginTop: 8 }}>
+              Dernière commande :
+              <span style={{
+                color: lastCommand.status === 'done' ? 'var(--clr-vert)' :
+                       lastCommand.status === 'error' ? 'var(--clr-danger)' : 'var(--clr-ambre)',
+                marginLeft: 6, fontWeight: 600,
+              }}>
+                {lastCommand.action} — {lastCommand.status}
+              </span>
+            </p>
+          )}
+        </div>
+        <div className={ov.emergencyActions}>
+          <button
+            className={ov.emergencyBtn}
+            onClick={emergencyStop}
+            disabled={sending}
+            aria-label="Arrêt d'urgence — couper tous les actionneurs"
+          >
+            {sending ? 'Envoi…' : 'TOUT ARRÊTER'}
+          </button>
+          <button
+            className={`${styles.btn} ${styles.btnPrimary}`}
+            onClick={() => quickFan('on')}
+            disabled={sending}
+            style={{ minWidth: 120 }}
+          >
+            Ventilateur ON
+          </button>
+        </div>
+      </section>
       <section className={styles.section}>
         <div className={styles.sectionHead}>
           <h2 className={styles.sectionTitle}>Dernieres mesures</h2>

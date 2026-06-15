@@ -1,0 +1,240 @@
+/* =========================================================
+   G1AScoreWidget — widget flottant de scores
+   ========================================================= */
+
+.widget {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 200;
+  width: 280px;
+  background: rgba(6, 5, 10, 0.95);
+  border: 1px solid var(--clr-nuit-bord, #232235);
+  border-top: 2px solid var(--clr-or, #C9A240);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── Toggle ────────────────────────────────────────────── */
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2, 0.5rem);
+  padding: 0.55rem 0.75rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  transition: background 150ms;
+}
+.toggle:hover { background: rgba(201,162,64,0.06); }
+
+.toggleIcon {
+  color: var(--clr-or, #C9A240);
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.toggleLabel {
+  flex: 1;
+  font-family: var(--font-body, sans-serif);
+  font-size: var(--text-xs, 0.75rem);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--clr-ivoire, #F0EFE8);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2, 0.5rem);
+}
+
+.liveCount {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #06050A;
+  background: var(--clr-vert, #27AE60);
+  padding: 1px 5px;
+  animation: _pulse 1.6s ease-in-out infinite;
+}
+@keyframes _pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
+
+.toggleArrow {
+  font-size: 0.7rem;
+  color: var(--clr-text-faint, #57566A);
+}
+
+/* ── Corps ─────────────────────────────────────────────── */
+
+.body {
+  max-height: 320px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #232235 transparent;
+  border-top: 1px solid var(--clr-nuit-bord, #232235);
+}
+.body::-webkit-scrollbar       { width: 3px; }
+.body::-webkit-scrollbar-thumb { background: #232235; }
+
+/* ── Ligne match ───────────────────────────────────────── */
+
+.matchRow {
+  padding: 0.55rem 0.75rem;
+  border-bottom: 1px solid rgba(35,34,53,0.6);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.matchRow:last-of-type { border-bottom: none; }
+
+.matchMeta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.competition {
+  font-family: var(--font-body, sans-serif);
+  font-size: 0.6rem;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--clr-text-faint, #57566A);
+}
+
+/* Badges statut */
+.badgeLive {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-body, sans-serif);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--clr-vert, #27AE60);
+}
+.liveDot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--clr-vert, #27AE60);
+  animation: _pulse 1.6s ease-in-out infinite;
+}
+.badgeUpcoming {
+  font-family: var(--font-body, sans-serif);
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--clr-or, #C9A240);
+}
+.badgeFinished {
+  font-family: var(--font-body, sans-serif);
+  font-size: 0.6rem;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--clr-text-faint, #57566A);
+}
+
+/* Score */
+.scoreBlock {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+}
+
+.teamHome,
+.teamAway {
+  font-family: var(--font-body, sans-serif);
+  font-size: var(--text-xs, 0.75rem);
+  font-weight: 500;
+  color: var(--clr-text-muted, #8A8898);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.teamAway { text-align: right; }
+
+.score {
+  font-family: var(--font-display, serif);
+  font-size: var(--text-lg, 1.125rem);
+  font-weight: 400;
+  color: var(--clr-ivoire, #F0EFE8);
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+  padding: 0 4px;
+  white-space: nowrap;
+}
+
+/* Zones bar */
+.zones {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.zone {
+  font-family: var(--font-body, sans-serif);
+  font-size: 0.58rem;
+  color: var(--clr-text-faint, #57566A);
+  background: rgba(35,34,53,0.5);
+  padding: 1px 5px;
+}
+
+/* ── États ─────────────────────────────────────────────── */
+
+.stateRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: var(--sp-5, 1.25rem);
+}
+.dot {
+  display: inline-block;
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--clr-or, #C9A240);
+  animation: _dotBounce 1.2s ease-in-out infinite;
+}
+.dot:nth-child(2) { animation-delay: 0.2s; }
+.dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes _dotBounce {
+  0%,80%,100% { opacity:0.2; transform:scale(0.7); }
+  40%         { opacity:1;   transform:scale(1.2); }
+}
+
+.errorText {
+  font-family: var(--font-body, sans-serif);
+  font-size: var(--text-xs, 0.75rem);
+  color: var(--clr-danger, #C0392B);
+  padding: var(--sp-3, 0.75rem);
+}
+
+/* ── Footer ────────────────────────────────────────────── */
+
+.footer {
+  font-family: var(--font-body, sans-serif);
+  font-size: 0.6rem;
+  color: var(--clr-text-faint, #57566A);
+  letter-spacing: 0.05em;
+  padding: 0.35rem 0.75rem;
+  border-top: 1px solid var(--clr-nuit-bord, #232235);
+  background: rgba(6,5,10,0.4);
+}
+
+/* ── Responsive : sur mobile, plus compact ─────────────── */
+@media (max-width: 480px) {
+  .widget {
+    width: calc(100vw - 2rem);
+    bottom: 1rem;
+    right: 1rem;
+  }
+}

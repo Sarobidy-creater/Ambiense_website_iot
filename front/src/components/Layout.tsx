@@ -3,6 +3,7 @@ import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { useTheme } from '../theme/ThemeContext';
 import { Footer } from './Footer';
+import { G1AScoreWidget } from './G1AScoreWidget';
 import styles from './Layout.module.css';
 
 interface MegaItem { to: string; label: string; desc: string; badge?: string; badgeColor?: string; }
@@ -263,6 +264,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
       {/* ===== Footer global ===== */}
       <Footer />
+
+      {/* ===== Widget flottant scores G1A ===== */}
+      {user && <G1AScoreWidget />}
 
     </div>
   );

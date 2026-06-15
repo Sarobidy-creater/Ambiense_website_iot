@@ -4,7 +4,10 @@
 // =========================================================
 import { useParams, Link } from 'react-router-dom';
 import { useMeasurements } from '../hooks/useMeasurements';
+import { useGroupHistory } from '../hooks/useGroupHistory';
 import { SensorChart }     from '../components/SensorChart';
+import { GroupSensorChart } from '../components/GroupSensorChart';
+import { FanControl }      from '../components/FanControl';
 import { SensorIcon }      from '../components/svg/SensorIcon';
 import { findSensor, formatValue } from '../lib/groups';
 import styles from './SensorDetailPage.module.css';
@@ -22,6 +25,15 @@ export function SensorDetailPage() {
 
   const latest = measurements[0] ?? null;
 
+  // Historique pour les groupes externes (G1A-G1D)
+  // 'all' pour ne pas filtrer par fenêtre ici — la valeur la plus récente
+  // doit s'afficher même si la dernière mesure date de plusieurs heures.
+  const { points: extPoints } = useGroupHistory(
+    sensor && !sensor.ours ? sensor.group : undefined,
+    'all',
+  );
+  const latestExt = extPoints.length > 0 ? extPoints[extPoints.length - 1] : null;
+
   // Capteur introuvable dans nos définitions
   if (!sensor) {
     return (
@@ -37,8 +49,8 @@ export function SensorDetailPage() {
     );
   }
 
-  const isOurs    = sensor.ours;
-  const hasData   = measurements.length > 0;
+  const isOurs  = sensor.ours;
+  const hasData = isOurs ? measurements.length > 0 : extPoints.length > 0;
 
   return (
     <div className={styles.page}>
@@ -67,12 +79,12 @@ export function SensorDetailPage() {
             <p className={styles.pageSubtitle}>
               {sensor.kind === 'sensor' ? 'Capteur' : 'Actionneur'}
               {sensor.unit ? ` · ${sensor.unit}` : ''}
-              {!isOurs && ' · Intégration prévue'}
             </p>
           </div>
         </div>
 
-        {/* Valeur live */}
+        {/* Valeur live — masquée pour les actionneurs */}
+        {sensor.kind !== 'actuator' && (
         <div className={styles.liveValue}>
           {isOurs && hasData ? (
             <>
@@ -89,21 +101,47 @@ export function SensorDetailPage() {
               <span className={styles.liveLabel}>En direct</span>
             </>
           ) : isOurs ? (
-              <span className={styles.liveWaiting}>En attente de données</span>
+            <span className={styles.liveWaiting}>En attente de données</span>
+          ) : latestExt ? (
+            <>
+              <span
+                className={styles.liveNum}
+                style={{ color: sensor.color }}
+              >
+                {Number.isInteger(latestExt.value)
+                  ? `${latestExt.value} ${sensor.unit}`
+                  : `${latestExt.value.toFixed(2)} ${sensor.unit}`}
+              </span>
+              <span className={styles.liveLabel} style={{ color: sensor.color }}>
+                Dernière mesure
+              </span>
+            </>
           ) : (
-            <span className={styles.liveWaiting}>Groupe non connecté</span>
+            <span className={styles.liveWaiting}>Aucune donnée</span>
           )}
         </div>
+        )}
       </header>
 
-      {/* ── Graphique principal ── */}
-      <SensorChart
-        deviceId={sensor.deviceId}
-        unit={sensor.unit}
-        label={sensor.label}
-        color={sensor.color}
-        ours={isOurs}
-      />
+      {/* ── Graphique principal / contrôle actionneur ── */}
+      {sensor.kind === 'actuator' ? (
+        <FanControl />
+      ) : isOurs ? (
+        <SensorChart
+          deviceId={sensor.deviceId}
+          unit={sensor.unit}
+          label={sensor.label}
+          color={sensor.color}
+          ours={true}
+        />
+      ) : (
+        <GroupSensorChart
+          groupCode={sensor.group}
+          unit={sensor.unit}
+          label={sensor.label}
+          color={sensor.color}
+        />
+      )}
 
       {/* ── Informations capteur ── */}
       <section className={styles.infoSection}>
@@ -132,7 +170,11 @@ export function SensorDetailPage() {
           <div className={styles.infoRow}>
             <span className={styles.infoKey}>Statut</span>
             <span className={styles.infoVal}>
-              {isOurs ? (hasData ? 'Connecté' : 'En attente de mesures') : 'Groupe non connecté'}
+              {sensor.kind === 'actuator'
+                ? 'Actionnable — marche / arrêt'
+                : isOurs
+                  ? (hasData ? 'Connecté' : 'En attente de mesures')
+                  : (hasData ? 'Données disponibles' : 'Aucune donnée en base')}
             </span>
           </div>
         </div>

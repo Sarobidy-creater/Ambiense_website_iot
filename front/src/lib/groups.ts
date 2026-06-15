@@ -49,8 +49,7 @@ export const GROUPS: GroupDef[] = [
   {
     code: 'G1D', name: 'Groupe G1D', ours: false, color: '#8B7CF8',
     sensors: [
-      { deviceId: 'G1D_alcohol', type: 'alcohol', label: 'Alcool',  unit: 'ppm', kind: 'sensor'   },
-      { deviceId: 'G1D_buzzer',  type: 'buzzer',  label: 'Buzzer',  unit: '',    kind: 'actuator' },
+      { deviceId: 'G1D_alcohol', type: 'alcohol', label: 'Alcool (éthylotest)', unit: 'mg/L', kind: 'sensor' },
     ],
   },
 ];

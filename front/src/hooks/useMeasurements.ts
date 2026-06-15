@@ -127,9 +127,12 @@ export function useMeasurements(opts: Options = {}): Result {
         const { data, error: err } = await q;
         if (err) { setError(err.message); return; }
         if (data && data.length > 0) {
-          setMeasurements((prev) =>
-            [...(data as Measurement[]), ...prev].slice(0, limit)
-          );
+          setMeasurements((prev) => {
+            const merged = [...(data as Measurement[]), ...prev].slice(0, limit);
+            // Pruner les lignes hors fenêtre pour que le graphique reste correct
+            const cutoff = sinceTimestamp(since);
+            return cutoff ? merged.filter(m => m.created_at >= cutoff) : merged;
+          });
           lastTsRef.current = (data as Measurement[])[0].created_at;
           setError(null);
         }

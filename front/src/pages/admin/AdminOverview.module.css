@@ -165,3 +165,135 @@
 @media (max-width: 900px) {
   .twoCol { grid-template-columns: 1fr; }
 }
+
+/* ── External group sensor cards ── */
+.extGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--clr-nuit-bord);
+  border: 1px solid var(--clr-nuit-bord);
+}
+
+@media (max-width: 900px) {
+  .extGrid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 520px) {
+  .extGrid { grid-template-columns: 1fr; }
+}
+
+.extCard {
+  background: var(--clr-surface);
+  padding: var(--sp-5) var(--sp-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.extCardHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.extCode {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.extDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.extLabel {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  color: var(--clr-text-faint);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.extValue {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: 400;
+  line-height: 1;
+  color: var(--clr-text-muted);
+  margin: 0;
+}
+
+.extStatus {
+  font-family: var(--font-body);
+  font-size: 0.625rem;
+  color: var(--clr-text-faint);
+  margin: 0;
+  letter-spacing: 0.06em;
+}
+
+/* ── Emergency stop section ── */
+.emergencySection {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--sp-6);
+  background: rgba(192, 57, 43, 0.06);
+  border: 1px solid rgba(192, 57, 43, 0.35);
+  padding: var(--sp-6) var(--sp-7);
+}
+
+.emergencyLeft {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  flex: 1;
+}
+
+.emergencyTitle {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--clr-danger);
+  margin: 0;
+}
+
+.emergencySub {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  color: var(--clr-text-faint);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.emergencyActions {
+  display: flex;
+  gap: var(--sp-4);
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.emergencyBtn {
+  padding: var(--sp-3) var(--sp-7);
+  background: var(--clr-danger);
+  color: #fff;
+  border: none;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: opacity 150ms;
+  border-radius: 0;
+}
+.emergencyBtn:hover:not(:disabled) { opacity: 0.85; }
+.emergencyBtn:disabled { opacity: 0.4; cursor: not-allowed; }

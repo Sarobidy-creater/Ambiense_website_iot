@@ -2,7 +2,6 @@
 //  AdvancedPage — module bonus : pilotage des actionneurs
 //  des autres équipes. Clairement séparé (onglet "Avancé").
 // =========================================================
-import { useState } from 'react';
 import { useDevices }  from '../hooks/useDevices';
 import { useCommand }  from '../hooks/useCommand';
 
@@ -12,14 +11,9 @@ import styles from './AdvancedPage.module.css';
 /** Panneau de contrôle pour un actionneur externe */
 function ExternalActuatorPanel({ device }: { device: Device }) {
   const { lastCommand, sending, error, sendCommand } = useCommand();
-  const [speed, setSpeed] = useState(50);
 
-  const send = (action: 'on' | 'off' | 'set_speed') => {
-    sendCommand({
-      deviceId: device.id,
-      action,
-      payload: action === 'set_speed' ? { speed } : undefined,
-    });
+  const send = (action: 'on' | 'off') => {
+    sendCommand({ deviceId: device.id, action });
   };
 
   const statusColors: Record<string, string> = {
@@ -55,31 +49,7 @@ function ExternalActuatorPanel({ device }: { device: Device }) {
         >Arrêt</button>
       </div>
 
-      {/* Slider de vitesse si l'actionneur le supporte */}
-      {device.type === 'motor' && (
-        <div className={styles.sliderGroup}>
-          <label htmlFor={`speed-${device.id}`}>
-            Vitesse : <strong>{speed} %</strong>
-          </label>
-          <div className={styles.sliderRow}>
-            <input
-              id={`speed-${device.id}`}
-              type="range"
-              min={0} max={100} step={5}
-              value={speed}
-              onChange={e => setSpeed(Number(e.target.value))}
-              className={styles.slider}
-              aria-valuemin={0} aria-valuemax={100} aria-valuenow={speed}
-            />
-            <button
-              className={`${styles.btn} ${styles.btnSpeed}`}
-              onClick={() => send('set_speed')}
-              disabled={sending}
-              aria-label={`Appliquer vitesse ${speed}% à ${device.label ?? device.id}`}
-            >Appliquer</button>
-          </div>
-        </div>
-      )}
+      {/* Slider de vitesse si l'actionneur le supporte — supprimé : on/off uniquement */}
 
       {/* Statut de la dernière commande */}
       {lastCommand && (
