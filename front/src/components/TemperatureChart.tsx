@@ -57,7 +57,7 @@ export function TemperatureChart({ alertThreshold }: Props) {
   const tickFaint = theme === 'light' ? '#5A596E' : '#787790';
   const tickGold  = theme === 'light' ? '#7A5E00' : '#C9A240';
   const tickTeal  = theme === 'light' ? '#007070' : '#2BBFBF';
-  const [window_, setWindow] = useState<TimeWindow>('1h');
+  const [window_, setWindow] = useState<TimeWindow>('all');
 
   const { measurements: tempMeas, loading: tempLoading } = useMeasurements({
     deviceId: OUR_DEVICES.temperature,

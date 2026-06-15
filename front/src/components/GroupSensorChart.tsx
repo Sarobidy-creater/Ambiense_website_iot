@@ -46,7 +46,7 @@ function ChartTooltip({ active, payload, label, unit }: TooltipProps) {
 export function GroupSensorChart({ groupCode, unit, label, color = '#C9A240' }: Props) {
   const { theme } = useTheme();
   const tickFaint = theme === 'light' ? '#5A596E' : '#787790';
-  const [window_, setWindow] = useState<TimeWindow>('1h');
+  const [window_, setWindow] = useState<TimeWindow>('all');
 
   const { points, loading, error } = useGroupHistory(groupCode, window_);
 

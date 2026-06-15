@@ -49,7 +49,7 @@ function formatTime(iso: string): string {
 export function SensorChart({ deviceId, unit, label, color = '#C9A240', ours = true }: Props) {
   const { theme } = useTheme();
   const tickFaint = theme === 'light' ? '#5A596E' : '#787790';
-  const [window_, setWindow] = useState<TimeWindow>('1h');
+  const [window_, setWindow] = useState<TimeWindow>('all');
 
   const { measurements, loading } = useMeasurements({
     deviceId,
