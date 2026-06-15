@@ -1,30 +1,59 @@
 ﻿// =========================================================
 //  AdminMeasurementsPage
-//  Onglets : Graphique | Tableau  +  Agregats par capteur
+//  Onglets : Graphiques | Tableau  +  Agrégats par capteur
 //  Multi-selection + export CSV
 // =========================================================
 import { useEffect, useMemo, useState } from 'react';
 import {
-  ResponsiveContainer, ComposedChart, Area,
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend,
-} from 'recharts';
-import {
   useAdminMeasurements, useAdminAggregates, type MeasFilter,
 } from '../../hooks/useAdmin';
 import { useAdminDevices } from '../../hooks/useAdmin';
-import { useTheme } from '../../theme/ThemeContext';
+import { useGroupSensors } from '../../hooks/useGroupSensors';
+import type { GroupSensorReading } from '../../hooks/useGroupSensors';
+import { SensorChart }      from '../../components/SensorChart';
+import { GroupSensorChart } from '../../components/GroupSensorChart';
+import { SensorIcon }       from '../../components/svg/SensorIcon';
 import { GROUPS } from '../../lib/groups';
 import styles from './AdminPage.module.css';
+import ms from './AdminMeasurements.module.css';
 
 const PAGE_SIZE = 50;
-
 type Tab = 'graph' | 'table';
 
-function fmtTime(iso: string) {
-  return new Date(iso).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+function timeAgo(ts: string | null): string {
+  if (!ts) return '—';
+  const sec = Math.floor((Date.now() - new Date(ts).getTime()) / 1000);
+  if (sec < 60)    return `${sec} s`;
+  if (sec < 3600)  return `${Math.floor(sec / 60)} min`;
+  return `${Math.floor(sec / 3600)} h`;
 }
 
-function exportCSV(rows: ReturnType<typeof useAdminMeasurements>['rows'], selected: Set<number>) {
+function ExtKpiCard({ r }: { r: GroupSensorReading }) {
+  const group = GROUPS.find(g => g.code === r.group);
+  const color = group?.color ?? '#787790';
+  const hasVal = r.value !== null;
+  function fmt(): string {
+    if (!hasVal) return '—';
+    if (r.type === 'presence') return `${r.value} ${r.unit}`;
+    if (r.type === 'alcohol')  return `${(r.value as number).toFixed(2)} ${r.unit}`;
+    if (r.type === 'sound')    return `${Math.round(r.value as number)} ${r.unit}`;
+    return `${r.value} ${r.unit}`;
+  }
+  return (
+    <div className={styles.kpi} style={{ borderTop: `2px solid ${color}` }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        <span className={styles.kpiLabel} style={{ color }}>{r.group}</span>
+        <span style={{ width: 6, height: 6, borderRadius: '50%', background: r.online ? 'var(--clr-vert)' : hasVal ? color : 'var(--clr-nuit-bord)', display: 'inline-block', flexShrink: 0 }} />
+      </div>
+      <span className={styles.kpiValue} style={{ color, fontSize: 'var(--text-2xl)' }}>{fmt()}</span>
+      <span className={styles.kpiSub}>
+        {r.label}
+        {r.timestamp ? ` · il y a ${timeAgo(r.timestamp)}` : ''}
+        {!r.timestamp && r.error ? ` · ${r.error}` : ''}
+      </span>
+    </div>
+  );
+}
   const target = selected.size > 0 ? rows.filter(r => selected.has(r.id)) : rows;
   const header = 'id,device_id,type,value,unit,created_at';
   const lines  = target.map(r =>
@@ -40,10 +69,9 @@ function exportCSV(rows: ReturnType<typeof useAdminMeasurements>['rows'], select
 }
 
 export function AdminMeasurementsPage() {
-  const { theme } = useTheme();
-  const tickFaint = theme === 'light' ? '#5A596E' : '#787790';
   const { devices } = useAdminDevices();
   const { rows, total, loading, error, fetch } = useAdminMeasurements();
+  const { sensors: extSensors, refresh: extRefresh } = useGroupSensors();
 
   const ownIds = useMemo(
     () => GROUPS.find(g => g.ours)?.sensors.filter(s => s.kind === 'sensor').map(s => s.deviceId) ?? [],
@@ -58,6 +86,10 @@ export function AdminMeasurementsPage() {
   const [to,       setTo]       = useState('');
   const [offset,   setOffset]   = useState(0);
   const [selected, setSelected] = useState<Set<number>>(new Set());
+
+  const ownGroup  = GROUPS.find(g => g.ours);
+  const extGroups = GROUPS.filter(g => !g.ours);
+  const ownSensors = ownGroup?.sensors.filter(s => s.kind === 'sensor') ?? [];
 
   const buildFilter = (): MeasFilter => ({
     deviceId: deviceId || undefined,
@@ -78,16 +110,11 @@ export function AdminMeasurementsPage() {
     fetch({ ...buildFilter(), offset: 0 });
   };
 
-  // Donnees graphique
-  const chartData = useMemo(() => {
-    return [...rows].reverse().map(r => ({
-      time:  fmtTime(r.created_at),
-      value: r.value,
-      id:    r.device_id,
-    }));
-  }, [rows]);
-
-  // Multi-select
+  // Couleur par device
+  const deviceColor: Record<string, string> = {
+    G1E_temperature: '#C9A240',
+    G1E_humidity:    '#2BBFBF',
+  };
   const toggleRow = (id: number) => {
     setSelected(prev => {
       const n = new Set(prev);
@@ -103,12 +130,6 @@ export function AdminMeasurementsPage() {
   const pages = Math.ceil(total / PAGE_SIZE);
   const page  = Math.floor(offset / PAGE_SIZE) + 1;
 
-  // Couleur par device
-  const deviceColor: Record<string, string> = {
-    G1E_temperature: '#C9A240',
-    G1E_humidity:    '#2BBFBF',
-  };
-
   return (
     <div className={styles.page}>
       <header className={styles.pageHeader}>
@@ -117,27 +138,42 @@ export function AdminMeasurementsPage() {
         <p className={styles.pageSub}>{total.toLocaleString('fr-FR')} entrées dans G1E_measurements</p>
       </header>
 
-      {/* Agregats par capteur */}
+      {/* KPIs G1E */}
       <div className={styles.kpiGrid}>
         {stats.map(s => {
-          const label = GROUPS.flatMap(g => g.sensors).find(x => x.deviceId === s.deviceId)?.label ?? s.deviceId;
-          const color = deviceColor[s.deviceId] ?? '#8B7CF8';
+          const sensor = ownGroup?.sensors.find(x => x.deviceId === s.deviceId);
+          const color  = deviceColor[s.deviceId] ?? '#8B7CF8';
           return (
             <div key={s.deviceId} className={styles.kpi} style={{ borderTop: `2px solid ${color}` }}>
-              <span className={styles.kpiLabel}>{label}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                {sensor && <SensorIcon type={sensor.type} size={14} />}
+                <span className={styles.kpiLabel}>{sensor?.label ?? s.deviceId}</span>
+              </div>
               <span className={styles.kpiValue} style={{ color }}>
                 {s.count ? s.last.toFixed(1) : '—'}
+                {sensor?.unit ? ` ${sensor.unit}` : ''}
               </span>
               {s.count > 0 && (
                 <span className={styles.kpiSub}>
-                  min {s.min.toFixed(1)} · max {s.max.toFixed(1)} · moy {s.avg.toFixed(1)} · std {s.std.toFixed(2)}
-                  <br />{s.count} pts
+                  min {s.min.toFixed(1)} · max {s.max.toFixed(1)} · moy {s.avg.toFixed(1)}
+                  <br />{s.count} points
                 </span>
               )}
             </div>
           );
         })}
       </div>
+
+      {/* KPIs groupes partenaires */}
+      <section className={styles.section}>
+        <div className={styles.sectionHead}>
+          <h2 className={styles.sectionTitle} style={{ fontSize: 'var(--text-base)' }}>Capteurs partenaires</h2>
+          <button onClick={extRefresh} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--clr-or)', fontSize: 'var(--text-xs)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Actualiser</button>
+        </div>
+        <div className={styles.kpiGrid}>
+          {extSensors.map(r => <ExtKpiCard key={r.group} r={r} />)}
+        </div>
+      </section>
 
       {/* Filtres */}
       <div className={styles.toolbar}>
@@ -186,27 +222,47 @@ export function AdminMeasurementsPage() {
       {loading && <p className={styles.stateMsg}>Chargement…</p>}
       {error   && <p className={styles.errorMsg}>{error}</p>}
 
-      {/* Vue graphique */}
-      {tab === 'graph' && !loading && (
-        <div role="img" aria-label="Graphique des mesures sélectionnées" style={{ background: 'var(--clr-surface)', border: '1px solid var(--clr-nuit-bord)', padding: 'var(--sp-5)' }}>
-          <ResponsiveContainer width="100%" height={320}>
-            <ComposedChart data={chartData} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
-              <defs>
-                <linearGradient id="mg1" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%"  stopColor="#C9A240" stopOpacity={0.2} />
-                  <stop offset="95%" stopColor="#C9A240" stopOpacity={0}   />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="0" stroke="rgba(35,34,53,0.6)" horizontal vertical={false} />
-              <XAxis dataKey="time" tick={{ fill: tickFaint, fontSize: 10 }} tickLine={false} interval="preserveStartEnd" />
-              <YAxis tick={{ fill: tickFaint, fontSize: 10 }} tickLine={false} axisLine={false} domain={['auto', 'auto']} />
-              <Tooltip contentStyle={{ background: '#0E0D14', border: '1px solid #232235', color: '#EDE9E0' }}
-                labelStyle={{ color: tickFaint, fontSize: 11 }} />
-              <Legend wrapperStyle={{ fontSize: 11, color: '#8A8898' }} />
-              <Area type="monotone" dataKey="value" name={deviceId || 'Valeur'}
-                stroke="#C9A240" strokeWidth={2} fill="url(#mg1)" dot={false} connectNulls />
-            </ComposedChart>
-          </ResponsiveContainer>
+      {/* Vue graphique — un graphique par capteur */}
+      {tab === 'graph' && (
+        <div className={ms.chartsGrid}>
+          {/* Capteurs G1E */}
+          {ownSensors.map(s => (
+            <div key={s.deviceId} className={ms.chartSection}>
+              <div className={ms.chartSectionHead}>
+                <SensorIcon type={s.type} size={14} />
+                <span className={ms.chartSectionLabel} style={{ color: deviceColor[s.deviceId] ?? ownGroup?.color }}>
+                  {ownGroup?.code} · {s.label}
+                </span>
+                <span className={ms.chartSectionBadge}>G1E</span>
+              </div>
+              <SensorChart
+                deviceId={s.deviceId}
+                unit={s.unit}
+                label={s.label}
+                color={deviceColor[s.deviceId] ?? ownGroup?.color}
+                ours={true}
+              />
+            </div>
+          ))}
+
+          {/* Capteurs groupes partenaires */}
+          {extGroups.map(group => (
+            <div key={group.code} className={ms.chartSection}>
+              <div className={ms.chartSectionHead}>
+                <SensorIcon type={group.sensors[0]?.type ?? 'sensor'} size={14} />
+                <span className={ms.chartSectionLabel} style={{ color: group.color }}>
+                  {group.code} · {group.sensors[0]?.label ?? group.name}
+                </span>
+                <span className={ms.chartSectionBadge} style={{ borderColor: `${group.color}50`, color: group.color }}>{group.code}</span>
+              </div>
+              <GroupSensorChart
+                groupCode={group.code}
+                unit={group.sensors[0]?.unit ?? ''}
+                label={group.sensors[0]?.label ?? group.name}
+                color={group.color}
+              />
+            </div>
+          ))}
         </div>
       )}
 

@@ -1,0 +1,44 @@
+/* =========================================================
+   AdminMeasurementsPage — styles spécifiques
+   ========================================================= */
+
+/* Grille des graphiques : 1 colonne sur mobile, 2 sur large */
+.chartsGrid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
+}
+
+/* Section d'un graphique capteur */
+.chartSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.chartSectionHead {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding-bottom: var(--sp-2);
+  border-bottom: 1px solid var(--clr-nuit-bord);
+}
+
+.chartSectionLabel {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  flex: 1;
+}
+
+.chartSectionBadge {
+  font-family: var(--font-body);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: 1px solid var(--clr-nuit-bord);
+  color: var(--clr-text-faint);
+  padding: 1px 6px;
+}
