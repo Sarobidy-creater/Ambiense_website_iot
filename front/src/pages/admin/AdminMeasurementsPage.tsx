@@ -54,6 +54,8 @@ function ExtKpiCard({ r }: { r: GroupSensorReading }) {
     </div>
   );
 }
+
+function exportCSV(rows: ReturnType<typeof useAdminMeasurements>['rows'], selected: Set<number>) {
   const target = selected.size > 0 ? rows.filter(r => selected.has(r.id)) : rows;
   const header = 'id,device_id,type,value,unit,created_at';
   const lines  = target.map(r =>
