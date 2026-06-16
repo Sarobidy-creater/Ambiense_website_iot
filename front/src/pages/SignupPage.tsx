@@ -42,7 +42,7 @@ export function SignupPage() {
       if (err.message === 'USER_ALREADY_EXISTS') {
         setEmailTaken(true);
       } else {
-        setError("Impossible de créer le compte. Vérifiez l'email ou réessayez.");
+        setError(err.message || "Impossible de créer le compte. Vérifiez l'email ou réessayez.");
       }
     } else {
       setSuccess(true);

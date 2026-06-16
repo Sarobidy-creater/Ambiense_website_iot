@@ -58,6 +58,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         emailRedirectTo: `${siteUrl}/login`,
       },
     });
+    if (error) {
+      console.error('[AMBIENSE] signUp error:', error.status, error.message, error);
+    }
     // Supabase ne renvoie pas d'erreur si l'email existe deja :
     // il retourne un user avec identities vides — on le traduit en erreur explicite.
     if (!error && data.user?.identities?.length === 0) {
