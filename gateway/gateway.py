@@ -1,8 +1,9 @@
 # =========================================================
-#  Gateway G1E — AMBIENSE · Tiva C DHT11 → Supabase
-#  Lit les donnees temperature + humidite du capteur DHT11
-#  connecte sur PA_7 de la carte Tiva C et les envoie en
-#  base Supabase. Surveille aussi les commandes ventilateur.
+#  Gateway G1E — AMBIENSE · Tiva C → Supabase
+#  Lit les donnees temperature + humidite du capteur DHT
+#  connecte sur la Tiva C et les envoie en base Supabase.
+#  Surveille aussi les commandes ventilateur.
+#  Declenchement automatique si temperature >= TEMP_THRESHOLD.
 #
 #  Format serie attendu (9600 baud) :
 #    Humidite: 45 %   Temperature: 23 *C
@@ -34,7 +35,11 @@ FAN_ID  = "G1E_ventilateur"
 
 # ── Seuil de déclenchement automatique du ventilateur ────
 TEMP_THRESHOLD = float(os.environ.get("TEMP_THRESHOLD", "28"))
-_fan_auto_on   = False   # état interne pour éviter les envois répétés
+
+# ── Verrou partagé pour les écritures Serial ─────────────
+# Évite les collisions entre command_loop et auto_fan_loop
+_serial_lock = threading.Lock()
+_fan_auto_on = False   # état interne auto (évite les envois répétés)
 
 # Regex pour parser la ligne Tiva :
 #   "Humidite: 45 %   Temperature: 23 *C"
@@ -60,17 +65,45 @@ def insert_measurement(device_id: str, type_: str, value: float, unit: str) -> N
         print(f"[ERREUR Supabase] {e}")
 
 
+def serial_write(ser: serial.Serial, data: bytes) -> None:
+    """Écriture thread-safe sur le port série."""
+    with _serial_lock:
+        ser.write(data)
+
+
 def auto_fan(ser: serial.Serial, temperature: float) -> None:
     """Allume/éteint le ventilateur automatiquement selon le seuil."""
     global _fan_auto_on
     if temperature >= TEMP_THRESHOLD and not _fan_auto_on:
-        ser.write(b"FAN:100\n")
+        serial_write(ser, b"FAN:100\n")
         _fan_auto_on = True
         print(f"[AUTO] Température {temperature}°C >= seuil {TEMP_THRESHOLD}°C → ventilateur ON")
     elif temperature < TEMP_THRESHOLD and _fan_auto_on:
-        ser.write(b"FAN:0\n")
+        serial_write(ser, b"FAN:0\n")
         _fan_auto_on = False
         print(f"[AUTO] Température {temperature}°C < seuil {TEMP_THRESHOLD}°C → ventilateur OFF")
+
+
+def auto_fan_loop(ser: serial.Serial) -> None:
+    """Surveille la température en base et déclenche le ventilateur automatiquement.
+    Fonctionne indépendamment du Serial — lit la dernière mesure Supabase toutes les 5s."""
+    print(f"[GATEWAY] Auto-trigger ventilateur actif (seuil {TEMP_THRESHOLD}°C)...")
+    while True:
+        try:
+            res = (
+                sb.table("G1E_measurements")
+                .select("value")
+                .eq("device_id", TEMP_ID)
+                .order("created_at", desc=True)
+                .limit(1)
+                .execute()
+            )
+            if res.data:
+                temp = float(res.data[0]["value"])
+                auto_fan(ser, temp)
+        except Exception as e:
+            print(f"[ERREUR auto_fan] {e}")
+        time.sleep(5)
 
 
 def read_loop(ser: serial.Serial) -> None:
@@ -92,7 +125,7 @@ def read_loop(ser: serial.Serial) -> None:
 
                 insert_measurement(TEMP_ID, "temperature", temperature, "C")
                 insert_measurement(HUM_ID,  "humidity",    humidity,    "%")
-                auto_fan(ser, temperature)
+                # auto_fan géré par auto_fan_loop (thread séparé)
             elif "erreur" in line.lower():
                 print(f"[CAPTEUR] {line}")
 
@@ -120,13 +153,13 @@ def command_loop(ser: serial.Serial) -> None:
                 action = cmd["action"]
                 if action == "set_speed":
                     speed = cmd.get("payload", {}).get("speed", 50)
-                    ser.write(f"FAN:{speed}\n".encode())
+                    serial_write(ser, f"FAN:{speed}\n".encode())
                     print(f"[VENTILATEUR] set_speed = {speed}%")
                 elif action == "on":
-                    ser.write(b"FAN:100\n")
+                    serial_write(ser, b"FAN:100\n")
                     print("[VENTILATEUR] on")
                 elif action == "off":
-                    ser.write(b"FAN:0\n")
+                    serial_write(ser, b"FAN:0\n")
                     print("[VENTILATEUR] off")
 
                 sb.table("G1E_commands") \
@@ -156,7 +189,10 @@ if __name__ == "__main__":
         raise
 
     # Thread de lecture serie (daemon : s'arrete avec le programme)
-    threading.Thread(target=read_loop, args=(ser,), daemon=True).start()
+    threading.Thread(target=read_loop,     args=(ser,), daemon=True).start()
+
+    # Thread auto-trigger ventilateur (lit la temp en base toutes les 5s)
+    threading.Thread(target=auto_fan_loop, args=(ser,), daemon=True).start()
 
     # Boucle principale : commandes ventilateur
     command_loop(ser)
