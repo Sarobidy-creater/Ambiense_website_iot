@@ -88,7 +88,7 @@ export function findGroup(code: string): GroupDef | undefined {
 
 /** Formatte une valeur selon le type de capteur */
 export function formatValue(value: number, type: string, unit: string): string {
-  if (type === 'presence') return `${Math.max(0, Math.round(value))} ${unit}`.trim();
+  if (type === 'presence') return `${value} ${unit}`.trim();
   const decimals = ['temperature', 'humidity'].includes(type) ? 1 : 0;
   return `${value.toFixed(decimals)} ${unit}`.trim();
 }
