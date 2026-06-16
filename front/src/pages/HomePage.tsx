@@ -36,7 +36,7 @@ const SENSORS = [
   { code: 'TEMP',  label: 'Température',  unit: 'degC',  group: 'G1E', kind: 'sensor'   },
   { code: 'FAN',   label: 'Ventilateur',  unit: '%',     group: 'G1E', kind: 'actuator' },
   { code: 'dB',    label: 'Son ambiant',  unit: 'dB',    group: 'G1A', kind: 'sensor'   },
-  { code: 'PRES',  label: 'Présence',     unit: 'pers.', group: 'G1B', kind: 'sensor'   },
+  { code: 'PRES',  label: 'Personnes présentes', unit: 'pers.', group: 'G1B', kind: 'sensor'   },
   { code: 'SMOKE', label: 'Fumée',        unit: 'ppm',   group: 'G1C', kind: 'sensor'   },
   { code: 'ALC',   label: 'Alcool',       unit: 'ppm',   group: 'G1D', kind: 'sensor'   },
 ];

@@ -2,7 +2,7 @@
 //  useGroupSensors — lecture directe des capteurs des groupes
 //
 //  G1A : g1a_sound           → db_value      (dB)
-//  G1B : g1b_compteur_personnes → nb_personnes (pers.)
+//  G1B : g1b_compteur_personnes → nb_personnes (pers. en direct = entrées − sorties)
 //  G1C : aucun capteur connecté
 //  G1D : g1d_mq3_measurements → alcohol_level (mg/L)
 //        (via RPC security definer car RLS G1D bloque l'accès direct)
@@ -88,8 +88,8 @@ async function readG1BPresence(): Promise<Omit<GroupSensorReading, 'group'>> {
 
   if (!error && data) {
     return {
-      label: 'Présence',
-      value: data.nb_personnes as number,
+      label: 'Personnes présentes',
+      value: Math.max(0, data.nb_personnes as number),
       unit:  'pers.',
       type:  'presence',
       timestamp: data.created_at as string,
@@ -103,13 +103,13 @@ async function readG1BPresence(): Promise<Omit<GroupSensorReading, 'group'>> {
     .rpc('get_group_table_generic', { table_name_param: 'g1b_compteur_personnes', row_limit: 1 });
 
   if (rpcErr || !rpc?.length) {
-    return { label: 'Présence', value: null, unit: 'pers.', type: 'presence', timestamp: null, online: false, error: rpcErr?.message ?? null };
+    return { label: 'Personnes présentes', value: null, unit: 'pers.', type: 'presence', timestamp: null, online: false, error: rpcErr?.message ?? null };
   }
   const row = rpc[0].raw_data as Record<string, unknown>;
   const ts  = (row.created_at ?? null) as string | null;
   return {
-    label: 'Présence',
-    value: row.nb_personnes != null ? Number(row.nb_personnes) : null,
+    label: 'Personnes présentes',
+    value: row.nb_personnes != null ? Math.max(0, Number(row.nb_personnes)) : null,
     unit:  'pers.',
     type:  'presence',
     timestamp: ts,

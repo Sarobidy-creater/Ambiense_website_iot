@@ -37,7 +37,7 @@ export const GROUPS: GroupDef[] = [
   {
     code: 'G1B', name: 'Groupe G1B', ours: false, color: '#3AC98A',
     sensors: [
-      { deviceId: 'G1B_presence', type: 'presence', label: 'Présence', unit: 'pers.', kind: 'sensor' },
+      { deviceId: 'G1B_presence', type: 'presence', label: 'Personnes présentes', unit: 'pers.', kind: 'sensor' },
     ],
   },
   {
@@ -88,7 +88,7 @@ export function findGroup(code: string): GroupDef | undefined {
 
 /** Formatte une valeur selon le type de capteur */
 export function formatValue(value: number, type: string, unit: string): string {
-  if (type === 'presence') return value === 1 ? 'Occupé' : 'Libre';
+  if (type === 'presence') return `${Math.max(0, Math.round(value))} ${unit}`.trim();
   const decimals = ['temperature', 'humidity'].includes(type) ? 1 : 0;
   return `${value.toFixed(decimals)} ${unit}`.trim();
 }
