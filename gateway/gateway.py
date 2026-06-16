@@ -32,6 +32,10 @@ TEMP_ID = "G1E_temperature"
 HUM_ID  = "G1E_humidity"
 FAN_ID  = "G1E_ventilateur"
 
+# ── Seuil de déclenchement automatique du ventilateur ────
+TEMP_THRESHOLD = float(os.environ.get("TEMP_THRESHOLD", "28"))
+_fan_auto_on   = False   # état interne pour éviter les envois répétés
+
 # Regex pour parser la ligne Tiva :
 #   "Humidite: 45 %   Temperature: 23 *C"
 PATTERN = re.compile(
@@ -56,6 +60,19 @@ def insert_measurement(device_id: str, type_: str, value: float, unit: str) -> N
         print(f"[ERREUR Supabase] {e}")
 
 
+def auto_fan(ser: serial.Serial, temperature: float) -> None:
+    """Allume/éteint le ventilateur automatiquement selon le seuil."""
+    global _fan_auto_on
+    if temperature >= TEMP_THRESHOLD and not _fan_auto_on:
+        ser.write(b"FAN:100\n")
+        _fan_auto_on = True
+        print(f"[AUTO] Température {temperature}°C >= seuil {TEMP_THRESHOLD}°C → ventilateur ON")
+    elif temperature < TEMP_THRESHOLD and _fan_auto_on:
+        ser.write(b"FAN:0\n")
+        _fan_auto_on = False
+        print(f"[AUTO] Température {temperature}°C < seuil {TEMP_THRESHOLD}°C → ventilateur OFF")
+
+
 def read_loop(ser: serial.Serial) -> None:
     """Lit en continu le port serie et envoie les mesures."""
     print(f"[GATEWAY] Ecoute sur {PORT} ({BAUD} baud)...")
@@ -75,6 +92,7 @@ def read_loop(ser: serial.Serial) -> None:
 
                 insert_measurement(TEMP_ID, "temperature", temperature, "C")
                 insert_measurement(HUM_ID,  "humidity",    humidity,    "%")
+                auto_fan(ser, temperature)
             elif "erreur" in line.lower():
                 print(f"[CAPTEUR] {line}")
 
