@@ -39,9 +39,7 @@ export function GroupDetailPage() {
   const hasValue = reading?.value !== null && reading?.value !== undefined;
 
   const formattedValue = hasValue
-    ? reading!.type === 'presence'
-      ? `${reading!.value} ${reading!.unit}`
-      : `${(reading!.value as number).toFixed(2)} ${reading!.unit}`
+    ? formatValue(reading!.value as number, reading!.type, reading!.unit)
     : null;
 
   return (

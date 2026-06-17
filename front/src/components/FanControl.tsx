@@ -1,84 +1,114 @@
 ﻿// =========================================================
-//  FanControl — controle ventilateur G1E avec SVG anime
-//  Pas d'emoji.
+//  FanControl — contrôle du ventilateur G1E
+//  Actions : on / off / set_speed (0-100%)
 // =========================================================
 import { useState } from 'react';
 import { useCommand } from '../hooks/useCommand';
-import { FanSvg }    from './svg/FanSvg';
 import { OUR_DEVICES } from '../lib/supabase';
 import styles from './FanControl.module.css';
 
 export function FanControl() {
   const { lastCommand, sending, error, sendCommand } = useCommand();
-  // Etat local optimiste : on met a jour localement en attendant
-  const [isRunning, setIsRunning] = useState(false);
+  const [speed, setSpeed] = useState(50);
 
-  const send = (action: 'on' | 'off') => {
-    if (action === 'on')  setIsRunning(true);
-    if (action === 'off') setIsRunning(false);
+  const send = (action: 'on' | 'off' | 'set_speed') => {
     sendCommand({
       deviceId: OUR_DEVICES.ventilateur,
       action,
+      payload: action === 'set_speed' ? { speed } : undefined,
     });
   };
 
-  const cmdStatus = lastCommand?.status ?? null;
-  const statusClass =
-    cmdStatus === 'done'    ? styles.statusDone    :
-    cmdStatus === 'error'   ? styles.statusError   :
-    cmdStatus === 'pending' ? styles.statusPending :
-    '';
+  const statusColor = {
+    pending: 'var(--clr-ambre)',
+    done:    'var(--clr-vert)',
+    error:   'var(--clr-danger)',
+  };
 
   return (
     <section className={styles.panel} aria-labelledby="fan-title">
-
-      {/* Visualisation SVG */}
-      <div className={styles.fanVisual}>
-        <FanSvg speed={100} running={isRunning} size={100} />
-        <div className={styles.fanState}>
-          <span className={isRunning ? styles.fanOn : styles.fanOff}>
-            {isRunning ? 'En marche' : 'Arrete'}
-          </span>
-        </div>
+      <div className={styles.header}>
+        <span className={styles.icon} aria-hidden="true">🌀</span>
+        <h3 id="fan-title">Ventilateur G1E</h3>
       </div>
 
-      {/* Titre */}
-      <h3 id="fan-title" className={styles.title}>Ventilateur G1E</h3>
-
-      {/* Boutons marche / arret */}
+      {/* Boutons on/off */}
       <div className={styles.actions}>
         <button
-          className={`${styles.btn} ${styles.btnOn} ${isRunning ? styles.btnActive : ''}`}
+          className={`${styles.btn} ${styles.btnOn}`}
           onClick={() => send('on')}
           disabled={sending}
-          aria-pressed={isRunning}
           aria-label="Allumer le ventilateur"
         >
           Marche
         </button>
         <button
-          className={`${styles.btn} ${styles.btnOff} ${!isRunning ? styles.btnActive : ''}`}
+          className={`${styles.btn} ${styles.btnOff}`}
           onClick={() => send('off')}
           disabled={sending}
-          aria-pressed={!isRunning}
-          aria-label="Eteindre le ventilateur"
+          aria-label="Éteindre le ventilateur"
         >
-          Arret
+          Arrêt
         </button>
       </div>
 
-      {/* Statut commande */}
+      {/* Slider de vitesse */}
+      <div className={styles.sliderGroup}>
+        <label htmlFor="fan-speed" className={styles.sliderLabel}>
+          Vitesse : <strong>{speed} %</strong>
+        </label>
+        <input
+          id="fan-speed"
+          type="range"
+          min={0}
+          max={100}
+          step={5}
+          value={speed}
+          onChange={(e) => setSpeed(Number(e.target.value))}
+          className={styles.slider}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={speed}
+          aria-label="Vitesse du ventilateur"
+        />
+        <button
+          className={`${styles.btn} ${styles.btnSpeed}`}
+          onClick={() => send('set_speed')}
+          disabled={sending}
+          aria-label={`Appliquer la vitesse ${speed}%`}
+        >
+          {sending ? 'Envoi…' : 'Appliquer'}
+        </button>
+      </div>
+
+      {/* Statut de la dernière commande */}
       {lastCommand && (
-        <div className={`${styles.cmdStatus} ${statusClass}`} role="status" aria-live="polite">
-          <span className={styles.cmdDot} />
-          <span>
-            Commande <strong>{lastCommand.action}</strong> — {lastCommand.status}
+        <div
+          className={styles.status}
+          role="status"
+          aria-live="polite"
+          style={{ borderColor: statusColor[lastCommand.status as keyof typeof statusColor] }}
+        >
+          <span
+            className={`badge badge-${lastCommand.status}`}
+            aria-label={`Statut : ${lastCommand.status}`}
+          >
+            {lastCommand.status === 'pending' && '⏳ En attente'}
+            {lastCommand.status === 'done'    && '✅ Exécutée'}
+            {lastCommand.status === 'error'   && '❌ Erreur'}
+          </span>
+          <span className={styles.statusDetail}>
+            {lastCommand.action}
+            {lastCommand.payload?.speed !== undefined && ` — ${lastCommand.payload.speed}%`}
           </span>
         </div>
       )}
 
+      {/* Erreur réseau */}
       {error && (
-        <p className={styles.errorMsg} role="alert">{error}</p>
+        <p className={styles.error} role="alert">
+          {error}
+        </p>
       )}
     </section>
   );

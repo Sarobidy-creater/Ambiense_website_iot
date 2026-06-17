@@ -30,10 +30,7 @@ function isOnline(meas?: Measurement): boolean {
 
 function formatSensorValue(s: GroupSensorReading): string {
   if (s.value === null) return '—';
-  if (s.type === 'presence') return `${s.value} ${s.unit}`;
-  if (s.type === 'alcohol')  return `${s.value.toFixed(2)} ${s.unit}`;
-  if (s.type === 'sound')    return `${Math.round(s.value)} ${s.unit}`;
-  return `${s.value} ${s.unit}`;
+  return formatValue(s.value, s.type, s.unit);
 }
 
 function timeAgo(ts: string | null): string {

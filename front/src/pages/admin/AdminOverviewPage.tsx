@@ -11,7 +11,7 @@ import { useAdminDevices, useAdminMeasurements, useAdminCommands, useAdminAggreg
 import { useCommand }       from '../../hooks/useCommand';
 import { useGroupSensors }  from '../../hooks/useGroupSensors';
 import type { GroupSensorReading } from '../../hooks/useGroupSensors';
-import { GROUPS }      from '../../lib/groups';
+import { GROUPS, formatValue }      from '../../lib/groups';
 import type { Device } from '../../lib/types';
 import styles from './AdminPage.module.css';
 import ov    from './AdminOverview.module.css';
@@ -97,10 +97,7 @@ function ExtSensorCard({ reading }: { reading: GroupSensorReading }) {
 
   function fmt(r: GroupSensorReading): string {
     if (!hasVal) return '—';
-    if (r.type === 'presence') return `${r.value} ${r.unit}`;
-    if (r.type === 'alcohol')  return `${(r.value as number).toFixed(2)} ${r.unit}`;
-    if (r.type === 'sound')    return `${Math.round(r.value as number)} ${r.unit}`;
-    return `${r.value} ${r.unit}`;
+    return formatValue(r.value as number, r.type, r.unit);
   }
 
   return (

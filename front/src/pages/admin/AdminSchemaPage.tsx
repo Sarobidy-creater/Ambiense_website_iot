@@ -69,14 +69,29 @@ insert into "G1E_devices" (id, kind, type, unit, label) values
   ('G1E_temperature', 'sensor',   'temperature', '°C', 'Capteur DHT15 — température'),
   ('G1E_humidity',    'sensor',   'humidity',    '%',  'Capteur DHT15 — humidité'),
   ('G1E_ventilateur', 'actuator', 'motor',       null, 'Servo S148 Futaba — ventilateur')
-on conflict (id) do nothing;`;
+on conflict (id) do nothing;
+
+-- Table partenaire G1C — fumée en ppm
+create table if not exists "g1c_smoke" (
+  id          bigint generated always as identity primary key,
+  ppm         double precision not null,
+  measured_at timestamptz default now()
+);
+create index if not exists "idx_g1c_smoke_measured_at"
+  on "g1c_smoke" (measured_at desc);
+
+alter table "g1c_smoke" enable row level security;
+
+drop policy if exists "g1c_smoke_select" on "g1c_smoke";
+create policy "g1c_smoke_select" on "g1c_smoke"
+  for select to authenticated using (true);`;
 
 const STEPS = [
   { n: 1, text: 'Ouvrir Supabase → votre projet → SQL Editor' },
   { n: 2, text: 'Cliquer "New query"' },
   { n: 3, text: 'Copier le SQL ci-dessous et coller dans l\'éditeur' },
   { n: 4, text: 'Cliquer "Run" (F5)' },
-  { n: 5, text: 'Vérifier dans Table Editor que G1E_devices, G1E_measurements et G1E_commands sont créées' },
+  { n: 5, text: 'Vérifier dans Table Editor que G1E_devices, G1E_measurements, G1E_commands et g1c_smoke sont créées' },
 ];
 
 export function AdminSchemaPage() {
@@ -94,7 +109,7 @@ export function AdminSchemaPage() {
         <p className={styles.pageEye}>Administration</p>
         <h1 className={styles.pageTitle}>Schéma SQL</h1>
         <p className={styles.pageSub}>
-          Tables G1E — à exécuter une seule fois dans Supabase SQL Editor
+          Tables G1E + table partenaire G1C smoke — à exécuter une seule fois dans Supabase SQL Editor
         </p>
       </header>
 

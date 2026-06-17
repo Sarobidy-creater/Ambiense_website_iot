@@ -57,6 +57,30 @@ create policy "user_roles_admin_update" on "user_roles"
   with check (true);
 
 
+-- Lors de la création d'un compte, on crée automatiquement la ligne de rôle
+-- de base. La fonction est SECURITY DEFINER pour éviter qu'un trigger Auth
+-- soit bloqué par les policies RLS de user_roles.
+create or replace function handle_new_user()
+returns trigger
+language plpgsql
+security definer
+set search_path = public, auth
+as $$
+begin
+  insert into public."user_roles" (user_id, role)
+  values (new.id, 'user')
+  on conflict (user_id) do nothing;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute procedure public.handle_new_user();
+
+
 -- ─── VUE PROFILS UTILISATEURS (lisible par les admins) ────
 -- Expose les infos de auth.users sans donner acces direct a la table
 

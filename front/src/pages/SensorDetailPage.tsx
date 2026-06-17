@@ -108,9 +108,7 @@ export function SensorDetailPage() {
                 className={styles.liveNum}
                 style={{ color: sensor.color }}
               >
-                {Number.isInteger(latestExt.value)
-                  ? `${latestExt.value} ${sensor.unit}`
-                  : `${latestExt.value.toFixed(2)} ${sensor.unit}`}
+                {formatValue(latestExt.value, sensor.type, sensor.unit)}
               </span>
               <span className={styles.liveLabel} style={{ color: sensor.color }}>
                 Dernière mesure
