@@ -3,7 +3,7 @@
 //  Route : /group/:code  (G1A, G1B, G1C, G1D)
 // =========================================================
 import { Link, useParams } from 'react-router-dom';
-import { GROUPS }              from '../lib/groups';
+import { GROUPS, formatValue } from '../lib/groups';
 import { GroupSensorChart }    from '../components/GroupSensorChart';
 import { SensorIcon }          from '../components/svg/SensorIcon';
 import { useGroupSensors }     from '../hooks/useGroupSensors';
