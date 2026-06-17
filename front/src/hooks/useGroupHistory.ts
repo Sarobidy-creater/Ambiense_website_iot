@@ -69,6 +69,14 @@ function filterByWindow(pts: HistoryPoint[], window_: TimeWindow): HistoryPoint[
   return pts.filter(p => now - new Date(p.isoTime).getTime() < cutoffMs);
 }
 
+// Limite de lignes adaptée à la fenêtre (hypothèse : max 1 mesure/s)
+// 5min → 500 pts, 1h → 3 600 pts, all → 500 dernières mesures
+function rowLimitFor(window_: TimeWindow): number {
+  if (window_ === '5min') return 500;
+  if (window_ === '1h')   return 3600;
+  return 500;
+}
+
 // ── Hook principal ────────────────────────────────────────
 
 export function useGroupHistory(
@@ -108,11 +116,11 @@ export function useGroupHistory(
       tableName = found.table_name;
     }
 
-    // Récupérer les 200 dernières lignes (tri par ctid desc dans la RPC)
+    // Récupérer N lignes selon la fenêtre (tri ctid desc dans la RPC)
     const { data, error: fetchErr } = await supabase
       .rpc('get_group_table_generic', {
         table_name_param: tableName,
-        row_limit: 200,
+        row_limit: rowLimitFor(window_),
       });
 
     if (fetchErr) {
