@@ -119,44 +119,45 @@ async function readG1BPresence(): Promise<Omit<GroupSensorReading, 'group'>> {
 }
 
 async function readG1CSmoke(): Promise<Omit<GroupSensorReading, 'group'>> {
-  // Découverte dynamique : on cherche toutes les tables G1C dans la base
-  const { data: tables, error: discErr } = await supabase
-    .rpc('discover_group_tables');
+  // Tentative directe (comme G1A / G1B)
+  const { data, error } = await supabase
+    .from('g1c_smoke')
+    .select('ppm, measured_at')
+    .order('measured_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
 
-  if (discErr) {
-    return { label: 'Fumée', value: null, unit: 'ppm', type: 'smoke', timestamp: null, online: false, error: discErr.message };
-  }
-
-  const g1cTables = ((tables ?? []) as Array<{ group_prefix: string; table_name: string }>)
-    .filter(t => t.group_prefix === 'G1C');
-
-  if (!g1cTables.length) {
-    return { label: 'Fumée', value: null, unit: 'ppm', type: 'smoke', timestamp: null, online: false, error: 'Aucune table G1C trouvée' };
-  }
-
-  // Lecture de chaque table G1C jusqu'à trouver une ligne
-  for (const table of g1cTables) {
-    const { data: rpc, error: rpcErr } = await supabase
-      .rpc('get_group_table_generic', { table_name_param: table.table_name, row_limit: 1 });
-
-    if (rpcErr || !rpc?.length) continue;
-
-    const row = rpc[0].raw_data as Record<string, unknown>;
-    const ts  = (row.created_at ?? row.measured_at ?? null) as string | null;
-    // Colonnes courantes pour un capteur de fumée/gaz
-    const rawVal = row.smoke_level ?? row.ppm ?? row.value ?? row.gas_value ?? row.smoke_value ?? null;
+  if (!error && data) {
     return {
       label:     'Fumée',
-      value:     rawVal != null ? Number(rawVal) : null,
+      value:     data.ppm as number,
       unit:      'ppm',
       type:      'smoke',
-      timestamp: ts,
-      online:    isOnline(ts),
+      timestamp: data.measured_at as string,
+      online:    isOnline(data.measured_at as string),
       error:     null,
     };
   }
 
-  return { label: 'Fumée', value: null, unit: 'ppm', type: 'smoke', timestamp: null, online: false, error: 'Aucune donnée G1C en base' };
+  // Fallback RPC security definer (si RLS bloque l'accès direct)
+  const { data: rpc, error: rpcErr } = await supabase
+    .rpc('get_group_table_generic', { table_name_param: 'g1c_smoke', row_limit: 1 });
+
+  if (rpcErr || !rpc?.length) {
+    return { label: 'Fumée', value: null, unit: 'ppm', type: 'smoke', timestamp: null, online: false, error: rpcErr?.message ?? null };
+  }
+  const row = rpc[0].raw_data as Record<string, unknown>;
+  const ts  = (row.measured_at ?? row.created_at ?? null) as string | null;
+  const rawVal = row.ppm ?? row.smoke_level ?? row.value ?? row.gas_value ?? null;
+  return {
+    label:     'Fumée',
+    value:     rawVal != null ? Number(rawVal) : null,
+    unit:      'ppm',
+    type:      'smoke',
+    timestamp: ts,
+    online:    isOnline(ts),
+    error:     null,
+  };
 }
 
 async function readG1DAlcohol(): Promise<Omit<GroupSensorReading, 'group'>> {

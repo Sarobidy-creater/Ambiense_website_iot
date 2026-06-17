@@ -27,9 +27,9 @@ export const GROUP_CHART_CONFIGS: Record<string, GroupChartConfig> = {
     tsKeys:    ['created_at', 'measured_at'],
   },
   G1C: {
-    tableName: null,   // découverte dynamique
-    valueKeys: ['smoke_level', 'ppm', 'value', 'gas_value', 'smoke_value'],
-    tsKeys:    ['created_at', 'measured_at'],
+    tableName: 'g1c_smoke',
+    valueKeys: ['ppm', 'smoke_level', 'value', 'gas_value', 'smoke_value'],
+    tsKeys:    ['measured_at', 'created_at'],
   },
   G1D: {
     tableName: 'g1d_mq3_measurements',
