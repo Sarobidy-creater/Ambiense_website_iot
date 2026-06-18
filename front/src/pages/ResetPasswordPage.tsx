@@ -32,13 +32,20 @@ export function ResetPasswordPage() {
 
     if (tokenHash && type === 'recovery') {
       supabase.auth.verifyOtp({ token_hash: tokenHash, type: 'recovery' })
-        .then(({ error: err }) => {
+        .then(async ({ data, error: err }) => {
           if (err) {
             setError(`Lien invalide ou expiré : ${err.message}`);
-          } else {
+          } else if (data?.session) {
+            // Forcer l'enregistrement de la session récupérée
+            await supabase.auth.setSession({
+              access_token:  data.session.access_token,
+              refresh_token: data.session.refresh_token,
+            });
             setTokenReady(true);
             // Nettoie les params de l'URL sans recharger la page
             window.history.replaceState({}, '', window.location.pathname);
+          } else {
+            setError('Session de récupération non reçue. Le lien est peut-être déjà utilisé.');
           }
         });
       return;
@@ -71,7 +78,7 @@ export function ResetPasswordPage() {
     setLoading(false);
 
     if (err) {
-      setError('Impossible de mettre à jour le mot de passe. Le lien est peut-être expiré.');
+      setError(`Impossible de mettre à jour le mot de passe : ${err.message}`);
     } else {
       setSuccess(true);
       setTimeout(() => navigate('/login', { replace: true }), 3000);
