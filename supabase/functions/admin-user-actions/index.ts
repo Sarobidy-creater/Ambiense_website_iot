@@ -34,38 +34,54 @@ const json = (data: unknown, status = 200) =>
   })
 
 // Vérifie que le demandeur est authentifié ET admin
-// Utilise le client service_role pour vérifier le JWT directement —
-// plus fiable que créer un client intermédiaire avec l'anon key.
-async function verifyAdmin(req: Request, adminClient: ReturnType<typeof createClient>) {
+// Utilise l'API REST Supabase directement — plus fiable que supabase-js en Edge Function.
+async function verifyAdmin(req: Request, supabaseUrl: string, serviceKey: string) {
   const authHeader = req.headers.get('Authorization')
-  if (!authHeader) return { user: null as null, adminErr: 'Non authentifié', status: 401 }
+  if (!authHeader) return { userId: null as null, adminErr: 'Non authentifié', status: 401 }
 
   const token = authHeader.replace(/^Bearer\s+/i, '')
 
-  // getUser(token) vérifie le JWT avec la clé Supabase directement
-  const { data: { user }, error } = await adminClient.auth.getUser(token)
-  if (error || !user) {
-    console.error('[verifyAdmin] getUser error:', error?.message)
-    return { user: null as null, adminErr: `Session invalide : ${error?.message ?? 'token rejected'}`, status: 401 }
+  // Vérifie le JWT via l'API Auth Supabase
+  const userRes = await fetch(`${supabaseUrl}/auth/v1/user`, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'apikey':        serviceKey,
+    },
+  })
+
+  if (!userRes.ok) {
+    const body = await userRes.json().catch(() => ({}))
+    console.error('[verifyAdmin] auth error:', body)
+    return { userId: null as null, adminErr: `Session invalide (${userRes.status})`, status: 401 }
   }
 
-  // Vérifie le rôle via le client service_role (bypass RLS)
-  const { data: roleRow, error: roleErr } = await adminClient
-    .from('user_roles')
-    .select('role')
-    .eq('user_id', user.id)
-    .single()
+  const userJson = await userRes.json()
+  const userId   = userJson.id as string
+  if (!userId) return { userId: null as null, adminErr: 'Impossible de lire l\'ID utilisateur', status: 401 }
 
-  if (roleErr) {
-    console.error('[verifyAdmin] role check error:', roleErr.message)
-    return { user: null as null, adminErr: `Erreur vérification rôle : ${roleErr.message}`, status: 500 }
+  // Vérifie le rôle via l'API PostgREST avec la service_role (bypass RLS)
+  const roleRes = await fetch(
+    `${supabaseUrl}/rest/v1/user_roles?user_id=eq.${encodeURIComponent(userId)}&select=role&limit=1`,
+    {
+      headers: {
+        'Authorization': `Bearer ${serviceKey}`,
+        'apikey':        serviceKey,
+      },
+    }
+  )
+
+  if (!roleRes.ok) {
+    const body = await roleRes.json().catch(() => ({}))
+    console.error('[verifyAdmin] role fetch error:', body)
+    return { userId: null as null, adminErr: `Erreur vérification rôle (${roleRes.status})`, status: 500 }
   }
 
-  if (roleRow?.role !== 'admin') {
-    return { user: null as null, adminErr: 'Accès refusé — rôle admin requis', status: 403 }
+  const roles = await roleRes.json() as { role: string }[]
+  if (!roles.length || roles[0].role !== 'admin') {
+    return { userId: null as null, adminErr: 'Accès refusé — rôle admin requis', status: 403 }
   }
 
-  return { user, adminErr: null as null, status: 200 }
+  return { userId, adminErr: null as null, status: 200 }
 }
 
 Deno.serve(async (req) => {
@@ -77,7 +93,6 @@ Deno.serve(async (req) => {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!
     const serviceKey  = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     const adminClient = createClient(supabaseUrl, serviceKey)
-
     const body   = await req.json()
     const action = body?.action as string | undefined
 
@@ -193,17 +208,30 @@ Deno.serve(async (req) => {
     // ═══════════════════════════════════════════════════════
     //  Actions suivantes : requièrent le rôle admin
     // ═══════════════════════════════════════════════════════
-    const { user, adminErr, status } = await verifyAdmin(req, adminClient)
+    const { userId: adminId, adminErr, status } = await verifyAdmin(req, supabaseUrl, serviceKey)
     if (adminErr) return json({ error: adminErr }, status)
 
-    // ── ACTION : delete-user ─────────────────────────────
+    // ── ACTION : delete-user ──────────────────────────────────────
     if (action === 'delete-user') {
       const { userId } = body as { userId?: string }
       if (!userId || typeof userId !== 'string') return json({ error: 'userId manquant' }, 400)
-      if (userId === user!.id) return json({ error: 'Impossible de supprimer votre propre compte' }, 400)
+      if (userId === adminId) return json({ error: 'Impossible de supprimer votre propre compte' }, 400)
 
-      const { error: delErr } = await adminClient.auth.admin.deleteUser(userId)
-      if (delErr) return json({ error: delErr.message }, 500)
+      // Suppression via API REST directe (plus fiable que supabase-js)
+      const delRes = await fetch(`${supabaseUrl}/auth/v1/admin/users/${encodeURIComponent(userId)}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${serviceKey}`,
+          'apikey':        serviceKey,
+        },
+      })
+
+      if (!delRes.ok) {
+        const errBody = await delRes.json().catch(() => ({}))
+        const errMsg  = errBody?.message ?? errBody?.msg ?? errBody?.error ?? `Erreur HTTP ${delRes.status}`
+        console.error('[delete-user] Supabase delete error:', errBody)
+        return json({ error: errMsg }, 500)
+      }
 
       return json({ success: true })
     }
