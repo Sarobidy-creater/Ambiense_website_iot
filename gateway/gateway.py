@@ -39,8 +39,9 @@ AUTO_FAN_SPEED  = int(os.environ.get("AUTO_FAN_SPEED",   "100"))  # % vitesse (0
 
 # ── Verrou partagé pour les écritures Serial ─────────────
 # Évite les collisions entre command_loop et auto_fan_loop
-_serial_lock = threading.Lock()
-_fan_auto_on = False   # état interne auto (évite les envois répétés)
+_serial_lock    = threading.Lock()
+_last_auto_cmd  = ''     # 'on' | 'off' | '' — dernier état envoyé par l'auto
+_last_threshold = -1.0   # dernier seuil utilisé (détection changement site)
 
 # Regex pour parser la ligne Tiva :
 #   "Humidite: 45 %   Temperature: 23 *C"
@@ -77,16 +78,28 @@ def serial_write(ser: serial.Serial, data: bytes) -> None:
 
 
 def auto_fan(ser: serial.Serial, temperature: float, threshold: float) -> None:
-    """Allume/éteint le ventilateur automatiquement selon le seuil."""
-    global _fan_auto_on
-    if temperature >= threshold and not _fan_auto_on:
-        serial_write(ser, f"FAN:{AUTO_FAN_SPEED}\n".encode())
-        _fan_auto_on = True
-        print(f"[AUTO] {temperature}°C >= {threshold}°C → ventilateur {AUTO_FAN_SPEED}%")
-    elif temperature < threshold and _fan_auto_on:
-        serial_write(ser, b"FAN:0\n")
-        _fan_auto_on = False
-        print(f"[AUTO] {temperature}°C < {threshold}°C → ventilateur arrêté")
+    """Commande le ventilateur selon temp vs seuil.
+    Envoie une commande si l'état cible change OU si le seuil a été modifié sur le site.
+    Reste synchronisé après une commande manuelle (reset_auto_state)."""
+    global _last_auto_cmd, _last_threshold
+    target = 'on' if temperature >= threshold else 'off'
+    if target != _last_auto_cmd or threshold != _last_threshold:
+        if target == 'on':
+            serial_write(ser, f"FAN:{AUTO_FAN_SPEED}\n".encode())
+            print(f"[AUTO] {temperature}°C >= {threshold}°C → ventilateur {AUTO_FAN_SPEED}%")
+        else:
+            serial_write(ser, b"FAN:0\n")
+            print(f"[AUTO] {temperature}°C < {threshold}°C → ventilateur arrêté")
+        _last_auto_cmd  = target
+        _last_threshold = threshold
+
+
+def reset_auto_state() -> None:
+    """Réinitialise l'état mémorisé de l'auto.
+    À appeler après une commande manuelle pour que l'auto se resynchronise
+    dès le prochain cycle (max 5s)."""
+    global _last_auto_cmd
+    _last_auto_cmd = ''
 
 
 def fetch_threshold() -> float:
@@ -96,11 +109,11 @@ def fetch_threshold() -> float:
             sb.table("G1E_settings")
             .select("value_num")
             .eq("key", "temp_threshold")
-            .maybe_single()
+            .limit(1)
             .execute()
         )
-        if res.data and res.data.get("value_num") is not None:
-            return float(res.data["value_num"])
+        if res.data:
+            return float(res.data[0]["value_num"])
     except Exception as e:
         print(f"[GATEWAY] Erreur lecture seuil : {e}")
     return TEMP_THRESHOLD  # fallback valeur .env
@@ -205,6 +218,7 @@ def command_loop(ser: serial.Serial) -> None:
                   .update({"status": "done"}) \
                   .eq("id", cmd["id"]) \
                   .execute()
+                reset_auto_state()  # force resync auto au prochain cycle (≤ 5s)
 
         except serial.SerialException as e:
             print(f"[ERREUR commandes] Port série perdu : {e}")
