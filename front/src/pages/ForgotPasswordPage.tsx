@@ -1,10 +1,11 @@
 // =========================================================
 //  ForgotPasswordPage — demande de réinitialisation du mot de passe
-//  Supabase envoie un email avec un lien de reset.
+//  Appelle l'Edge Function admin-user-actions (action: send-reset-email)
+//  qui génère un lien Supabase et l'envoie via Resend HTTP API.
+//  Bypasse totalement le SMTP Supabase.
 // =========================================================
 import { useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
 import heroImg from '../../images/Homepage_illustration.jpg';
 import styles from './AuthPage.module.css';
 
@@ -18,25 +19,33 @@ export function ForgotPasswordPage() {
     e.preventDefault();
     setError(null);
     setLoading(true);
-    const siteUrl = import.meta.env.VITE_SITE_URL ?? window.location.origin;
-    const { error: err } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${siteUrl}/reset-password`,
-    });
-    setLoading(false);
-    if (err) {
-      console.error('[ForgotPassword] Supabase error:', err);
-      const raw = err.message ?? 'erreur inconnue';
-      const lower = raw.toLowerCase();
-      const msg = lower.includes('rate limit') || lower.includes('over_email_send_rate_limit')
-        ? 'Trop de tentatives. Attendez quelques minutes avant de réessayer.'
-        : lower.includes('redirect')
-          ? `URL de redirection non autorisée. Ajoutez "${import.meta.env.VITE_SITE_URL ?? window.location.origin}/reset-password" dans Supabase → Auth → Redirect URLs.`
-          : lower.includes('email') || lower.includes('smtp') || lower.includes('sending')
-            ? `Erreur d'envoi d'email Supabase : ${raw}. Vérifiez la configuration SMTP dans Supabase → Auth → SMTP Settings.`
-            : `Impossible d'envoyer l'email : ${raw}`;
-      setError(msg);
-    } else {
-      setSent(true);
+    try {
+      const siteUrl = import.meta.env.VITE_SITE_URL ?? window.location.origin;
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-user-actions`,
+        {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action:     'send-reset-email',
+            email,
+            redirectTo: `${siteUrl}/reset-password`,
+          }),
+        }
+      );
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        const msg = body.error ?? `Erreur serveur (${res.status})`;
+        console.error('[ForgotPassword] Edge Function error:', msg);
+        setError(msg);
+      } else {
+        setSent(true);
+      }
+    } catch (err) {
+      console.error('[ForgotPassword] network error:', err);
+      setError('Erreur réseau. Vérifiez votre connexion et réessayez.');
+    } finally {
+      setLoading(false);
     }
   };
 

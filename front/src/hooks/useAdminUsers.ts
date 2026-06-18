@@ -78,43 +78,63 @@ export function useAdminUsers(): Result {
     return null;
   }, [load]);
 
-  // Reset mot de passe : envoie un email de reinitialisation a l'utilisateur
-  // Fonctionne avec la cle publishable (pas besoin de service_role)
+  // Reset mot de passe : génère un lien via Edge Function + Resend HTTP API (bypasse le SMTP Supabase)
   const resetPwd = useCallback(async (userEmail: string): Promise<string | null> => {
-    setSaving(true);
-    const siteUrl = import.meta.env.VITE_SITE_URL ?? window.location.origin;
-    const { error: err } = await supabase.auth.resetPasswordForEmail(userEmail, {
-      redirectTo: `${siteUrl}/reset-password`,
-    });
-    setSaving(false);
-    return err?.message ?? null;
-  }, []);
-
-  // Suppression via Edge Function 'admin-delete-user'
-  // Voir supabase/functions/admin-delete-user/index.ts dans le repo
-  const deleteUser = useCallback(async (userId: string): Promise<string | null> => {
     setSaving(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
+      const siteUrl = import.meta.env.VITE_SITE_URL ?? window.location.origin;
       const res = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-delete-user`,
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-user-actions`,
         {
           method:  'POST',
           headers: {
             'Content-Type':  'application/json',
             'Authorization': `Bearer ${session?.access_token ?? ''}`,
           },
-          body: JSON.stringify({ userId }),
+          body: JSON.stringify({
+            action:     'send-reset-email',
+            email:      userEmail,
+            redirectTo: `${siteUrl}/reset-password`,
+          }),
         }
       );
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        return body.error ?? `Erreur HTTP ${res.status} — la fonction Edge n'est peut-etre pas deployee.`;
+        return body.error ?? `Erreur HTTP ${res.status}`;
+      }
+      return null;
+    } catch (e) {
+      return e instanceof Error ? e.message : 'Erreur réseau';
+    } finally {
+      setSaving(false);
+    }
+  }, []);
+
+  // Suppression via Edge Function 'admin-user-actions'
+  const deleteUser = useCallback(async (userId: string): Promise<string | null> => {
+    setSaving(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-user-actions`,
+        {
+          method:  'POST',
+          headers: {
+            'Content-Type':  'application/json',
+            'Authorization': `Bearer ${session?.access_token ?? ''}`,
+          },
+          body: JSON.stringify({ action: 'delete-user', userId }),
+        }
+      );
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        return body.error ?? `Erreur HTTP ${res.status}`;
       }
       await load();
       return null;
     } catch (e) {
-      return e instanceof Error ? e.message : 'Erreur reseau';
+      return e instanceof Error ? e.message : 'Erreur réseau';
     } finally {
       setSaving(false);
     }
