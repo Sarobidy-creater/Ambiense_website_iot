@@ -95,7 +95,17 @@ Deno.serve(async (req) => {
         return json({ success: true })
       }
 
-      const resetLink  = linkData.properties.action_link
+      // Supabase peut ignorer le redirectTo et mettre le Site URL du projet
+      // (http://localhost:3000) dans l'action_link — on le remplace de force.
+      let resetLink = linkData.properties.action_link
+      try {
+        const actionUrl = new URL(resetLink)
+        actionUrl.searchParams.set('redirect_to', finalRedirect)
+        resetLink = actionUrl.toString()
+        console.log('[send-reset-email] action_link redirect_to forced to:', finalRedirect)
+      } catch {
+        console.warn('[send-reset-email] could not parse action_link URL, using as-is')
+      }
       const resendKey  = Deno.env.get('RESEND_API_KEY')
 
       if (!resendKey) {
