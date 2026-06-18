@@ -210,15 +210,19 @@ def command_loop(ser: serial.Serial) -> None:
                 elif action == "on":
                     serial_write(ser, b"FAN:100\n")
                     print("[VENTILATEUR] on")
+                    # Ne pas reset l'état auto : le manuel ON doit persister
+                    # même si temp < seuil. L'auto reprendra le contrôle dès
+                    # que la température croisera le seuil.
                 elif action == "off":
                     serial_write(ser, b"FAN:0\n")
                     print("[VENTILATEUR] off")
+                    reset_auto_state()  # force re-check : si temp >= seuil,
+                                        # l'auto rallumera dans <= 5s (sécurité)
 
                 sb.table("G1E_commands") \
                   .update({"status": "done"}) \
                   .eq("id", cmd["id"]) \
                   .execute()
-                reset_auto_state()  # force resync auto au prochain cycle (≤ 5s)
 
         except serial.SerialException as e:
             print(f"[ERREUR commandes] Port série perdu : {e}")
