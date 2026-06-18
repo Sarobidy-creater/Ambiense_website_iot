@@ -217,6 +217,25 @@ Deno.serve(async (req) => {
       if (!userId || typeof userId !== 'string') return json({ error: 'userId manquant' }, 400)
       if (userId === adminId) return json({ error: 'Impossible de supprimer votre propre compte' }, 400)
 
+      // Avant suppression : nullifier created_by dans les tables qui référencent
+      // auth.users sans ON DELETE CASCADE (sinon FK violation).
+      const nullifyTables = ['G1E_commands', 'commands']
+      for (const table of nullifyTables) {
+        await fetch(
+          `${supabaseUrl}/rest/v1/${encodeURIComponent(table)}?created_by=eq.${encodeURIComponent(userId)}`,
+          {
+            method: 'PATCH',
+            headers: {
+              'Authorization': `Bearer ${serviceKey}`,
+              'apikey':        serviceKey,
+              'Content-Type':  'application/json',
+              'Prefer':        'return=minimal',
+            },
+            body: JSON.stringify({ created_by: null }),
+          }
+        )
+      }
+
       // Suppression via API REST directe (plus fiable que supabase-js)
       const delRes = await fetch(`${supabaseUrl}/auth/v1/admin/users/${encodeURIComponent(userId)}`, {
         method: 'DELETE',
