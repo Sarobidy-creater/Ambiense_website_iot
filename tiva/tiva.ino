@@ -1,25 +1,31 @@
 // =========================================================
 //  Tiva TM4C123 — AMBIENSE G1E
 //  - Lecture DHT11 manuel sur PA_7 → envoie temp + humidite sur Serial
-//  - Ecoute les commandes FAN:N / MOTOR:N de la gateway sur Serial
-//      FAN:100  ou MOTOR:100 → ventilation ON  (PA_2 = HIGH)
-//      FAN:0    ou MOTOR:0   → ventilation OFF (PA_2 = LOW)
+//  - Ecoute les commandes FAN:N de la gateway sur Serial
+//      FAN:100  → ventilateur pleine vitesse (PWM 255)
+//      FAN:50   → ventilateur demi-vitesse   (PWM ~127)
+//      FAN:0    → ventilateur arret          (PWM 0)
 // =========================================================
 
-#define DHTPIN PA_7
+#define DHTPIN   PA_7
 #define VENT_PIN PA_2
 
 String inputBuffer = "";
 
-void setVentilation(bool enabled) {
-  digitalWrite(VENT_PIN, enabled ? HIGH : LOW);
-  Serial.println(enabled ? "VENTILATION:ON" : "VENTILATION:OFF");
+// speed : 0-100 (pourcentage recu de la gateway), mappe en PWM 0-255
+void setFanSpeed(int speed) {
+  speed = constrain(speed, 0, 100);
+  int pwm = map(speed, 0, 100, 0, 255);
+  analogWrite(VENT_PIN, pwm);
+  Serial.print("VENTILATION:");
+  Serial.print(speed);
+  Serial.println("%");
 }
 
 void setup() {
   Serial.begin(9600);
   pinMode(VENT_PIN, OUTPUT);
-  setVentilation(false); // ventilation eteinte au demarrage
+  setFanSpeed(0); // ventilateur arrete au demarrage
   delay(1000);
   Serial.println("--- Demarrage du programme ---");
 }
@@ -30,14 +36,10 @@ void loop() {
     char c = (char)Serial.read();
     if (c == '\n') {
       inputBuffer.trim();
-      if (inputBuffer.startsWith("FAN:") || inputBuffer.startsWith("MOTOR:")) {
+      if (inputBuffer.startsWith("FAN:")) {
         int separatorIndex = inputBuffer.indexOf(':');
         int value = inputBuffer.substring(separatorIndex + 1).toInt();
-        if (value > 0) {
-          setVentilation(true);
-        } else {
-          setVentilation(false);
-        }
+        setFanSpeed(value);
       }
       inputBuffer = "";
     } else {

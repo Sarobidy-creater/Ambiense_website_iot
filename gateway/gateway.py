@@ -34,7 +34,8 @@ HUM_ID  = "G1E_humidity"
 FAN_ID  = "G1E_ventilateur"
 
 # ── Seuil de déclenchement automatique du ventilateur ────
-TEMP_THRESHOLD = float(os.environ.get("TEMP_THRESHOLD", "28"))
+TEMP_THRESHOLD  = float(os.environ.get("TEMP_THRESHOLD",  "28"))
+AUTO_FAN_SPEED  = int(os.environ.get("AUTO_FAN_SPEED",   "100"))  # % vitesse (0-100)
 
 # ── Verrou partagé pour les écritures Serial ─────────────
 # Évite les collisions entre command_loop et auto_fan_loop
@@ -68,20 +69,24 @@ def insert_measurement(device_id: str, type_: str, value: float, unit: str) -> N
 def serial_write(ser: serial.Serial, data: bytes) -> None:
     """Écriture thread-safe sur le port série."""
     with _serial_lock:
-        ser.write(data)
+        try:
+            ser.write(data)
+        except (serial.SerialException, PermissionError, OSError) as e:
+            print(f"[ERREUR SERIE] Écriture impossible : {e}")
+            raise serial.SerialException(str(e)) from e
 
 
 def auto_fan(ser: serial.Serial, temperature: float) -> None:
     """Allume/éteint le ventilateur automatiquement selon le seuil."""
     global _fan_auto_on
     if temperature >= TEMP_THRESHOLD and not _fan_auto_on:
-        serial_write(ser, b"FAN:100\n")
+        serial_write(ser, f"FAN:{AUTO_FAN_SPEED}\n".encode())
         _fan_auto_on = True
-        print(f"[AUTO] Température {temperature}°C >= seuil {TEMP_THRESHOLD}°C → ventilateur ON")
+        print(f"[AUTO] {temperature}°C >= {TEMP_THRESHOLD}°C → ventilateur {AUTO_FAN_SPEED}%")
     elif temperature < TEMP_THRESHOLD and _fan_auto_on:
         serial_write(ser, b"FAN:0\n")
         _fan_auto_on = False
-        print(f"[AUTO] Température {temperature}°C < seuil {TEMP_THRESHOLD}°C → ventilateur OFF")
+        print(f"[AUTO] {temperature}°C < {TEMP_THRESHOLD}°C → ventilateur arrêté")
 
 
 def auto_fan_loop(ser: serial.Serial) -> None:
@@ -104,6 +109,22 @@ def auto_fan_loop(ser: serial.Serial) -> None:
         except Exception as e:
             print(f"[ERREUR auto_fan] {e}")
         time.sleep(5)
+
+
+def _reconnect(ser: serial.Serial) -> None:
+    """Tente de rouvrir le port série jusqu'à succès."""
+    print(f"[GATEWAY] Tentative de reconnexion sur {PORT}...")
+    while True:
+        try:
+            if ser.is_open:
+                ser.close()
+            time.sleep(3)
+            ser.open()
+            print(f"[GATEWAY] Reconnecté sur {PORT}.")
+            return
+        except (serial.SerialException, OSError) as e:
+            print(f"[GATEWAY] Reconnexion échouée : {e} — nouvel essai dans 3s...")
+            time.sleep(3)
 
 
 def read_loop(ser: serial.Serial) -> None:
@@ -131,7 +152,7 @@ def read_loop(ser: serial.Serial) -> None:
 
         except serial.SerialException as e:
             print(f"[ERREUR SERIE] {e}")
-            time.sleep(2)
+            _reconnect(ser)
         except Exception as e:
             print(f"[ERREUR] {e}")
             time.sleep(1)
@@ -167,6 +188,9 @@ def command_loop(ser: serial.Serial) -> None:
                   .eq("id", cmd["id"]) \
                   .execute()
 
+        except serial.SerialException as e:
+            print(f"[ERREUR commandes] Port série perdu : {e}")
+            _reconnect(ser)
         except Exception as e:
             print(f"[ERREUR commandes] {e}")
 
