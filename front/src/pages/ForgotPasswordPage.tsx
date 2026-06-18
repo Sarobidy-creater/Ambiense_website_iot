@@ -25,13 +25,15 @@ export function ForgotPasswordPage() {
     setLoading(false);
     if (err) {
       console.error('[ForgotPassword] Supabase error:', err);
-      const msg = err.message?.toLowerCase().includes('rate limit')
+      const raw = err.message ?? 'erreur inconnue';
+      const lower = raw.toLowerCase();
+      const msg = lower.includes('rate limit') || lower.includes('over_email_send_rate_limit')
         ? 'Trop de tentatives. Attendez quelques minutes avant de réessayer.'
-        : err.message?.toLowerCase().includes('redirect')
-          ? 'Configuration du lien invalide. Contactez un administrateur.'
-          : err.message?.toLowerCase().includes('email')
-            ? 'Adresse e-mail invalide ou service indisponible. Réessayez.'
-            : `Impossible d'envoyer l'email (${err.message ?? 'erreur inconnue'}).`;
+        : lower.includes('redirect')
+          ? `URL de redirection non autorisée. Ajoutez "${import.meta.env.VITE_SITE_URL ?? window.location.origin}/reset-password" dans Supabase → Auth → Redirect URLs.`
+          : lower.includes('email') || lower.includes('smtp') || lower.includes('sending')
+            ? `Erreur d'envoi d'email Supabase : ${raw}. Vérifiez la configuration SMTP dans Supabase → Auth → SMTP Settings.`
+            : `Impossible d'envoyer l'email : ${raw}`;
       setError(msg);
     } else {
       setSent(true);

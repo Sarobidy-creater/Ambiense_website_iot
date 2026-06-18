@@ -19,15 +19,15 @@ function fmtDate(iso: string | null) {
 function ResetModal({ user, onClose, onSend }: {
   user: AdminUser;
   onClose: () => void;
-  onSend:  () => Promise<void>;
+  onSend:  () => Promise<boolean>; // returns true if error
 }) {
   const [loading, setLoading] = useState(false);
 
   const handleSend = async () => {
     setLoading(true);
-    await onSend();
+    const hadError = await onSend();
     setLoading(false);
-    onClose();
+    if (!hadError) onClose();
   };
 
   return (
@@ -249,8 +249,9 @@ export function AdminUsersPage() {
           onClose={() => setResetTarget(null)}
           onSend={async () => {
             const err = await resetPwd(resetTarget.email);
-            if (err) flash(err, false);
-            else flash(`Email de reset envoyé à ${resetTarget.email}.`, true);
+            if (err) { flash(err, false); return true; }
+            flash(`Email de reset envoyé à ${resetTarget.email}.`, true);
+            return false;
           }}
         />
       )}
