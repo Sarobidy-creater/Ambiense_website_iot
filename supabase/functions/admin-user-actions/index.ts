@@ -104,8 +104,11 @@ Deno.serve(async (req) => {
       const { email, redirectTo } = body as { email?: string; redirectTo?: string }
       if (!email) return json({ error: 'email manquant' }, 400)
 
-      const siteUrl    = Deno.env.get('SITE_URL') ?? 'https://ambiense-website-iot.vercel.app'
-      const finalRedirect = redirectTo ?? `${siteUrl}/reset-password`
+      // L'URL de redirection vient TOUJOURS du secret SITE_URL côté serveur.
+      // On n'utilise PAS le redirectTo du client (évite les mauvaises URLs si le user
+      // est sur un autre domaine Vercel, preview, localhost, etc.)
+      const siteUrl       = Deno.env.get('SITE_URL') ?? 'https://ambiense-website-iot.vercel.app'
+      const finalRedirect = `${siteUrl}/reset-password`
 
       // Génère le lien de récupération (sans envoi d'email côté Supabase)
       const { data: linkData, error: linkErr } = await adminClient.auth.admin.generateLink({
