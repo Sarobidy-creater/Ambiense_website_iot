@@ -265,6 +265,23 @@
   color: var(--clr-text-faint);
 }
 
+.saveBtn {
+  margin-top: var(--sp-3);
+  padding: var(--sp-2) var(--sp-5);
+  border: 1px solid var(--clr-border);
+  background: var(--clr-surface-2);
+  color: var(--clr-text-muted);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 180ms;
+}
+.saveBtn:hover:not(:disabled) { border-color: var(--clr-or); color: var(--clr-or); }
+.saveBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+
 /* ── Responsive ─────────────────────────────────────────── */
 
 @media (max-width: 900px) {

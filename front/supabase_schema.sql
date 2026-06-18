@@ -216,3 +216,32 @@ on conflict (id) do nothing;
 --   on conflict (user_id) do update set role = 'admin';
 --
 -- L'acces /admin est ensuite protege par verification du role en BDD.
+
+
+-- ─── SETTINGS G1E ─────────────────────────────────────────
+-- Stocke les paramètres persistants (ex: seuil de déclenchement ventilateur).
+-- Modifiable depuis le dashboard ; lu dynamiquement par la gateway.
+
+create table if not exists "G1E_settings" (
+  key         text primary key,
+  value_num   double precision not null,
+  updated_at  timestamptz default now()
+);
+
+alter table "G1E_settings" enable row level security;
+
+drop policy if exists "G1E_settings_select" on "G1E_settings";
+drop policy if exists "G1E_settings_write"  on "G1E_settings";
+
+-- Lecture pour tous les utilisateurs authentifiés
+create policy "G1E_settings_select" on "G1E_settings"
+  for select to authenticated using (true);
+
+-- Écriture (insert + update) pour les utilisateurs authentifiés
+create policy "G1E_settings_write" on "G1E_settings"
+  for all to authenticated using (true) with check (true);
+
+-- Valeur par défaut du seuil thermique (°C)
+insert into "G1E_settings" (key, value_num)
+  values ('temp_threshold', 28)
+  on conflict (key) do nothing;

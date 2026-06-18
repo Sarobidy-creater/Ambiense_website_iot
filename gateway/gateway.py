@@ -76,17 +76,34 @@ def serial_write(ser: serial.Serial, data: bytes) -> None:
             raise serial.SerialException(str(e)) from e
 
 
-def auto_fan(ser: serial.Serial, temperature: float) -> None:
+def auto_fan(ser: serial.Serial, temperature: float, threshold: float) -> None:
     """Allume/éteint le ventilateur automatiquement selon le seuil."""
     global _fan_auto_on
-    if temperature >= TEMP_THRESHOLD and not _fan_auto_on:
+    if temperature >= threshold and not _fan_auto_on:
         serial_write(ser, f"FAN:{AUTO_FAN_SPEED}\n".encode())
         _fan_auto_on = True
-        print(f"[AUTO] {temperature}°C >= {TEMP_THRESHOLD}°C → ventilateur {AUTO_FAN_SPEED}%")
-    elif temperature < TEMP_THRESHOLD and _fan_auto_on:
+        print(f"[AUTO] {temperature}°C >= {threshold}°C → ventilateur {AUTO_FAN_SPEED}%")
+    elif temperature < threshold and _fan_auto_on:
         serial_write(ser, b"FAN:0\n")
         _fan_auto_on = False
-        print(f"[AUTO] {temperature}°C < {TEMP_THRESHOLD}°C → ventilateur arrêté")
+        print(f"[AUTO] {temperature}°C < {threshold}°C → ventilateur arrêté")
+
+
+def fetch_threshold() -> float:
+    """Lit le seuil thermique depuis G1E_settings ; fallback .env si indisponible."""
+    try:
+        res = (
+            sb.table("G1E_settings")
+            .select("value_num")
+            .eq("key", "temp_threshold")
+            .maybe_single()
+            .execute()
+        )
+        if res.data and res.data.get("value_num") is not None:
+            return float(res.data["value_num"])
+    except Exception as e:
+        print(f"[GATEWAY] Erreur lecture seuil : {e}")
+    return TEMP_THRESHOLD  # fallback valeur .env
 
 
 def auto_fan_loop(ser: serial.Serial) -> None:
@@ -104,8 +121,9 @@ def auto_fan_loop(ser: serial.Serial) -> None:
                 .execute()
             )
             if res.data:
-                temp = float(res.data[0]["value"])
-                auto_fan(ser, temp)
+                temp      = float(res.data[0]["value"])
+                threshold = fetch_threshold()
+                auto_fan(ser, temp, threshold)
         except Exception as e:
             print(f"[ERREUR auto_fan] {e}")
         time.sleep(5)

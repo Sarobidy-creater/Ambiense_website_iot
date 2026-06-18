@@ -5,6 +5,7 @@
 import { useState, useMemo } from 'react';
 import { useMeasurements }  from '../hooks/useMeasurements';
 import { useWeather }       from '../hooks/useWeather';
+import { useThreshold }     from '../hooks/useThreshold';
 import { FanControl }       from '../components/FanControl';
 import { TemperatureChart } from '../components/TemperatureChart';
 import { SensorIcon }       from '../components/svg/SensorIcon';
@@ -76,7 +77,12 @@ function StatTile({ label, value, sub, accent, live }: StatTileProps) {
 
 export function DashboardPage() {
   const [alertEnabled,   setAlertEnabled]   = useState(true);
-  const [alertThreshold, setAlertThreshold] = useState(28);
+  const {
+    threshold:    alertThreshold,
+    setThreshold: setAlertThreshold,
+    save:         saveThreshold,
+    saving:       savingThreshold,
+  } = useThreshold();
 
   const { measurements, loading: measLoading, error: measError, refresh } = useMeasurements({
     deviceId: OUR_DEVICES.temperature,
@@ -199,6 +205,14 @@ export function DashboardPage() {
             <div className={styles.thresholdRange}>
               <span>20 °C</span><span>40 °C</span>
             </div>
+            <button
+              className={styles.saveBtn}
+              onClick={() => saveThreshold(alertThreshold)}
+              disabled={savingThreshold || !alertEnabled}
+              aria-label={`Sauvegarder le seuil à ${alertThreshold} °C`}
+            >
+              {savingThreshold ? 'Sauvegarde…' : 'Sauvegarder'}
+            </button>
           </div>
         </div>
       </section>
