@@ -2,20 +2,17 @@
 //  FanControl — contrôle du ventilateur G1E
 //  Actions : on / off / set_speed (0-100%)
 // =========================================================
-import { useState } from 'react';
 import { useCommand } from '../hooks/useCommand';
 import { OUR_DEVICES } from '../lib/supabase';
 import styles from './FanControl.module.css';
 
 export function FanControl() {
   const { lastCommand, sending, error, sendCommand } = useCommand();
-  const [speed, setSpeed] = useState(50);
 
-  const send = (action: 'on' | 'off' | 'set_speed') => {
+  const send = (action: 'on' | 'off') => {
     sendCommand({
       deviceId: OUR_DEVICES.ventilateur,
       action,
-      payload: action === 'set_speed' ? { speed } : undefined,
     });
   };
 
@@ -52,35 +49,6 @@ export function FanControl() {
         </button>
       </div>
 
-      {/* Slider de vitesse */}
-      <div className={styles.sliderGroup}>
-        <label htmlFor="fan-speed" className={styles.sliderLabel}>
-          Vitesse : <strong>{speed} %</strong>
-        </label>
-        <input
-          id="fan-speed"
-          type="range"
-          min={0}
-          max={100}
-          step={5}
-          value={speed}
-          onChange={(e) => setSpeed(Number(e.target.value))}
-          className={styles.slider}
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuenow={speed}
-          aria-label="Vitesse du ventilateur"
-        />
-        <button
-          className={`${styles.btn} ${styles.btnSpeed}`}
-          onClick={() => send('set_speed')}
-          disabled={sending}
-          aria-label={`Appliquer la vitesse ${speed}%`}
-        >
-          {sending ? 'Envoi…' : 'Appliquer'}
-        </button>
-      </div>
-
       {/* Statut de la dernière commande */}
       {lastCommand && (
         <div
@@ -99,7 +67,6 @@ export function FanControl() {
           </span>
           <span className={styles.statusDetail}>
             {lastCommand.action}
-            {lastCommand.payload?.speed !== undefined && ` — ${lastCommand.payload.speed}%`}
           </span>
         </div>
       )}
