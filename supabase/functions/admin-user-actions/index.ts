@@ -34,22 +34,32 @@ const json = (data: unknown, status = 200) =>
   })
 
 // Vérifie que le demandeur est authentifié ET admin
-async function verifyAdmin(req: Request, supabaseUrl: string, anonKey: string) {
+// Utilise le client service_role pour vérifier le JWT directement —
+// plus fiable que créer un client intermédiaire avec l'anon key.
+async function verifyAdmin(req: Request, adminClient: ReturnType<typeof createClient>) {
   const authHeader = req.headers.get('Authorization')
   if (!authHeader) return { user: null as null, adminErr: 'Non authentifié', status: 401 }
 
-  const userClient = createClient(supabaseUrl, anonKey, {
-    global: { headers: { Authorization: authHeader } },
-  })
+  const token = authHeader.replace(/^Bearer\s+/i, '')
 
-  const { data: { user }, error } = await userClient.auth.getUser()
-  if (error || !user) return { user: null as null, adminErr: 'Session invalide', status: 401 }
+  // getUser(token) vérifie le JWT avec la clé Supabase directement
+  const { data: { user }, error } = await adminClient.auth.getUser(token)
+  if (error || !user) {
+    console.error('[verifyAdmin] getUser error:', error?.message)
+    return { user: null as null, adminErr: `Session invalide : ${error?.message ?? 'token rejected'}`, status: 401 }
+  }
 
-  const { data: roleRow } = await userClient
+  // Vérifie le rôle via le client service_role (bypass RLS)
+  const { data: roleRow, error: roleErr } = await adminClient
     .from('user_roles')
     .select('role')
     .eq('user_id', user.id)
     .single()
+
+  if (roleErr) {
+    console.error('[verifyAdmin] role check error:', roleErr.message)
+    return { user: null as null, adminErr: `Erreur vérification rôle : ${roleErr.message}`, status: 500 }
+  }
 
   if (roleRow?.role !== 'admin') {
     return { user: null as null, adminErr: 'Accès refusé — rôle admin requis', status: 403 }
@@ -188,9 +198,7 @@ Deno.serve(async (req) => {
     // ═══════════════════════════════════════════════════════
     //  Actions suivantes : requièrent le rôle admin
     // ═══════════════════════════════════════════════════════
-    const { user, adminErr, status } = await verifyAdmin(
-      req, supabaseUrl, Deno.env.get('SUPABASE_ANON_KEY')!
-    )
+    const { user, adminErr, status } = await verifyAdmin(req, adminClient)
     if (adminErr) return json({ error: adminErr }, status)
 
     // ── ACTION : delete-user ─────────────────────────────
