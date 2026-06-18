@@ -4,6 +4,7 @@
 // =========================================================
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { EyeIcon, EyeOffIcon } from '../components/PasswordToggleIcons';
 import { useAuth } from '../auth/AuthContext';
 import heroImg from '../../images/Homepage_illustration.jpg';
 import styles from './AuthPage.module.css';
@@ -15,6 +16,8 @@ export function SignupPage() {
   const [email,    setEmail]    = useState('');
   const [password, setPassword] = useState('');
   const [confirm,  setConfirm]  = useState('');
+  const [showPwd,  setShowPwd]  = useState(false);
+  const [showConf, setShowConf] = useState(false);
   const [error,    setError]    = useState<string | null>(null);
   const [emailTaken, setEmailTaken] = useState(false);
   const [success,  setSuccess]  = useState(false);
@@ -120,32 +123,52 @@ export function SignupPage() {
 
             <div className={styles.field}>
               <label htmlFor="password" className={styles.label}>Mot de passe</label>
-              <input
-                id="password"
-                type="password"
-                className={styles.input}
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                required
-                autoComplete="new-password"
-                placeholder="8 caractères minimum"
-                aria-required="true"
-              />
+              <div className={styles.passwordWrap}>
+                <input
+                  id="password"
+                  type={showPwd ? 'text' : 'password'}
+                  className={styles.input}
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  required
+                  autoComplete="new-password"
+                  placeholder="8 caractères minimum"
+                  aria-required="true"
+                />
+                <button
+                  type="button"
+                  className={styles.eyeBtn}
+                  onClick={() => setShowPwd(v => !v)}
+                  aria-label={showPwd ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
+                >
+                  {showPwd ? <EyeOffIcon /> : <EyeIcon />}
+                </button>
+              </div>
             </div>
 
             <div className={styles.field}>
               <label htmlFor="confirm" className={styles.label}>Confirmer</label>
-              <input
-                id="confirm"
-                type="password"
-                className={styles.input}
-                value={confirm}
-                onChange={e => setConfirm(e.target.value)}
-                required
-                autoComplete="new-password"
-                placeholder="Répétez le mot de passe"
-                aria-required="true"
-              />
+              <div className={styles.passwordWrap}>
+                <input
+                  id="confirm"
+                  type={showConf ? 'text' : 'password'}
+                  className={styles.input}
+                  value={confirm}
+                  onChange={e => setConfirm(e.target.value)}
+                  required
+                  autoComplete="new-password"
+                  placeholder="Répétez le mot de passe"
+                  aria-required="true"
+                />
+                <button
+                  type="button"
+                  className={styles.eyeBtn}
+                  onClick={() => setShowConf(v => !v)}
+                  aria-label={showConf ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
+                >
+                  {showConf ? <EyeOffIcon /> : <EyeIcon />}
+                </button>
+              </div>
             </div>
 
             {emailTaken && (

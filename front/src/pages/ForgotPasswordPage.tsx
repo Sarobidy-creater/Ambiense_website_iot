@@ -27,7 +27,11 @@ export function ForgotPasswordPage() {
       console.error('[ForgotPassword] Supabase error:', err);
       const msg = err.message?.toLowerCase().includes('rate limit')
         ? 'Trop de tentatives. Attendez quelques minutes avant de réessayer.'
-        : 'Impossible d\'envoyer l\'email. Vérifiez l\'adresse saisie.';
+        : err.message?.toLowerCase().includes('redirect')
+          ? 'Configuration du lien invalide. Contactez un administrateur.'
+          : err.message?.toLowerCase().includes('email')
+            ? 'Adresse e-mail invalide ou service indisponible. Réessayez.'
+            : `Impossible d'envoyer l'email (${err.message ?? 'erreur inconnue'}).`;
       setError(msg);
     } else {
       setSent(true);

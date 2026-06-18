@@ -4,6 +4,7 @@
 // =========================================================
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { EyeIcon, EyeOffIcon } from '../components/PasswordToggleIcons';
 import { useAuth } from '../auth/AuthContext';
 import heroImg from '../../images/Homepage_illustration.jpg';
 import styles from './AuthPage.module.css';
@@ -16,6 +17,7 @@ export function LoginPage() {
 
   const [email,    setEmail]    = useState('');
   const [password, setPassword] = useState('');
+  const [showPwd,  setShowPwd]  = useState(false);
   const [error,    setError]    = useState<string | null>(null);
   const [loading,  setLoading]  = useState(false);
 
@@ -87,17 +89,27 @@ export function LoginPage() {
 
             <div className={styles.field}>
               <label htmlFor="password" className={styles.label}>Mot de passe</label>
-              <input
-                id="password"
-                type="password"
-                className={styles.input}
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                required
-                autoComplete="current-password"
-                placeholder="Mot de passe"
-                aria-required="true"
-              />
+              <div className={styles.passwordWrap}>
+                <input
+                  id="password"
+                  type={showPwd ? 'text' : 'password'}
+                  className={styles.input}
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  required
+                  autoComplete="current-password"
+                  placeholder="Mot de passe"
+                  aria-required="true"
+                />
+                <button
+                  type="button"
+                  className={styles.eyeBtn}
+                  onClick={() => setShowPwd(v => !v)}
+                  aria-label={showPwd ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
+                >
+                  {showPwd ? <EyeOffIcon /> : <EyeIcon />}
+                </button>
+              </div>
             </div>
 
             {error && (

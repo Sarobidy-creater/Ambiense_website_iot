@@ -8,11 +8,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import heroImg from '../../images/Homepage_illustration.jpg';
 import styles from './AuthPage.module.css';
+import { EyeIcon, EyeOffIcon } from '../components/PasswordToggleIcons';
 
 export function ResetPasswordPage() {
   const navigate = useNavigate();
   const [password,  setPassword]  = useState('');
   const [confirm,   setConfirm]   = useState('');
+  const [showPwd,   setShowPwd]   = useState(false);
+  const [showConf,  setShowConf]  = useState(false);
   const [loading,   setLoading]   = useState(false);
   const [error,     setError]     = useState<string | null>(null);
   const [success,   setSuccess]   = useState(false);
@@ -98,30 +101,50 @@ export function ResetPasswordPage() {
             <form onSubmit={handleSubmit} className={styles.form} noValidate>
               <div className={styles.field}>
                 <label htmlFor="new-password" className={styles.label}>Nouveau mot de passe</label>
-                <input
-                  id="new-password"
-                  type="password"
-                  className={styles.input}
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  autoComplete="new-password"
-                  minLength={8}
-                  required
-                />
+                <div className={styles.passwordWrap}>
+                  <input
+                    id="new-password"
+                    type={showPwd ? 'text' : 'password'}
+                    className={styles.input}
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    autoComplete="new-password"
+                    minLength={8}
+                    required
+                  />
+                  <button
+                    type="button"
+                    className={styles.eyeBtn}
+                    onClick={() => setShowPwd(v => !v)}
+                    aria-label={showPwd ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
+                  >
+                    {showPwd ? <EyeOffIcon /> : <EyeIcon />}
+                  </button>
+                </div>
               </div>
 
               <div className={styles.field}>
                 <label htmlFor="confirm-password" className={styles.label}>Confirmer le mot de passe</label>
-                <input
-                  id="confirm-password"
-                  type="password"
-                  className={styles.input}
-                  value={confirm}
-                  onChange={e => setConfirm(e.target.value)}
-                  autoComplete="new-password"
-                  minLength={8}
-                  required
-                />
+                <div className={styles.passwordWrap}>
+                  <input
+                    id="confirm-password"
+                    type={showConf ? 'text' : 'password'}
+                    className={styles.input}
+                    value={confirm}
+                    onChange={e => setConfirm(e.target.value)}
+                    autoComplete="new-password"
+                    minLength={8}
+                    required
+                  />
+                  <button
+                    type="button"
+                    className={styles.eyeBtn}
+                    onClick={() => setShowConf(v => !v)}
+                    aria-label={showConf ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
+                  >
+                    {showConf ? <EyeOffIcon /> : <EyeIcon />}
+                  </button>
+                </div>
               </div>
 
               {error && (
@@ -130,7 +153,7 @@ export function ResetPasswordPage() {
 
               <button
                 type="submit"
-                className={styles.submit}
+                className={styles.submitBtn}
                 disabled={loading}
               >
                 {loading ? 'Mise à jour…' : 'Mettre à jour le mot de passe'}
@@ -138,7 +161,7 @@ export function ResetPasswordPage() {
             </form>
           )}
 
-          <p className={styles.altLink}>
+          <p className={styles.switchLink}>
             <Link to="/login">Retour à la connexion</Link>
           </p>
         </div>

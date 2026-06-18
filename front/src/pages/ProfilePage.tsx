@@ -6,6 +6,7 @@ import { useState, type FormEvent } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import heroImg from '../../images/Homepage_illustration.jpg';
 import styles from './ProfilePage.module.css';
+import { EyeIcon, EyeOffIcon } from '../components/PasswordToggleIcons';
 
 // ── Section : informations compte ────────────────────────
 
@@ -32,6 +33,9 @@ function PasswordSection() {
   const [current,  setCurrent]  = useState('');
   const [next,     setNext]     = useState('');
   const [confirm,  setConfirm]  = useState('');
+  const [showCur,  setShowCur]  = useState(false);
+  const [showNext, setShowNext] = useState(false);
+  const [showConf, setShowConf] = useState(false);
   const [loading,  setLoading]  = useState(false);
   const [error,    setError]    = useState<string | null>(null);
   const [success,  setSuccess]  = useState(false);
@@ -72,16 +76,26 @@ function PasswordSection() {
           <label htmlFor="current-pwd" className={styles.label}>
             Mot de passe actuel
           </label>
-          <input
-            id="current-pwd"
-            type="password"
-            className={styles.input}
-            value={current}
-            onChange={e => setCurrent(e.target.value)}
-            required
-            autoComplete="current-password"
-            placeholder="Mot de passe actuel"
-          />
+          <div className={styles.passwordWrap}>
+            <input
+              id="current-pwd"
+              type={showCur ? 'text' : 'password'}
+              className={styles.input}
+              value={current}
+              onChange={e => setCurrent(e.target.value)}
+              required
+              autoComplete="current-password"
+              placeholder="Mot de passe actuel"
+            />
+            <button
+              type="button"
+              className={styles.eyeBtn}
+              onClick={() => setShowCur(v => !v)}
+              aria-label={showCur ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
+            >
+              {showCur ? <EyeOffIcon /> : <EyeIcon />}
+            </button>
+          </div>
         </div>
 
         <div className={styles.divider} />
@@ -90,32 +104,52 @@ function PasswordSection() {
           <label htmlFor="new-pwd" className={styles.label}>
             Nouveau mot de passe
           </label>
-          <input
-            id="new-pwd"
-            type="password"
-            className={styles.input}
-            value={next}
-            onChange={e => setNext(e.target.value)}
-            required
-            autoComplete="new-password"
-            placeholder="8 caractères minimum"
-          />
+          <div className={styles.passwordWrap}>
+            <input
+              id="new-pwd"
+              type={showNext ? 'text' : 'password'}
+              className={styles.input}
+              value={next}
+              onChange={e => setNext(e.target.value)}
+              required
+              autoComplete="new-password"
+              placeholder="8 caractères minimum"
+            />
+            <button
+              type="button"
+              className={styles.eyeBtn}
+              onClick={() => setShowNext(v => !v)}
+              aria-label={showNext ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
+            >
+              {showNext ? <EyeOffIcon /> : <EyeIcon />}
+            </button>
+          </div>
         </div>
 
         <div className={styles.field}>
           <label htmlFor="confirm-pwd" className={styles.label}>
             Confirmer le nouveau mot de passe
           </label>
-          <input
-            id="confirm-pwd"
-            type="password"
-            className={styles.input}
-            value={confirm}
-            onChange={e => setConfirm(e.target.value)}
-            required
-            autoComplete="new-password"
-            placeholder="Répétez le nouveau mot de passe"
-          />
+          <div className={styles.passwordWrap}>
+            <input
+              id="confirm-pwd"
+              type={showConf ? 'text' : 'password'}
+              className={styles.input}
+              value={confirm}
+              onChange={e => setConfirm(e.target.value)}
+              required
+              autoComplete="new-password"
+              placeholder="Répétez le nouveau mot de passe"
+            />
+            <button
+              type="button"
+              className={styles.eyeBtn}
+              onClick={() => setShowConf(v => !v)}
+              aria-label={showConf ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
+            >
+              {showConf ? <EyeOffIcon /> : <EyeIcon />}
+            </button>
+          </div>
         </div>
 
         {error && (
