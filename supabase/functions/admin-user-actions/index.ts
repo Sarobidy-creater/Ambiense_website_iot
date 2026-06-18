@@ -105,17 +105,12 @@ Deno.serve(async (req) => {
         return json({ success: true })
       }
 
-      // Supabase peut ignorer le redirectTo et mettre le Site URL du projet
-      // (http://localhost:3000) dans l'action_link — on le remplace de force.
-      let resetLink = linkData.properties.action_link
-      try {
-        const actionUrl = new URL(resetLink)
-        actionUrl.searchParams.set('redirect_to', finalRedirect)
-        resetLink = actionUrl.toString()
-        console.log('[send-reset-email] action_link redirect_to forced to:', finalRedirect)
-      } catch {
-        console.warn('[send-reset-email] could not parse action_link URL, using as-is')
-      }
+      // On n'utilise PAS action_link (Supabase redirige vers son Site URL).
+      // On extrait hashed_token et on construit le lien directement vers notre app.
+      // ResetPasswordPage appelle supabase.auth.verifyOtp({ token_hash }) pour établir la session.
+      const hashedToken = linkData.properties.hashed_token
+      const resetLink   = `${finalRedirect}?token_hash=${encodeURIComponent(hashedToken)}&type=recovery`
+      console.log('[send-reset-email] direct reset link built:', resetLink)
       const resendKey  = Deno.env.get('RESEND_API_KEY')
 
       if (!resendKey) {

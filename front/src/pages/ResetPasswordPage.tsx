@@ -1,7 +1,10 @@
 // =========================================================
 //  ResetPasswordPage — définir un nouveau mot de passe
-//  Supabase redirige ici après le lien envoyé par email :
-//    https://ambiense.vercel.app/reset-password#access_token=...&type=recovery
+//  Deux modes de réception du token :
+//  1) ?token_hash=xxx&type=recovery  (notre Edge Function)
+//     → appel direct à supabase.auth.verifyOtp() pour établir la session
+//  2) #access_token=...&type=recovery  (ancien flux Supabase, fallback)
+//     → détecté via onAuthStateChange PASSWORD_RECOVERY
 // =========================================================
 import { useState, useEffect, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -21,9 +24,27 @@ export function ResetPasswordPage() {
   const [success,   setSuccess]   = useState(false);
   const [tokenReady, setTokenReady] = useState(false);
 
-  // Supabase insère le token dans le hash : #access_token=...&type=recovery
-  // onAuthStateChange le détecte automatiquement et crée une session temporaire.
   useEffect(() => {
+    // Mode 1 : token_hash dans les query params (notre flux Edge Function)
+    const params     = new URLSearchParams(window.location.search);
+    const tokenHash  = params.get('token_hash');
+    const type       = params.get('type');
+
+    if (tokenHash && type === 'recovery') {
+      supabase.auth.verifyOtp({ token_hash: tokenHash, type: 'recovery' })
+        .then(({ error: err }) => {
+          if (err) {
+            setError(`Lien invalide ou expiré : ${err.message}`);
+          } else {
+            setTokenReady(true);
+            // Nettoie les params de l'URL sans recharger la page
+            window.history.replaceState({}, '', window.location.pathname);
+          }
+        });
+      return;
+    }
+
+    // Mode 2 : fallback — hash #access_token=...&type=recovery (ancien flux Supabase)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'PASSWORD_RECOVERY') {
         setTokenReady(true);
